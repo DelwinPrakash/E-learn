@@ -1,8 +1,9 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const bodyParser = require("body-parser");
-const connectDB = require("./config/db");
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import bodyParser from "body-parser";
+import connectDB from "./config/db.js";
+import authRoute from "./routes/authRoute.js";
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ app.use(cors());
 connectDB();
 
 const PORT = process.env.POSTGRES_PORT || 5000;
+
+app.post("/api/auth", authRoute);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
