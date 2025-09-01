@@ -2,15 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
+  template: '<app-login></app-login>',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-  projectName = 'AI Learning System';
-  teamCount = 4;
-  buttonDisabled = true;
-  message = '';
-  showMessage() {
-    this.message = 'Button was clicked!';
-  }
-}
+export class AppComponent {}
