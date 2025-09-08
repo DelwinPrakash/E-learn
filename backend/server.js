@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
-import connectDB from "./config/db.js";
+import { connectDB } from "./config/db.js";
 import authRoute from "./routes/authRoute.js";
 
 dotenv.config();
@@ -15,7 +15,7 @@ app.use(cors());
 
 connectDB();
 
-const PORT = process.env.POSTGRES_PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 app.post("/api/auth", authRoute);
 
