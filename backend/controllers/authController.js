@@ -1,4 +1,4 @@
-import pool from "../config/db";
+import { pool } from "../config/db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
@@ -117,7 +117,7 @@ const handleRegister = async (req, res) => {
     }
 }
 
-export default {
+export {
     handleLogin,
     handleRegister
 };
