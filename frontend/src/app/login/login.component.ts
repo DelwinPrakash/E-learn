@@ -15,7 +15,7 @@ export class LoginComponent {
   onLogin() {
     const credentials = { email: this.email, password: this.password };
 
-    this.http.post('http://localhost:3000/api/login', credentials).subscribe({
+    this.http.post('http://localhost:3000/api/auth/login', credentials).subscribe({
       next: (response: any) => {
         alert('Login successful ✅');
         console.log('Server Response:', response);
