@@ -7,7 +7,7 @@ const handleLogin = async (req, res) => {
     const { email, password } = req.body;
 
     try{
-        const existingUser = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        const existingUser = await pool.query("SELECT * FROM user_auth WHERE email = $1", [email]);
         if(existingUser.rows.length === 0){
             return res.status(401).json({"message": "User not found! sign up instead"});
         }
@@ -17,14 +17,18 @@ const handleLogin = async (req, res) => {
         const passwordMatch = bcrypt.compare(password, user.password);
         if(!passwordMatch) return res.status(400).json({"message": "Invalid credentials!"});
 
+        const newSession = await pool.query("INSERT INTO user_session (user_id) VALUES ($1) RETURNING session_id, user_id", [user.user_id]);
+        
         const token = jwt.sign({
             userID: user.user_id,
-            email: user.email
+            email: user.email,
+            session: newSession.rows[0].session_id
         },  process.env.JWT_SECRET,{
             expiresIn: "1h"
         });
 
         return res.json({
+            newSession,
             token,
             user
         });
@@ -39,16 +43,23 @@ const handleRegister = async (req, res) => {
     const { email, password } = req.body;
 
     try{
-        const duplicateUser = await pool.query("SELECT * FROM users WHERE email=$1", [email]);
+        const duplicateUser = await pool.query("SELECT * FROM user_auth WHERE email=$1", [email]);
         if(duplicateUser > 0){
             return res.status(400).json({"message": "User already exists"});
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const verificationToken = jwt.sign({email}, process.env.JWT_SECRET, {expiresIn: '1h'});
-
-        const newUser = await pool.query("INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email", [email, hashedPassword]);
+        const newUser = await pool.query("INSERT INTO user_auth (email, password_hash) VALUES ($1, $2) RETURNING user_id, email", [email, hashedPassword]);
+        
+        await pool.query("INSERT INTO user_session (user_id) VALUES ($1) RETURNING session_id, user_id", [newUser.rows[0].user_id]);
+        
+        const verificationToken = jwt.sign({
+            userID: newUser.rows[0].user_id,
+            email: newUser.rows[0].email
+        },  process.env.JWT_SECRET, {
+            expiresIn: '1h'
+        });
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',

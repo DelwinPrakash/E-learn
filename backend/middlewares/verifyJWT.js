@@ -9,11 +9,11 @@ const verifyJWT = async (req, res, next) => {
     try{
         const decode = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await pool.query("SELECT * FROM users WHERE user_id = $1", [decode.user_id]);
+        const user_session = await pool.query("SELECT * FROM user_session WHERE session_id = $1", [decode.session_id]);
 
-        if(user.rows.length === 0) return res.status(401).json({"message": "User not found, unauthorized!"});
+        if(user_session.rows.length === 0) return res.status(401).json({"message": "Session not found, unauthorized!"});
         
-        req.user = user.rows[0];
+        req.user = user_session.rows[0];
         next();
     }catch(error){
         return res.status(401).json({"message": "Token verification failed, unauthorized!"});
