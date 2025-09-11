@@ -14,7 +14,7 @@ const handleLogin = async (req, res) => {
 
         const user = existingUser.rows[0];
 
-        const passwordMatch = bcrypt.compare(password, user.password);
+        const passwordMatch = await bcrypt.compare(password, user.password_hash);
         if(!passwordMatch) return res.status(400).json({"message": "Invalid credentials!"});
 
         const newSession = await pool.query("INSERT INTO user_session (user_id) VALUES ($1) RETURNING session_id, user_id", [user.user_id]);
@@ -28,9 +28,8 @@ const handleLogin = async (req, res) => {
         });
 
         return res.json({
-            newSession,
-            token,
-            user
+            newSession: newSession.rows[0],
+            token
         });
 
     }catch(error){
