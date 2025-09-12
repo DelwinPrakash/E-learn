@@ -43,7 +43,7 @@ const handleRegister = async (req, res) => {
 
     try{
         const duplicateUser = await pool.query("SELECT * FROM user_auth WHERE email=$1", [email]);
-        if(duplicateUser > 0){
+        if(duplicateUser.rows.length > 0){
             return res.status(400).json({"message": "User already exists"});
         }
 
@@ -88,7 +88,7 @@ const handleRegister = async (req, res) => {
                         <p style="font-size: 16px; line-height: 1.5; color: #555;">
                             Thank you for signing up! To complete your registration, please verify your email address by clicking the button below.
                         </p>
-                        <a href="http://localhost:5173/verify-email?token=${verificationToken}" style="
+                        <a href="${process.env.FRONTEND_BASE_URL}/verify-email?token=${verificationToken}" style="
                             display: inline-block; 
                             padding: 10px 20px; 
                             background-color: #4CAF50; 
@@ -123,7 +123,7 @@ const handleRegister = async (req, res) => {
 
     }catch(error){
         console.error(error.message);
-        return res.status(500).json({"message": "Server side error" + error.message});
+        return res.status(500).json({"message": "Server side error, " + error.message});
     }
 }
 
