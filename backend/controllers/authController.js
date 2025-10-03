@@ -15,7 +15,7 @@ const handleLogin = async (req, res) => {
         const user = existingUser.rows[0];
 
         const passwordMatch = await bcrypt.compare(password, user.password_hash);
-        if(!passwordMatch) return res.status(400).json({"message": "Invalid credentials!"});
+        if(!passwordMatch) return res.status(401).json({"message": "Invalid credentials!"});
 
         const newSession = await pool.query("INSERT INTO user_session (user_id) VALUES ($1) RETURNING session_id, user_id", [user.user_id]);
         
@@ -39,11 +39,11 @@ const handleLogin = async (req, res) => {
 }
 
 const handleRegister = async (req, res) => {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
 
     try{
         const duplicateUser = await pool.query("SELECT * FROM user_auth WHERE email=$1", [email]);
-        if(duplicateUser > 0){
+        if(duplicateUser.rows.length > 0){
             return res.status(400).json({"message": "User already exists"});
         }
 
@@ -51,8 +51,9 @@ const handleRegister = async (req, res) => {
 
         const newUser = await pool.query("INSERT INTO user_auth (email, password_hash) VALUES ($1, $2) RETURNING user_id, email", [email, hashedPassword]);
         
-        await pool.query("INSERT INTO user_session (user_id) VALUES ($1) RETURNING session_id, user_id", [newUser.rows[0].user_id]);
-        
+        await pool.query("INSERT INTO user_session (user_id) VALUES ($1)", [newUser.rows[0].user_id]);
+        await pool.query("INSERT INTO users (user_id, name, role) VALUES ($1, $2, $3)", [newUser.rows[0].user_id, name, "student"]);
+
         const verificationToken = jwt.sign({
             userID: newUser.rows[0].user_id,
             email: newUser.rows[0].email
@@ -88,7 +89,7 @@ const handleRegister = async (req, res) => {
                         <p style="font-size: 16px; line-height: 1.5; color: #555;">
                             Thank you for signing up! To complete your registration, please verify your email address by clicking the button below.
                         </p>
-                        <a href="http://localhost:5173/verify-email?token=${verificationToken}" style="
+                        <a href="${process.env.FRONTEND_BASE_URL}/verify-email?token=${verificationToken}" style="
                             display: inline-block; 
                             padding: 10px 20px; 
                             background-color: #4CAF50; 
@@ -123,7 +124,7 @@ const handleRegister = async (req, res) => {
 
     }catch(error){
         console.error(error.message);
-        return res.status(500).json({"message": "Server side error" + error.message});
+        return res.status(500).json({"message": "Server side error, " + error.message});
     }
 }
 

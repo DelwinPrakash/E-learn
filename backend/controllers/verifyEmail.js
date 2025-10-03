@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import pool from '../db.js';
+import { pool } from '../config/db.js';
 
 const verifyEmail = async (req, res) => {
     const { token } = req.query;
@@ -29,3 +29,5 @@ const verifyEmail = async (req, res) => {
         return res.status(500).json({"message": "Server side error"});
     }
 }
+
+export default verifyEmail;
