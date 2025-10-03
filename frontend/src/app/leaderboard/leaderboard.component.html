@@ -1,0 +1,139 @@
+<div class="leaderboard-container">
+  <div class="leaderboard-header">
+    <div class="header-content">
+      <h1 class="title">🏆 Quiz Battle Leaderboard</h1>
+      <p class="subtitle">Compete with the best quiz masters around the world!</p>
+    </div>
+    
+    <div class="header-stats">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+          <div class="stat-value">{{ players.length }}</div>
+          <div class="stat-label">Total Players</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚔️</div>
+        <div class="stat-info">
+          <div class="stat-value">1.2K</div>
+          <div class="stat-label">Active Battles</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-info">
+          <div class="stat-value">15K</div>
+          <div class="stat-label">Quizzes Played</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters-section">
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="filterPlayers()"
+        placeholder="🔍 Search players..."
+        class="search-input"
+      />
+    </div>
+    
+    <div class="filter-buttons">
+      <button 
+        [class.active]="selectedFilter === 'all'" 
+        (click)="selectedFilter = 'all'; filterPlayers()"
+        class="filter-btn"
+      >
+        All Players
+      </button>
+      <button 
+        [class.active]="selectedFilter === 'top10'" 
+        (click)="selectedFilter = 'top10'; filterPlayers()"
+        class="filter-btn"
+      >
+        Top 10
+      </button>
+      <button 
+        [class.active]="selectedFilter === 'rising'" 
+        (click)="selectedFilter = 'rising'; filterPlayers()"
+        class="filter-btn"
+      >
+        Rising Stars ↑
+      </button>
+      <button 
+        [class.active]="selectedFilter === 'high-winrate'" 
+        (click)="selectedFilter = 'high-winrate'; filterPlayers()"
+        class="filter-btn"
+      >
+        90%+ Win Rate
+      </button>
+    </div>
+  </div>
+
+  <div class="leaderboard-table">
+    <div class="table-header">
+      <div class="col-rank">Rank</div>
+      <div class="col-player">Player</div>
+      <div class="col-score">Score</div>
+      <div class="col-wins">Wins</div>
+      <div class="col-battles">Battles</div>
+      <div class="col-winrate">Win Rate</div>
+      <div class="col-trend">Trend</div>
+    </div>
+
+    <div class="table-body">
+      <div 
+        *ngFor="let player of filteredPlayers" 
+        class="player-row"
+        [class.top-rank]="player.rank <= 3"
+      >
+        <div class="col-rank">
+          <div class="rank-badge" [ngClass]="getRankClass(player.rank)">
+            <span class="rank-number">{{ player.rank }}</span>
+          </div>
+        </div>
+        
+        <div class="col-player">
+          <div class="player-info">
+            <div class="player-avatar">{{ player.avatar }}</div>
+            <div class="player-name">{{ player.name }}</div>
+          </div>
+        </div>
+        
+        <div class="col-score">
+          <div class="score-badge">{{ player.score }}</div>
+        </div>
+        
+        <div class="col-wins">
+          <span class="wins-value">{{ player.wins }}</span>
+        </div>
+        
+        <div class="col-battles">
+          <span class="battles-value">{{ player.battles }}</span>
+        </div>
+        
+        <div class="col-winrate">
+          <div class="winrate-bar">
+            <div class="winrate-fill" [style.width.%]="player.winRate"></div>
+            <span class="winrate-text">{{ player.winRate }}%</span>
+          </div>
+        </div>
+        
+        <div class="col-trend">
+          <span class="trend-icon" [ngClass]="getTrendClass(player.trend)">
+            {{ getTrendIcon(player.trend) }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pagination">
+    <button class="page-btn">← Previous</button>
+    <span class="page-info">Page 1 of 1</span>
+    <button class="page-btn">Next →</button>
+  </div>
+</div>
