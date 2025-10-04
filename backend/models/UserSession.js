@@ -13,10 +13,6 @@ const UserSession = sequelize.define("UserSession", {
     allowNull: false,
     references: { model: UserAuth, key: "user_id" },
   },
-  token: {
-    type: DataTypes.STRING(512),
-    allowNull: false,
-  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
