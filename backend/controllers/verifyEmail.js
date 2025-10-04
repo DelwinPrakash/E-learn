@@ -1,26 +1,22 @@
 import jwt from 'jsonwebtoken';
-import { pool } from '../config/db.js';
+import UserAuth from '../models/UserAuth.js';
 
 const verifyEmail = async (req, res) => {
     const { token } = req.query;
 
-    if(!token){
-        return res.status(400).json({"message": "Invalid or missing token"});
-    }
+    if(!token) return res.status(400).json({"message": "Invalid or missing token"});
 
     try{
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await pool.query("SELECT * FROM user_auth WHERE user_id=$1", [decoded.userID]);
-        if(user.rows.length === 0){
-            return res.status(400).json({"message": "User not found"});
-        }
+        const user = await UserAuth.findByPk(decoded.userID);
 
-        if(user.rows[0].email_verified){
-            return res.status(400).json({"message": "Email already verified"});
-        }
+        if(!user) return res.status(400).json({"message": "User not found"});
 
-        await pool.query("UPDATE user_auth SET email_verified=true WHERE user_id=$1", [decoded.userID]);
+        if(user.email_verified) return res.status(400).json({"message": "Email already verified"});
+
+        user.email_verified = true;
+        await user.save();
 
         return res.json({"message": "Email verified successfully"});
 
