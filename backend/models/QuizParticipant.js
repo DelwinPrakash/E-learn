@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../db.js";
+import { sequelize } from "../config/db.js";
 import QuizDuo from "./QuizDuo.js";
 import User from "./User.js";
 

@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../db.js";
+import { sequelize } from "../config/db.js";
 import UserAuth from "./UserAuth.js";
 
 const UserSession = sequelize.define("UserSession", {
