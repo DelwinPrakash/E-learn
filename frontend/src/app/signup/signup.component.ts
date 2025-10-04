@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SignupService } from '../services/signup.service'; 
 
 @Component({
   selector: 'app-signup',
@@ -10,14 +11,19 @@ export class SignupComponent {
   email = '';
   password = '';
 
-  onSignup() {
-    const userData = {
-      name: this.name,
-      email: this.email,
-      password: this.password
-    };
+  constructor(private signupService: SignupService) {}
 
-    console.log('Signup Data:', userData);
-    alert('Signup form submitted ✅ (not yet connected to backend)');
+  onSignup() {
+    const userData = { name: this.name, email: this.email, password: this.password };
+
+    this.signupService.signup(userData).subscribe({
+      next: (res) => {
+        localStorage.setItem('token', res.token); 
+        alert('Signup successful 🎉');
+      },
+      error: (err) => {
+        alert(err.error.message || 'Signup failed ❌');
+      }
+    });
   }
 }
