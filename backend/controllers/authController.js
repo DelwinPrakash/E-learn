@@ -1,34 +1,39 @@
-import { pool } from "../config/db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import { sequelize } from "../config/db.js";
+import User from "../models/User.js";
+import UserAuth from "../models/UserAuth.js";
+import UserSession from "../models/UserSession.js";
 
 const handleLogin = async (req, res) => {
     const { email, password } = req.body;
 
-    try{
-        const existingUser = await pool.query("SELECT * FROM user_auth WHERE email = $1", [email]);
-        if(existingUser.rows.length === 0){
-            return res.status(401).json({"message": "User not found! sign up instead"});
-        }
-
-        const user = existingUser.rows[0];
+    try{  
+        const existingUser = await UserAuth.findOne({ where: { email } });
+        
+        if(!existingUser) return res.status(401).json({"message": "User not found! sign up instead"});
+        
+        const user = existingUser.dataValues;
 
         const passwordMatch = await bcrypt.compare(password, user.password_hash);
         if(!passwordMatch) return res.status(401).json({"message": "Invalid credentials!"});
 
-        const newSession = await pool.query("INSERT INTO user_session (user_id) VALUES ($1) RETURNING session_id, user_id", [user.user_id]);
-        
+        const newSession = await UserSession.create({ user_id: user.user_id },{
+            returning: true,
+            raw: true
+        });
+
         const token = jwt.sign({
             userID: user.user_id,
             email: user.email,
-            session: newSession.rows[0].session_id
+            session: newSession.session_id
         },  process.env.JWT_SECRET,{
             expiresIn: "1h"
         });
 
         return res.json({
-            newSession: newSession.rows[0],
+            newSession: newSession,
             token
         });
 
@@ -41,22 +46,42 @@ const handleLogin = async (req, res) => {
 const handleRegister = async (req, res) => {
     const { name, email, password } = req.body;
 
+    const t = await sequelize.transaction();
+
     try{
-        const duplicateUser = await pool.query("SELECT * FROM user_auth WHERE email=$1", [email]);
-        if(duplicateUser.rows.length > 0){
-            return res.status(400).json({"message": "User already exists"});
-        }
+        const duplicateUser = await UserAuth.findOne({where: { email }});
+
+        if(duplicateUser) return res.status(400).json({ message: "User already exists" });
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = await pool.query("INSERT INTO user_auth (email, password_hash) VALUES ($1, $2) RETURNING user_id, email", [email, hashedPassword]);
-        
-        await pool.query("INSERT INTO user_session (user_id) VALUES ($1)", [newUser.rows[0].user_id]);
-        await pool.query("INSERT INTO users (user_id, name, role) VALUES ($1, $2, $3)", [newUser.rows[0].user_id, name, "student"]);
+        const newUser = await UserAuth.create({
+            email,
+            password_hash: hashedPassword
+        },{
+            transaction: t,
+            returning: true 
+        });
+
+        await UserSession.create({
+            user_id: newUser.user_id
+        },{
+            transaction: t
+        });
+
+        await User.create({
+            user_id: newUser.user_id,
+            name,
+            role: "student" 
+        },{
+            transaction: t
+        });
+
+        await t.commit();
 
         const verificationToken = jwt.sign({
-            userID: newUser.rows[0].user_id,
-            email: newUser.rows[0].email
+            userID: newUser.user_id,
+            email: newUser.email
         },  process.env.JWT_SECRET, {
             expiresIn: '1h'
         });
@@ -120,7 +145,7 @@ const handleRegister = async (req, res) => {
             }
         });
 
-        res.status(201).json({"message": "User registered successfully! Please verify your email to activate your account.", user: newUser.rows[0]});
+        res.status(201).json({"message": "User registered successfully! Please verify your email to activate your account.", user: newUser});
 
     }catch(error){
         console.error(error.message);
