@@ -4,6 +4,7 @@ import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { EmailverificationComponent } from './emailverification/emailverification.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -11,10 +12,13 @@ const routes: Routes = [
   { path: 'signup', component: SignupComponent },
   { path: 'leaderboard', component: LeaderboardComponent },
   { path: 'dashboard', component: DashboardComponent },
+  { path: 'verify-email', component: EmailverificationComponent },
+  // Optional: Add a route with parameter for token-based verification
+  { path: 'verify-email/:token', component: EmailverificationComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

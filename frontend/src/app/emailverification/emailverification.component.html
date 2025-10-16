@@ -1,0 +1,28 @@
+<div class="verification-container">
+  <div class="verification-box">
+    <!-- Loading State -->
+    <div *ngIf="isVerifying" class="verification-state">
+      <div class="spinner-large"></div>
+      <h1 class="title">Verifying Email</h1>
+      <p class="subtitle">Please wait while we verify your email address...</p>
+      <p class="email-info">{{ email }}</p>
+    </div>
+
+    <!-- Success State -->
+    <div *ngIf="isSuccess && !isVerifying" class="verification-state success">
+      <div class="success-icon">✅</div>
+      <h1 class="title">Email Verified!</h1>
+      <p class="subtitle">Your email has been successfully verified.</p>
+      <p class="success-message">Redirecting to dashboard in 3 seconds...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isVerifying" class="verification-state error">
+      <div class="error-icon">❌</div>
+      <h1 class="title">Verification Failed</h1>
+      <p class="error-text">{{ errorMessage }}</p>
+      <p class="error-subtitle">The verification link may have expired or is invalid.</p>
+      <button (click)="onBackToLogin()" class="back-btn">Back to Login</button>
+    </div>
+  </div>
+</div>
