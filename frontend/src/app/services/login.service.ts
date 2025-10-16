@@ -17,4 +17,8 @@ export class LoginService {
   signup(data: { name: string; email: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/signup`, data);
   }
+
+  verifyEmailToken(data: { token: string; email: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-email`, data);
+  }
 }

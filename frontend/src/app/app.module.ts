@@ -9,6 +9,7 @@ import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
+import { EmailverificationComponent } from './emailverification/emailverification.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { LeaderboardComponent } from './leaderboard/leaderboard.component';
     LoginComponent,
     SignupComponent,
     DashboardComponent,
-    LeaderboardComponent
+    LeaderboardComponent,
+    EmailverificationComponent
   ],
   imports: [
     BrowserModule,
