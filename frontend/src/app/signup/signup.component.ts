@@ -18,8 +18,7 @@ export class SignupComponent {
 
     this.signupService.signup(userData).subscribe({
       next: (res) => {
-        localStorage.setItem('token', res.token); 
-        alert('Signup successful 🎉');
+        alert('Signup successful, verify your email 🎉');
       },
       error: (err) => {
         alert(err.error.message || 'Signup failed ❌');

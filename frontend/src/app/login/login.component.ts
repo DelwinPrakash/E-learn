@@ -21,6 +21,7 @@ export class LoginComponent {
         alert('Login successful ✅');
       },
       error: (err) => {
+        console.log(err);
         alert(err.error.message || 'Login failed ❌');
       }
     });

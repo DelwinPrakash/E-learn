@@ -1,24 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-  private apiUrl = 'http://localhost:5000/api/auth'; // adjust as per backend
-
   constructor(private http: HttpClient) {}
 
   login(credentials: { email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credentials);
+    return this.http.post(`${environment.BACKEND_BASE_URL}/api/auth/login`, credentials);
   }
 
-  signup(data: { name: string; email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/signup`, data);
-  }
-
-  verifyEmailToken(data: { token: string; email: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/verify-email`, data);
+  verifyEmailToken(data: { token: string }): Observable<any> {
+    return this.http.get(`${environment.BACKEND_BASE_URL}/api/verify-email?token=${data.token}`);
   }
 }
