@@ -16,6 +16,10 @@ const UserAuth = sequelize.define("UserAuth", {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
+  email_verified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
