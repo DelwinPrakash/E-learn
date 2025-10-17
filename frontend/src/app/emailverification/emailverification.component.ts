@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { LoginService } from '../services/login.service';
 
 @Component({
   selector: 'app-emailverification',
@@ -7,7 +8,6 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./emailverification.component.css']
 })
 export class EmailverificationComponent implements OnInit {
-  // Add the missing properties
   isVerifying: boolean = true;
   isSuccess: boolean = false;
   errorMessage: string = '';
@@ -15,34 +15,38 @@ export class EmailverificationComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private loginService: LoginService
   ) {}
 
   ngOnInit() {
-    // Initialize component logic here
-    // For example, you might get the email from route parameters or service
     this.verifyEmail();
   }
 
   verifyEmail() {
-    // Add your email verification logic here
-    // This is where you would call your verification service
-    // For example:
-    this.isVerifying = true;
-    
-    // Simulate verification process
     setTimeout(() => {
-      // Replace this with actual verification logic
-      const token = this.route.snapshot.queryParamMap.get('token');
-      
+      let token = this.route.snapshot.queryParamMap.get('token');
+
       if (token) {
-        // Call your verification service
-        // this.authService.verifyEmail(token).subscribe(...)
-        this.isVerifying = false;
-        this.isSuccess = true;
-      } else {
-        this.isVerifying = false;
-        this.errorMessage = 'Invalid verification token';
+        this.loginService.verifyEmailToken({ token }).subscribe({
+          next: (res) => {
+            console.log(res);
+            localStorage.setItem('e_learning_token', res.token);
+            this.isVerifying = false;
+            this.isSuccess = true;
+            this.router.navigate(['/dashboard']);
+          },
+          error: (err) => {
+            this.errorMessage = err.error.message || 'Verification failed ❌';
+            alert(err.error.message || 'Login failed ❌');
+            if(err.error.verified){
+              this.isVerifying = false;
+              this.isSuccess = true;
+              this.router.navigate(['/dashboard']);
+              return;
+            }   
+          }
+        });
       }
     }, 2000);
   }

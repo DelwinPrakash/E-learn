@@ -13,12 +13,12 @@ const verifyEmail = async (req, res) => {
 
         if(!user) return res.status(400).json({"message": "User not found"});
 
-        if(user.email_verified) return res.status(400).json({"message": "Email already verified"});
+        if(user.email_verified) return res.status(400).json({verified: true, "message": "Email already verified"});
 
         user.email_verified = true;
         await user.save();
 
-        return res.json({"message": "Email verified successfully"});
+        return res.json({token, verified: true, "message": "Email verified successfully"});
 
     }catch(error){
         console.error(error.message);

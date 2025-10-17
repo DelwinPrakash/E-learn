@@ -13,8 +13,6 @@ const routes: Routes = [
   { path: 'leaderboard', component: LeaderboardComponent },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'verify-email', component: EmailverificationComponent },
-  // Optional: Add a route with parameter for token-based verification
-  { path: 'verify-email/:token', component: EmailverificationComponent },
 ];
 
 @NgModule({
