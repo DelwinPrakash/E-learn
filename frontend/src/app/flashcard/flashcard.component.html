@@ -1,0 +1,168 @@
+<!-- DECKS VIEW -->
+<div class="flashcard-container" *ngIf="view === 'decks'">
+  <div class="header">
+    <h1 class="title">📚 Study Decks</h1>
+    <p class="subtitle">Choose a deck to start learning</p>
+    <button class="back-btn" (click)="goToDashboard()">← Back to Dashboard</button>
+  </div>
+
+  <div class="decks-grid">
+    <div class="deck-card" *ngFor="let deck of decks" (click)="loadDeck(deck)">
+      <div class="deck-header">
+        <h3 class="deck-name">{{ deck.name }}</h3>
+        <span class="card-count">{{ deck.cardCount }} cards</span>
+      </div>
+      <p class="deck-description">{{ deck.description }}</p>
+      <div class="deck-footer">
+        <span class="category-badge">{{ deck.category }}</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STUDY VIEW -->
+<div class="study-container" *ngIf="view === 'study'">
+  <div class="study-header">
+    <button class="back-btn" (click)="backToDecks()">← Back</button>
+    <h2 class="deck-title">{{ selectedDeck?.name }}</h2>
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="studyProgress"></div>
+      <span class="progress-text">{{ currentCardIndex + 1 }}/{{ filteredCards.length }}</span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm"
+        (input)="filterCards()"
+        placeholder="🔍 Search cards..."
+        class="search-input"
+      />
+    </div>
+
+    <div class="filter-buttons">
+      <select [(ngModel)]="selectedDifficulty" (change)="filterCards()" class="filter-select">
+        <option value="all">All Levels</option>
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+
+      <select [(ngModel)]="selectedCategory" (change)="filterCards()" class="filter-select">
+        <option value="all">All Categories</option>
+        <option *ngFor="let cat of getCategories()" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Flashcard -->
+  <div class="card-section" *ngIf="getCurrentCard()">
+    <div 
+      class="flashcard" 
+      [class.flipped]="isCardFlipped"
+      (click)="toggleFlip()"
+    >
+      <div class="card-inner">
+        <!-- Front -->
+        <div class="card-front">
+          <div class="card-label">Question</div>
+          <div class="card-content">{{ getCurrentCard()?.question }}</div>
+          <div class="card-hint">Click to reveal answer</div>
+        </div>
+        <!-- Back -->
+        <div class="card-back">
+          <div class="card-label">Answer</div>
+          <div class="card-content">{{ getCurrentCard()?.answer }}</div>
+          <div class="difficulty-indicator" [ngClass]="'difficulty-' + (getCurrentCard()?.difficulty || 'easy')">
+            {{ (getCurrentCard()?.difficulty || 'easy').toUpperCase() }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="btn btn-wrong" (click)="markWrong()">
+        ❌ Wrong
+      </button>
+      <button class="btn btn-correct" (click)="markCorrect()">
+        ✅ Correct
+      </button>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+      <button 
+        class="nav-btn" 
+        (click)="moveToPreviousCard()"
+        [disabled]="currentCardIndex === 0"
+      >
+        ← Previous
+      </button>
+      <span class="nav-info">{{ currentCardIndex + 1 }} of {{ filteredCards.length }}</span>
+      <button 
+        class="nav-btn" 
+        (click)="moveToNextCard()"
+        [disabled]="currentCardIndex === filteredCards.length - 1"
+      >
+        Next →
+      </button>
+    </div>
+  </div>
+
+  <!-- No cards -->
+  <div class="no-cards" *ngIf="!getCurrentCard()">
+    <p>No cards match your filters</p>
+    <button (click)="filterCards()" class="retry-btn">Reset Filters</button>
+  </div>
+</div>
+
+<!-- REVIEW VIEW -->
+<div class="review-container" *ngIf="view === 'review'">
+  <div class="review-content">
+    <div class="result-header">
+      <h1 class="result-title">🎉 Study Session Complete!</h1>
+      <p class="deck-name">{{ selectedDeck?.name }}</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-value correct">{{ correctAnswers }}</div>
+        <div class="stat-label">Correct</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value wrong">{{ wrongAnswers }}</div>
+        <div class="stat-label">Incorrect</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value accuracy">{{ getAccuracy() }}%</div>
+        <div class="stat-label">Accuracy</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value total">{{ filteredCards.length }}</div>
+        <div class="stat-label">Total Cards</div>
+      </div>
+    </div>
+
+    <!-- Accuracy Bar -->
+    <div class="accuracy-bar">
+      <div class="accuracy-fill" [style.width.%]="getAccuracy()"></div>
+      <span class="accuracy-text">{{ getAccuracy() }}% Accuracy</span>
+    </div>
+
+    <!-- Actions -->
+    <div class="review-actions">
+      <button class="action-btn retry-btn" (click)="retryDeck()">
+        🔄 Study Again
+      </button>
+      <button class="action-btn back-btn-review" (click)="backToDecks()">
+        📚 Back to Decks
+      </button>
+    </div>
+  </div>
+</div>

@@ -10,6 +10,7 @@ import { SignupComponent } from './signup/signup.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { EmailverificationComponent } from './emailverification/emailverification.component';
+import { FlashcardComponent } from './flashcard/flashcard.component';  // ← ADD THIS
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { EmailverificationComponent } from './emailverification/emailverificatio
     SignupComponent,
     DashboardComponent,
     LeaderboardComponent,
-    EmailverificationComponent
+    EmailverificationComponent,
+    FlashcardComponent  // ← ADD THIS
   ],
   imports: [
     BrowserModule,

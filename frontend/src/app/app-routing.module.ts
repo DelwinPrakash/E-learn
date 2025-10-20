@@ -5,6 +5,7 @@ import { SignupComponent } from './signup/signup.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { EmailverificationComponent } from './emailverification/emailverification.component';
+import { FlashcardComponent } from './flashcard/flashcard.component';  
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -13,6 +14,7 @@ const routes: Routes = [
   { path: 'leaderboard', component: LeaderboardComponent },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'verify-email', component: EmailverificationComponent },
+  { path: 'flashcard', component: FlashcardComponent },  
 ];
 
 @NgModule({
