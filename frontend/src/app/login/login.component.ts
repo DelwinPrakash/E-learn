@@ -19,6 +19,7 @@ export class LoginComponent {
     this.loginService.login(credentials).subscribe({
       next: (res) => {
         localStorage.setItem('e_learning_token', res.token); 
+        localStorage.setItem('e_learning_session', res.newSession.session_id); 
         alert('Login successful ✅');
         this.router.navigate(['/dashboard']);
       },

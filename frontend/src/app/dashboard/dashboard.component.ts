@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { LoginService } from '../services/login.service';
 
 interface User {
   username: string;
@@ -55,7 +56,7 @@ export class DashboardComponent implements OnInit {
     ]
   };
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private loginService: LoginService) {}
 
   ngOnInit(): void {
     this.loadUserData();
@@ -207,7 +208,18 @@ getSectionTitle(section: string): string {
   }
 
   logout(): void {
+    const data = {session_id: localStorage.getItem('e_learning_session') || ''};
+    this.loginService.logout(data).subscribe({
+      next: (res) => {
+        console.log('Logout successful:', res);
+      },
+      error: (err) => {
+        console.error('Logout error:', err);
+      }
+    });
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('e_learning_token');
+    localStorage.removeItem('e_learning_session');
     this.router.navigate(['/login']);
   }
 }

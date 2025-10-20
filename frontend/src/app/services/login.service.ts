@@ -14,6 +14,10 @@ export class LoginService {
   }
 
   verifyEmailToken(data: { token: string }): Observable<any> {
-    return this.http.get(`${environment.BACKEND_BASE_URL}/api/verify-email?token=${data.token}`);
+    return this.http.get(`${environment.BACKEND_BASE_URL}/api/user/verify-email?token=${data.token}`);
+  }
+
+  logout(data: { session_id: string }): Observable<any> {
+    return this.http.post(`${environment.BACKEND_BASE_URL}/api/auth/logout`, data);
   }
 }
