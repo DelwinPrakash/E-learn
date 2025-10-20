@@ -153,7 +153,23 @@ const handleRegister = async (req, res) => {
     }
 }
 
+const handleLogout = async (req, res) => {
+    const { session_id: sessionID } = req.body;
+
+    try{
+        const deleteSession = await UserSession.destroy({ where: { session_id: sessionID }});
+
+        if(deleteSession === 0) return res.status(400).json({"message": "Invalid session ID"});
+
+        return res.json({"message": "Logged out successfully"});
+    }catch(error){
+        console.error(error.message);
+        return res.status(500).json({"message": "Server side error"});
+    }
+}
+
 export {
     handleLogin,
-    handleRegister
+    handleRegister,
+    handleLogout
 };
