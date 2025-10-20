@@ -46,7 +46,7 @@ export class DashboardComponent implements OnInit {
     ],
     practice: [
       { name: 'Chatbot', icon: '🤖', route: 'chatbot' },
-      { name: 'Flash Card', icon: '🎴', route: 'flash-card' },
+      { name: 'Flash Card', icon: '🎴', route: 'flashcard' },
       { name: 'Quiz', icon: '📝', route: 'quiz' },
       { name: 'Discussion Forum', icon: '💬', route: 'discussion-forum' }
     ],
@@ -58,19 +58,15 @@ export class DashboardComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    // Load user data from localStorage or API
     this.loadUserData();
-    // Load theme preference
     this.loadThemePreference();
   }
 
   loadUserData(): void {
-    // Replace with actual API call to fetch user data
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
       this.user = JSON.parse(storedUser);
     } else {
-      // Default values for testing
       this.user = {
         username: 'Name',
         firstName: 'Firstname',
@@ -89,14 +85,11 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  // Handle sidebar menu item clicks
   selectMenuItem(section: string): void {
     this.activeSection = section;
-    // Set active tab based on section
-    this.setActiveTab(section);
+    this.router.navigate([section]);
   }
 
-  // Handle top navigation tab clicks
   selectTab(tab: string): void {
     this.activeTab = tab;
     
@@ -108,7 +101,6 @@ export class DashboardComponent implements OnInit {
   }
 
   private setActiveTab(section: string): void {
-    // Map section to tab name
     const tabMap: { [key: string]: string } = {
       'dashboard': 'Dashboard',
       'profile': 'Profile',
@@ -117,14 +109,39 @@ export class DashboardComponent implements OnInit {
       'materials': 'Dashboard',
       'learning-paths': 'Dashboard',
       'chatbot': 'Dashboard',
-      'flash-card': 'Dashboard',
+      'flashcard': 'Dashboard',
       'quiz': 'Dashboard',
       'discussion-forum': 'Dashboard'
     };
     this.activeTab = tabMap[section] || 'Dashboard';
   }
 
-  // Toggle dark/light theme
+  // Add these methods to your existing DashboardComponent class:
+
+getAllSections(): string[] {
+  const sections = new Set<string>();
+  sections.add('Dashboard');
+  sections.add('Profile');
+  // Add other sections as needed
+  return Array.from(sections);
+}
+
+getSectionTitle(section: string): string {
+  const titleMap: { [key: string]: string } = {
+    'dashboard': 'Dashboard',
+    'profile': 'Profile Settings',
+    'leaderboard': 'Leaderboard',
+    'video-class': 'Video Classes',
+    'materials': 'Learning Materials',
+    'learning-paths': 'Learning Paths',
+    'chatbot': 'AI Chatbot',
+    'flashcard': 'Flash Cards',
+    'quiz': 'Quizzes',
+    'discussion-forum': 'Discussion Forum'
+  };
+  return titleMap[section] || section;
+}
+
   toggleTheme(): void {
     this.isDarkMode = !this.isDarkMode;
     
@@ -169,14 +186,12 @@ export class DashboardComponent implements OnInit {
   }
 
   saveProfile(): void {
-    // API call to save profile
     console.log('Saving profile:', this.user);
     localStorage.setItem('currentUser', JSON.stringify(this.user));
     alert('Profile saved successfully!');
   }
 
   resetPassword(): void {
-    // Navigate to password reset or open modal
     console.log('Reset password clicked');
     alert('Password reset link sent to your email!');
   }
@@ -184,7 +199,6 @@ export class DashboardComponent implements OnInit {
   deleteAccount(): void {
     const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone.');
     if (confirmed) {
-      // API call to delete account
       console.log('Deleting account');
       localStorage.removeItem('currentUser');
       localStorage.removeItem('theme');

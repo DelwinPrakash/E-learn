@@ -7,8 +7,8 @@
   --glass-bg: rgba(255, 255, 255, 0.1);
   --glass-border: rgba(255, 255, 255, 0.2);
   --shadow-primary: 0 8px 32px rgba(31, 38, 135, 0.37);
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
+  --text-primary: #010408;
+  --text-secondary: #01050b;
 }
 
 * {
@@ -56,8 +56,7 @@ body {
 .title {
   font-size: 48px;
   font-weight: 900;
-  color: #fff;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: #0f23b8;
   margin-bottom: 12px;
 }
 

@@ -1,115 +1,102 @@
 <div class="dashboard-container">
-  <!-- Sidebar Navigation -->
-  <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
+  <!-- Sidebar -->
+  <div class="sidebar" [class.collapsed]="isSidebarCollapsed">
     <div class="sidebar-header">
-      <h1 class="sidebar-logo">E-Learn</h1>
+      <div class="sidebar-logo">📚 EduLearn</div>
       <button class="toggle-btn" (click)="toggleSidebar()">
-        {{ isSidebarCollapsed ? '▶' : '◀' }}
+        {{ isSidebarCollapsed ? '→' : '←' }}
       </button>
     </div>
 
-    <!-- Overview Section -->
     <div class="menu-section">
-      <h3 class="menu-title">Overview</h3>
+      <div class="menu-title">Overview</div>
       <ul class="menu-list">
-        <li class="menu-item" [class.active]="activeSection === 'dashboard'" (click)="selectMenuItem('dashboard')">
-          <span class="menu-icon">📊</span>
-          <span class="menu-text">Dashboard</span>
-        </li>
-        <li class="menu-item" [class.active]="activeSection === 'leaderboard'" (click)="selectMenuItem('leaderboard')">
-          <span class="menu-icon">🏆</span>
-          <span class="menu-text">Leaderboard</span>
+        <li *ngFor="let item of menuItems.overview" 
+            class="menu-item" 
+            [class.active]="activeSection === item.route"
+            (click)="selectMenuItem(item.route)">
+          <span class="menu-icon">{{ item.icon }}</span>
+          <span class="menu-text">{{ item.name }}</span>
         </li>
       </ul>
     </div>
 
-    <!-- Learn Section -->
     <div class="menu-section">
-      <h3 class="menu-title">Learn</h3>
+      <div class="menu-title">Learn</div>
       <ul class="menu-list">
-        <li class="menu-item" [class.active]="activeSection === 'video-class'" (click)="selectMenuItem('video-class')">
-          <span class="menu-icon">🎥</span>
-          <span class="menu-text">Video Class</span>
-        </li>
-        <li class="menu-item" [class.active]="activeSection === 'materials'" (click)="selectMenuItem('materials')">
-          <span class="menu-icon">📚</span>
-          <span class="menu-text">Materials</span>
-        </li>
-        <li class="menu-item" [class.active]="activeSection === 'learning-paths'" (click)="selectMenuItem('learning-paths')">
-          <span class="menu-icon">🛤️</span>
-          <span class="menu-text">Learning Paths</span>
+        <li *ngFor="let item of menuItems.learn" 
+            class="menu-item" 
+            [class.active]="activeSection === item.route"
+            (click)="selectMenuItem(item.route)">
+          <span class="menu-icon">{{ item.icon }}</span>
+          <span class="menu-text">{{ item.name }}</span>
         </li>
       </ul>
     </div>
 
-    <!-- Practice Section -->
     <div class="menu-section">
-      <h3 class="menu-title">Practice</h3>
+      <div class="menu-title">Practice</div>
       <ul class="menu-list">
-        <li class="menu-item" [class.active]="activeSection === 'chatbot'" (click)="selectMenuItem('chatbot')">
-          <span class="menu-icon">🤖</span>
-          <span class="menu-text">Chatbot</span>
-        </li>
-        <li class="menu-item" [class.active]="activeSection === 'flash-card'" (click)="selectMenuItem('flash-card')">
-          <span class="menu-icon">🎴</span>
-          <span class="menu-text">Flash Card</span>
-        </li>
-        <li class="menu-item" [class.active]="activeSection === 'quiz'" (click)="selectMenuItem('quiz')">
-          <span class="menu-icon">📝</span>
-          <span class="menu-text">Quiz</span>
-        </li>
-        <li class="menu-item" [class.active]="activeSection === 'discussion-forum'" (click)="selectMenuItem('discussion-forum')">
-          <span class="menu-icon">💬</span>
-          <span class="menu-text">Discussion Forum</span>
+        <li *ngFor="let item of menuItems.practice" 
+            class="menu-item" 
+            [class.active]="activeSection === item.route"
+            (click)="selectMenuItem(item.route)">
+          <span class="menu-icon">{{ item.icon }}</span>
+          <span class="menu-text">{{ item.name }}</span>
         </li>
       </ul>
     </div>
 
-    <!-- Profile Section -->
     <div class="menu-section">
-      <h3 class="menu-title">Profile</h3>
+      <div class="menu-title">Profile</div>
       <ul class="menu-list">
-        <li class="menu-item" [class.active]="activeSection === 'profile'" (click)="selectMenuItem('profile')">
-          <span class="menu-icon">👤</span>
-          <span class="menu-text">Profile</span>
+        <li *ngFor="let item of menuItems.profile" 
+            class="menu-item" 
+            [class.active]="activeSection === item.route"
+            (click)="selectMenuItem(item.route)">
+          <span class="menu-icon">{{ item.icon }}</span>
+          <span class="menu-text">{{ item.name }}</span>
         </li>
       </ul>
     </div>
 
-    <!-- Dark Mode Toggle -->
     <div class="sidebar-footer">
       <button class="theme-toggle" [class.active]="isDarkMode" (click)="toggleTheme()">
-        {{ isDarkMode ? '☀️' : '🌙' }}
+        <span class="menu-icon">{{ isDarkMode ? '☀️' : '🌙' }}</span>
+        <span class="menu-text">{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}</span>
       </button>
     </div>
-  </aside>
+  </div>
 
-  <!-- Main Content Area -->
-  <main class="main-content">
-    <!-- Top Navigation Bar -->
-    <nav class="top-nav">
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Navigation -->
+    <div class="top-nav">
       <div class="nav-tabs">
-        <button class="nav-tab" 
-                [class.active]="activeTab === 'Dashboard'" 
-                (click)="selectTab('Dashboard')">
-          Dashboard
-        </button>
-        <button class="nav-tab" 
-                [class.active]="activeTab === 'Profile'" 
-                (click)="selectTab('Profile')">
-          Profile
+        <button *ngFor="let tab of getAllSections()" 
+                class="nav-tab" 
+                [class.active]="activeTab === tab"
+                (click)="selectTab(tab)">
+          {{ tab }}
         </button>
       </div>
       <div class="user-actions">
-        <button class="logout-btn" (click)="logout()">Logout</button>
+        <button class="logout-btn" (click)="logout()">
+          🚪 Logout
+        </button>
       </div>
-    </nav>
+    </div>
 
-    <!-- Content Sections -->
+    <!-- Content Wrapper -->
     <div class="content-wrapper">
       <!-- Dashboard Section -->
       <div *ngIf="activeSection === 'dashboard'" class="content-section">
-        <h2 class="section-title">Dashboard Overview</h2>
+        <h1 class="section-title">Welcome back, {{ user.firstName }}! 👋</h1>
+        <p style="color: rgba(255, 255, 255, 0.9); font-size: 18px; margin-bottom: 32px;">
+          Ready to continue your learning journey? Here's your progress overview.
+        </p>
+
+        <!-- Stats Grid -->
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">📚</div>
@@ -119,157 +106,157 @@
             </div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon">🎯</div>
             <div class="stat-info">
-              <h3>8</h3>
-              <p>Completed</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">⏱️</div>
-            <div class="stat-info">
-              <h3>45h</h3>
-              <p>Learning Time</p>
+              <h3>85%</h3>
+              <p>Completion Rate</p>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">🏆</div>
             <div class="stat-info">
-              <h3>15</h3>
+              <h3>24</h3>
               <p>Achievements</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-info">
+              <h3>36h</h3>
+              <p>Study Time</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style="margin-top: 48px;">
+          <h2 style="font-size: 28px; font-weight: 800; color: white; margin-bottom: 24px; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);">
+            Quick Actions
+          </h2>
+          <div class="stats-grid">
+            <div class="stat-card" (click)="selectMenuItem('flashcard')" style="cursor: pointer;">
+              <div class="stat-icon">🎴</div>
+              <div class="stat-info">
+                <h3>Flash Cards</h3>
+                <p>Practice with interactive flashcards</p>
+              </div>
+            </div>
+            <div class="stat-card" (click)="selectMenuItem('quiz')" style="cursor: pointer;">
+              <div class="stat-icon">📝</div>
+              <div class="stat-info">
+                <h3>Take Quiz</h3>
+                <p>Test your knowledge</p>
+              </div>
+            </div>
+            <div class="stat-card" (click)="selectMenuItem('video-class')" style="cursor: pointer;">
+              <div class="stat-icon">🎥</div>
+              <div class="stat-info">
+                <h3>Video Classes</h3>
+                <p>Watch educational content</p>
+              </div>
+            </div>
+            <div class="stat-card" (click)="selectMenuItem('leaderboard')" style="cursor: pointer;">
+              <div class="stat-icon">🏆</div>
+              <div class="stat-info">
+                <h3>Leaderboard</h3>
+                <p>See your ranking</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Profile Section -->
-      <div *ngIf="activeSection === 'profile'" class="content-section profile-section">
+      <div *ngIf="activeSection === 'profile'" class="profile-section">
         <div class="profile-card">
-          <!-- Profile Header with Avatar -->
           <div class="profile-header">
             <div class="avatar-section">
               <div class="avatar">
-                <span class="avatar-text">{{ getInitials() }}</span>
+                <div class="avatar-text">{{ getInitials() }}</div>
               </div>
             </div>
-            <h2 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h2>
+            <h1 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h1>
           </div>
 
-          <!-- Basic Information Section -->
           <div class="info-section">
-            <h3 class="section-heading">Basic information</h3>
+            <h2 class="section-heading">Personal Information</h2>
             <div class="input-group">
-              <label for="username">Username</label>
+              <label>Username</label>
               <input 
                 type="text" 
-                id="username" 
-                [(ngModel)]="user.username"
-                name="username"
-                placeholder="Enter your username for E-learn">
-              <p class="input-hint">This will be appearing on your leaderboard and visible to others</p>
+                [value]="user.username" 
+                (input)="updateUsername($event)"
+                placeholder="Enter your username">
             </div>
-          </div>
-
-          <!-- Account Information Section -->
-          <div class="info-section">
-            <h3 class="section-heading">Account information</h3>
             <div class="input-row">
               <div class="input-group">
-                <label for="firstName">First Name*</label>
+                <label>First Name</label>
                 <input 
                   type="text" 
-                  id="firstName" 
-                  [(ngModel)]="user.firstName"
-                  name="firstName"
-                  placeholder="Enter first name">
+                  [value]="user.firstName" 
+                  (input)="updateFirstName($event)"
+                  placeholder="First name">
               </div>
               <div class="input-group">
-                <label for="lastName">Last Name*</label>
+                <label>Last Name</label>
                 <input 
                   type="text" 
-                  id="lastName" 
-                  [(ngModel)]="user.lastName"
-                  name="lastName"
-                  placeholder="Enter last name">
+                  [value]="user.lastName" 
+                  (input)="updateLastName($event)"
+                  placeholder="Last name">
               </div>
             </div>
             <div class="input-group">
-              <label for="email">Email*</label>
+              <label>Email Address</label>
               <input 
                 type="email" 
-                id="email" 
-                [(ngModel)]="user.email"
-                name="email"
-                placeholder="Email id">
+                [value]="user.email" 
+                (input)="updateEmail($event)"
+                placeholder="Enter your email">
             </div>
           </div>
 
-          <!-- Password Section -->
           <div class="info-section">
-            <h3 class="section-heading">Password</h3>
-            <button class="reset-btn" (click)="resetPassword()">Reset password</button>
+            <h2 class="section-heading">Account Settings</h2>
+            <div class="input-group">
+              <button class="reset-btn" (click)="resetPassword()">
+                🔒 Reset Password
+              </button>
+              <p class="input-hint">We'll send a password reset link to your email</p>
+            </div>
           </div>
 
-          <!-- Delete Account Section -->
-          <div class="info-section danger-section">
-            <h3 class="section-heading danger-heading">Delete Account</h3>
-            <button class="delete-btn" (click)="deleteAccount()">Delete My Account</button>
+          <div class="danger-section">
+            <h2 class="section-heading danger-heading">Danger Zone</h2>
+            <div class="input-group">
+              <button class="delete-btn" (click)="deleteAccount()">
+                🗑️ Delete Account
+              </button>
+              <p class="input-hint">This action cannot be undone. All your data will be permanently deleted.</p>
+            </div>
           </div>
 
-          <!-- Save Button -->
           <div class="action-section">
-            <button class="save-btn" (click)="saveProfile()">Save Changes</button>
+            <button class="save-btn" (click)="saveProfile()">
+              💾 Save Changes
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Leaderboard Section -->
-      <div *ngIf="activeSection === 'leaderboard'" class="content-section">
-        <h2 class="section-title">Leaderboard</h2>
-        <p class="placeholder-text">Leaderboard content will be displayed here</p>
-      </div>
-
-      <!-- Video Class Section -->
-      <div *ngIf="activeSection === 'video-class'" class="content-section">
-        <h2 class="section-title">Video Class</h2>
-        <p class="placeholder-text">Video class content will be displayed here</p>
-      </div>
-
-      <!-- Materials Section -->
-      <div *ngIf="activeSection === 'materials'" class="content-section">
-        <h2 class="section-title">Materials</h2>
-        <p class="placeholder-text">Learning materials will be displayed here</p>
-      </div>
-
-      <!-- Learning Paths Section -->
-      <div *ngIf="activeSection === 'learning-paths'" class="content-section">
-        <h2 class="section-title">Learning Paths</h2>
-        <p class="placeholder-text">Learning paths will be displayed here</p>
-      </div>
-
-      <!-- Chatbot Section -->
-      <div *ngIf="activeSection === 'chatbot'" class="content-section">
-        <h2 class="section-title">AI Chatbot</h2>
-        <p class="placeholder-text">Chatbot interface will be displayed here</p>
-      </div>
-
-      <!-- Flash Card Section -->
-      <div *ngIf="activeSection === 'flash-card'" class="content-section">
-        <h2 class="section-title">Flash Cards</h2>
-        <p class="placeholder-text">Flash card practice will be displayed here</p>
-      </div>
-
-      <!-- Quiz Section -->
-      <div *ngIf="activeSection === 'quiz'" class="content-section">
-        <h2 class="section-title">Quiz</h2>
-        <p class="placeholder-text">Quiz section will be displayed here</p>
-      </div>
-
-      <!-- Discussion Forum Section -->
-      <div *ngIf="activeSection === 'discussion-forum'" class="content-section">
-        <h2 class="section-title">Discussion Forum</h2>
-        <p class="placeholder-text">Discussion forum will be displayed here</p>
+      <!-- Other Sections Placeholder -->
+      <div *ngIf="activeSection !== 'dashboard' && activeSection !== 'profile'" class="content-section">
+        <h1 class="section-title">{{ getSectionTitle(activeSection) }}</h1>
+        <div class="placeholder-text">
+          <p>🚀 This section is coming soon!</p>
+          <p style="margin-top: 12px; font-size: 16px;">
+            We're working hard to bring you the best learning experience.
+          </p>
+          <button class="action-btn" (click)="selectMenuItem('dashboard')" style="margin-top: 20px;">
+            ← Back to Dashboard
+          </button>
+        </div>
       </div>
     </div>
-  </main>
+  </div>
 </div>
