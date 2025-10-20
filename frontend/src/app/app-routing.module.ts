@@ -5,13 +5,15 @@ import { FlashcardComponent } from './flashcard/flashcard.component';
 import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
+import { EmailverificationComponent } from './emailverification/emailverification.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'flashcard', component: FlashcardComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
+  { path: 'verify-email', component: EmailverificationComponent },
+  { path: 'dashboard', component: DashboardComponent },
+  { path: 'flashcard', component: FlashcardComponent },
   { path: 'leaderboard', component: LeaderboardComponent },
   { path: '**', redirectTo: '/dashboard' } // Wildcard route
 ];

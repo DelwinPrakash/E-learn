@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoginService } from '../services/login.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-emailverification',
   templateUrl: './emailverification.component.html',
-  styleUrls: ['./emailverification.component.css']
+  styleUrls: ['./emailverification.component.css'],
+  imports: [CommonModule],
+  standalone: true
 })
 export class EmailverificationComponent implements OnInit {
   isVerifying: boolean = true;
