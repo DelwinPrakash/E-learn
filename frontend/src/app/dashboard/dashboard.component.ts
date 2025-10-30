@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginService } from '../services/login.service';
+import { AuthService } from '../services/auth.service';
+import { environment } from 'src/environments/environment.development';
+import { HttpClient } from '@angular/common/http';
+import { jwtDecode } from 'jwt-decode';
 
 interface User {
   username: string;
@@ -56,7 +60,7 @@ export class DashboardComponent implements OnInit {
     ]
   };
 
-  constructor(private router: Router, private loginService: LoginService) {}
+  constructor(private router: Router, private loginService: LoginService, private authService: AuthService, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadUserData();
@@ -208,8 +212,26 @@ getSectionTitle(section: string): string {
   }
 
   logout(): void {
-    const data = {session_id: localStorage.getItem('e_learning_session') || ''};
-    this.loginService.logout(data).subscribe({
+    // const data = {session_id: localStorage.getItem('e_learning_session') || ''};
+    // this.loginService.logout(data).subscribe({
+    //   next: (res) => {
+    //     console.log('Logout successful:', res);
+    //   },
+    //   error: (err) => {
+    //     console.error('Logout error:', err);
+    //   }
+    // });
+    // localStorage.removeItem('currentUser');
+    // localStorage.removeItem('e_learning_token');
+    // localStorage.removeItem('e_learning_session');
+    // this.router.navigate(['/login']);
+
+    const user_token = {token: localStorage.getItem('e_learning_token') || ''};
+
+    const decode_token = jwtDecode(user_token.token);
+    const token: any = decode_token;
+    
+    this.http.post<any>(`${environment.BACKEND_BASE_URL}/api/auth/logout`, token.session).subscribe({
       next: (res) => {
         console.log('Logout successful:', res);
       },
@@ -217,9 +239,7 @@ getSectionTitle(section: string): string {
         console.error('Logout error:', err);
       }
     });
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('e_learning_token');
-    localStorage.removeItem('e_learning_session');
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }
