@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { AuthService, UserInfo } from '../services/auth.service';
 import { environment } from 'src/environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
@@ -59,11 +59,17 @@ export class DashboardComponent implements OnInit {
     ]
   };
 
+  userDetails: UserInfo | null = null;
+
   constructor(private router: Router, private authService: AuthService, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadUserData();
     this.loadThemePreference();
+
+    this.authService.user$.subscribe(user => {
+      this.userDetails = user;
+    })
   }
 
   loadUserData(): void {

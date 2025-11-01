@@ -1,13 +1,36 @@
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
+import { BehaviorSubject } from 'rxjs';
+
+export interface UserInfo{
+  user_id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private tokenKey = 'e_learning_token';
+  private storedUser = 'e_learning_user';
+
+  private userDetails = new BehaviorSubject<UserInfo | null>(null);
+  user$ = this.userDetails.asObservable();
   
-  constructor() { }
+  constructor() {
+    const elearningUser = localStorage.getItem(this.storedUser);
+    
+    if(elearningUser){
+      this.userDetails.next(JSON.parse(elearningUser));
+    }
+  }
+
+  setUserDetails(user: UserInfo): void{
+    localStorage.setItem(this.storedUser, JSON.stringify(user));
+    this.userDetails.next(user);
+  }
 
   setToken(token: string): void{
     localStorage.setItem(this.tokenKey, token);
@@ -31,5 +54,6 @@ export class AuthService {
 
   logout(): void{
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.storedUser);
   }
 }

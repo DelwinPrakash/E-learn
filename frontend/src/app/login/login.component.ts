@@ -21,6 +21,7 @@ export class LoginComponent {
     this.http.post<any>(`${environment.BACKEND_BASE_URL}/api/auth/login`, credentials).subscribe({
       next: (res) => {
         this.authService.setToken(res.token);
+        this.authService.setUserDetails(res.user);
         console.log(res.user);
         alert("Login successful!");
         this.router.navigate(['/dashboard']);
