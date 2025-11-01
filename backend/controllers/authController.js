@@ -24,6 +24,8 @@ const handleLogin = async (req, res) => {
             raw: true
         });
 
+        const userDetails = await User.findOne({ where: { user_id: user.user_id }});
+
         const token = jwt.sign({
             userID: user.user_id,
             email: user.email,
@@ -33,8 +35,8 @@ const handleLogin = async (req, res) => {
         });
 
         return res.json({
-            newSession: newSession,
-            token
+            token,
+            user: userDetails.dataValues,
         });
 
     }catch(error){
@@ -110,7 +112,7 @@ const handleRegister = async (req, res) => {
                         <h1 style="color: #333; text-align: center; font-size: 24px; margin-bottom: 20px;">
                             Verify Your Email Address
                         </h1>
-                        <p style="font-size: 16px; line-height: 1.5; color: #555;">Hi ${email},</p>
+                        <p style="font-size: 16px; line-height: 1.5; color: #555;">Hi ${name},</p>
                         <p style="font-size: 16px; line-height: 1.5; color: #555;">
                             Thank you for signing up! To complete your registration, please verify your email address by clicking the button below.
                         </p>
@@ -154,10 +156,10 @@ const handleRegister = async (req, res) => {
 }
 
 const handleLogout = async (req, res) => {
-    const { session_id: sessionID } = req.body;
+    const { session } = req.body;
 
     try{
-        const deleteSession = await UserSession.destroy({ where: { session_id: sessionID }});
+        const deleteSession = await UserSession.destroy({ where: { session_id: session }});
 
         if(deleteSession === 0) return res.status(400).json({"message": "Invalid session ID"});
 
@@ -168,8 +170,90 @@ const handleLogout = async (req, res) => {
     }
 }
 
+const recoverPassword = async (req, res) => {
+    const { email } = req.body;
+
+    const verificationToken = jwt.sign({
+        email
+    },  process.env.JWT_SECRET, {
+        expiresIn: '10m'
+    });
+
+    try{  
+        const user = await UserAuth.findOne({ where: { email } });
+        
+        if(!user) return res.status(401).json({"message": "User not found!"});
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_ID,
+                pass: process.env.EMAIL_PASSWORD
+            }
+        });
+
+        const mailOptions = {
+            from: process.env.EMAIL_ID,
+            to: email,
+            subject: 'Password Recovery - E-Learn',
+            html: `
+                <!DOCTYPE html>
+                <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Password Recovery</title>
+                    </head>
+                    <body style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+                        <h1 style="color: #333; text-align: center; font-size: 24px; margin-bottom: 20px;">
+                            Reset your password?
+                        </h1>
+                        <p style="font-size: 16px; line-height: 1.5; color: #555;">Hi ${email},</p>
+                        <p style="font-size: 16px; line-height: 1.5; color: #555;">
+                            If you requested a password reset for @${email}, use the confirmation link below to complete the process.
+                        </p>
+                        <a href="${process.env.FRONTEND_BASE_URL}/verify-email-for-password-reset?token=${verificationToken}" style="
+                            display: inline-block; 
+                            padding: 10px 20px; 
+                            background-color: #4CAF50; 
+                            color: #fff; 
+                            text-decoration: none; 
+                            border-radius: 5px; 
+                            text-align: center; 
+                            font-size: 16px; 
+                            margin: 20px 0;">
+                            Reset Password
+                        </a>
+                        <p style="font-size: 16px; line-height: 1.5; color: #555;">
+                            If you didn't make this request, ignore this email.
+                        </p>
+                        <p style="font-size: 16px; line-height: 1.5; color: #555;">
+                            Best regards, <br>
+                            E-LEARN
+                        </p>
+                    </body>
+                </html>
+            `
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if(error){
+                console.error("Error sending email:", error);
+                return res.status(500).json({"message": `Error sending verification email, ${error.message}`});
+            }
+        });      
+
+        return res.json({"message": "Password reset email sent successfully"});
+
+    }catch(error){
+        console.error(error.message);
+        return res.status(500).json({"message": "Server side error"});
+    }
+}
+
 export {
     handleLogin,
     handleRegister,
-    handleLogout
+    handleLogout,
+    recoverPassword
 };
