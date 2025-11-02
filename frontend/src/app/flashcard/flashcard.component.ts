@@ -208,9 +208,9 @@ export class FlashcardComponent implements OnInit {
 
   // Navigate cards
   moveToNextCard() {
+    this.isCardFlipped = false;
     if (this.currentCardIndex < this.filteredCards.length - 1) {
       this.currentCardIndex++;
-      this.isCardFlipped = false;
       this.updateProgress();
     } else {
       this.finishStudySession();
@@ -218,9 +218,9 @@ export class FlashcardComponent implements OnInit {
   }
 
   moveToPreviousCard() {
+    this.isCardFlipped = false;
     if (this.currentCardIndex > 0) {
       this.currentCardIndex--;
-      this.isCardFlipped = false;
       this.updateProgress();
     }
   }
