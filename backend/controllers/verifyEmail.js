@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import UserAuth from '../models/UserAuth.js';
 import bcrypt from 'bcrypt';
+import User from '../models/User.js';
 
 const verifyEmail = async (req, res) => {
     const { token } = req.query;
@@ -19,7 +20,9 @@ const verifyEmail = async (req, res) => {
         user.email_verified = true;
         await user.save();
 
-        return res.json({token, verified: true, "message": "Email verified successfully"});
+        const userDetails = await User.findOne({ where: { user_id: user.user_id }});
+
+        return res.json({token, verified: true, "message": "Email verified successfully", user: userDetails.dataValues});
 
     }catch(error){
         console.error(error.message);
