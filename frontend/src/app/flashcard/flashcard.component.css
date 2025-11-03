@@ -283,6 +283,7 @@ body {
 }
 
 /* Flashcard */
+/* Flashcard - FIXED VERSION */
 .card-section {
   max-width: 900px;
   margin: 0 auto;
@@ -294,6 +295,7 @@ body {
   perspective: 1000px;
   cursor: pointer;
   margin-bottom: 40px;
+  position: relative;
 }
 
 .card-inner {
@@ -321,6 +323,26 @@ body {
   border-radius: 24px;
   padding: 40px;
   text-align: center;
+  /* ADD THESE CRITICAL PROPERTIES */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.card-front {
+  background: linear-gradient(135deg, rgba(240, 147, 251, 0.9), rgba(245, 87, 108, 0.9));
+  box-shadow: 0 20px 60px rgba(245, 87, 108, 0.3);
+  /* Ensure front is visible by default */
+  transform: rotateY(0deg);
+  z-index: 2;
+}
+
+.card-back {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+  /* Start flipped and behind */
+  transform: rotateY(180deg);
+  z-index: 1;
 }
 
 .card-front {
@@ -761,4 +783,29 @@ body {
   .review-content {
     padding: 30px 16px;
   }
+}
+
+/* ============ FLICKER FIX ============ */
+.flashcard * {
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  transform-style: preserve-3d;
+}
+
+/* Ensure smooth transitions between cards */
+.card-section {
+  transform-style: preserve-3d;
+}
+
+/* Prevent flash of back content during card changes */
+.card-inner {
+  transform: rotateY(0deg);
+}
+
+.flashcard:not(.flipped) .card-back {
+  visibility: hidden;
+}
+
+.flashcard.flipped .card-front {
+  visibility: hidden;
 }
