@@ -37,6 +37,7 @@ export class EmailverificationComponent implements OnInit {
         this.http.get<any>(`${environment.BACKEND_BASE_URL}/api/user/verify-email?token=${token}`).subscribe({
           next: (res) => {
             this.authService.setToken(res.token);
+            this.authService.setUserDetails(res.user)
             this.isSuccess = true;
             this.isVerifying = false;
             this.router.navigate(['/dashboard']);
