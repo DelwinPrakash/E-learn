@@ -73,8 +73,9 @@ export class DashboardComponent implements OnInit {
   }
 
   loadUserData(): void {
-    const storedUser = localStorage.getItem('currentUser');
+    const storedUser = localStorage.getItem('e_learning_user');
     if (storedUser) {
+      this.userDetails = JSON.parse(storedUser);
       this.user = JSON.parse(storedUser);
     } else {
       this.user = {
