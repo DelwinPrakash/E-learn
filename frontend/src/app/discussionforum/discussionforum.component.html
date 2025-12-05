@@ -1,0 +1,152 @@
+<div class="forum-container">
+  <div class="forum-header">
+    <h1>💬 Discussion Forum</h1>
+    <p class="forum-subtitle">Connect with other learners and share knowledge</p>
+  </div>
+
+  <!-- View: Thread List -->
+  <div *ngIf="!showThreadDetail" class="threads-section">
+    <!-- New Thread Button -->
+    <div class="new-thread-section">
+      <button class="btn-create-thread" (click)="showNewThreadForm = !showNewThreadForm">
+        ✏️ Create New Thread
+      </button>
+    </div>
+
+    <!-- New Thread Form -->
+    <div *ngIf="showNewThreadForm" class="new-thread-form">
+      <h3>Start a New Discussion</h3>
+      <div class="form-group">
+        <label for="threadTitle">Thread Title</label>
+        <input 
+          id="threadTitle"
+          type="text" 
+          placeholder="Enter thread title" 
+          [(ngModel)]="newThreadTitle"
+          class="input-field">
+      </div>
+      <div class="form-group">
+        <label for="threadContent">Description</label>
+        <textarea 
+          id="threadContent"
+          placeholder="Write your question or topic here..." 
+          [(ngModel)]="newThreadContent"
+          rows="5"
+          class="textarea-field"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-post" (click)="createNewThread()">Post Thread</button>
+        <button class="btn-cancel" (click)="showNewThreadForm = false">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Threads List -->
+    <div class="threads-list">
+      <div *ngIf="threads.length === 0" class="empty-state">
+        <p>No threads yet. Be the first to start a discussion!</p>
+      </div>
+
+      <div *ngFor="let thread of threads" class="thread-item">
+        <div class="thread-left">
+          <div class="thread-icon">💭</div>
+        </div>
+
+        <div class="thread-middle">
+          <h3 class="thread-title" (click)="selectThread(thread)" style="cursor: pointer;">
+            {{ thread.title }}
+          </h3>
+          <p class="thread-content-preview">{{ thread.content }}</p>
+          <div class="thread-meta">
+            <span class="meta-item">👤 {{ thread.author }}</span>
+            <span class="meta-item">📅 {{ thread.createdAt }}</span>
+          </div>
+        </div>
+
+        <div class="thread-right">
+          <div class="thread-stat">
+            <span class="stat-number">{{ thread.replies }}</span>
+            <span class="stat-label">Replies</span>
+          </div>
+          <div class="thread-stat">
+            <span class="stat-number">{{ thread.views }}</span>
+            <span class="stat-label">Views</span>
+          </div>
+          <button class="btn-delete" *ngIf="thread.author === userName" (click)="deleteThread(thread.id)">
+            🗑️
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- View: Thread Detail -->
+  <div *ngIf="showThreadDetail && selectedThread" class="thread-detail">
+    <!-- Back Button -->
+    <button class="btn-back" (click)="backToThreads()">
+      ← Back to Threads
+    </button>
+
+    <!-- Thread Content -->
+    <div class="thread-content-section">
+      <h2 class="thread-detail-title">{{ selectedThread.title }}</h2>
+      <div class="thread-author-info">
+        <span class="author-name">👤 {{ selectedThread.author }}</span>
+        <span class="author-date">📅 {{ selectedThread.createdAt }}</span>
+      </div>
+      <div class="thread-description">
+        <p>{{ selectedThread.content }}</p>
+      </div>
+      <div class="thread-stats">
+        <span class="stat">{{ selectedThread.replies }} Replies</span>
+        <span class="stat">{{ selectedThread.views }} Views</span>
+      </div>
+    </div>
+
+    <!-- Replies Section -->
+    <div class="replies-section">
+      <h3>Replies ({{ replies.length }})</h3>
+
+      <!-- Reply Items -->
+      <div class="replies-list">
+        <div *ngFor="let reply of replies" class="reply-item">
+          <div class="reply-author-avatar">{{ reply.author.charAt(0) }}</div>
+          <div class="reply-content-wrapper">
+            <div class="reply-header">
+              <h4 class="reply-author">{{ reply.author }}</h4>
+              <span class="reply-date">{{ reply.createdAt }}</span>
+              <button class="btn-delete-small" *ngIf="reply.author === userName" (click)="deleteReply(reply.id)">
+                🗑️
+              </button>
+            </div>
+            <p class="reply-content">{{ reply.content }}</p>
+            <div class="reply-actions">
+              <button class="btn-like" (click)="likeReply(reply)">
+                👍 {{ reply.likes }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Replies -->
+      <div *ngIf="replies.length === 0" class="no-replies">
+        <p>No replies yet. Be the first to respond!</p>
+      </div>
+    </div>
+
+    <!-- New Reply Form -->
+    <div class="new-reply-section">
+      <h3>Add Your Reply</h3>
+      <div class="reply-form">
+        <textarea 
+          placeholder="Write your response here..." 
+          [(ngModel)]="newReplyContent"
+          rows="4"
+          class="textarea-field"></textarea>
+        <div class="form-actions">
+          <button class="btn-post" (click)="addReply()">Post Reply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

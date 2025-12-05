@@ -9,6 +9,7 @@ import { FlashcardComponent } from './flashcard/flashcard.component';
 import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
+import { DiscussionfomrComponent } from './discussionforum/discussionforum.component';
 import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
@@ -18,7 +19,8 @@ import { HttpClientModule } from '@angular/common/http';
     FlashcardComponent,
     LoginComponent,
     SignupComponent,
-    LeaderboardComponent
+    LeaderboardComponent,
+    DiscussionfomrComponent
   ],
   imports: [
     BrowserModule,
