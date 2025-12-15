@@ -34,19 +34,36 @@
 
 body {
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===== TOUCH-FRIENDLY IMPROVEMENTS ===== */
+@media (hover: none) and (pointer: coarse) {
+  /* Mobile/Touch devices */
+  button, .btn, .nav-tab, .menu-item, .stat-card {
+    min-height: 44px;
+    /* Apple recommendation for touch targets */
+  }
+  
+  a, .clickable {
+    min-height: 44px;
+    display: inline-block;
+  }
 }
 
 /* ===== DASHBOARD CONTAINER ===== */
 .dashboard-container {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: linear-gradient(135deg, #667eea 20%, #764ba2 50%, #f093fb 100%);
   position: relative;
 }
 
 /* ===== SIDEBAR STYLES ===== */
 .sidebar {
-  width: 280px;
+  width: 300px;
   background: var(--sidebar-bg);
   backdrop-filter: blur(10px);
   border-right: 2px solid var(--glass-border);
@@ -57,7 +74,7 @@ body {
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .sidebar::before {
@@ -472,7 +489,7 @@ body {
 }
 
 .stat-info h3 {
-  font-size: 36px;
+  font-size: 33px;
   font-weight: 900;
   color: white;
   margin-bottom: 4px;
@@ -591,6 +608,8 @@ body {
   font-weight: 500;
   transition: all 0.3s ease;
   color: white;
+  font-size: 16px;
+  /* 16px prevents zoom on iOS input focus */
 }
 
 .input-group input::placeholder {
@@ -604,6 +623,14 @@ body {
   box-shadow: 
     0 0 0 4px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile font size adjustment for better readability */
+@media (max-width: 768px) {
+  .input-group input {
+    font-size: 16px;
+    /* Prevents iOS from zooming when focusing input */
+  }
 }
 
 .input-hint {
@@ -705,21 +732,105 @@ body {
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
+
+/* Large Screens (1440px and above) */
+@media (min-width: 1441px) {
+  .sidebar {
+    width: 320px;
+  }
+  
+  .content-wrapper {
+    padding: 40px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .section-title {
+    font-size: 36px;
+  }
+  
+  .stat-card {
+    padding: 32px;
+  }
+}
+
+/* Medium Screens (1025px - 1440px) */
+@media (min-width: 1025px) and (max-width: 1440px) {
+  .sidebar {
+    width: 280px;
+  }
+  
+  .content-wrapper {
+    padding: 32px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+}
+
+/* Tablets and Small Laptops (768px - 1024px) */
 @media (max-width: 1024px) {
   .sidebar {
     width: 240px;
+  }
+  
+  .sidebar-logo {
+    font-size: 24px;
+  }
+  
+  .menu-item {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+  
+  .menu-icon {
+    font-size: 18px;
   }
   
   .content-wrapper {
     padding: 24px;
   }
   
+  .section-title {
+    font-size: 28px;
+  }
+  
+  .stat-card {
+    padding: 24px;
+    gap: 16px;
+  }
+  
+  .stat-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 36px;
+  }
+  
+  .stat-info h3 {
+    font-size: 28px;
+  }
+  
   .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
   }
+  
+  .nav-tab {
+    padding: 8px 18px;
+    font-size: 13px;
+  }
+  
+  .logout-btn {
+    padding: 8px 18px;
+    font-size: 13px;
+  }
 }
 
+/* Tablets and Medium Phones (481px - 768px) */
 @media (max-width: 768px) {
   .dashboard-container {
     flex-direction: column;
@@ -729,105 +840,152 @@ body {
     width: 100%;
     border-right: none;
     border-bottom: 2px solid var(--glass-border);
-    padding: 16px 0;
+    padding: 12px 0;
+    max-height: auto;
   }
   
   .sidebar.collapsed {
     width: 100%;
+    max-height: 60px;
+  }
+  
+  .sidebar.collapsed .menu-section {
+    display: none;
   }
   
   .sidebar-header {
-    padding: 0 16px 16px;
+    padding: 0 16px 12px;
+    margin-bottom: 12px;
+  }
+  
+  .sidebar-logo {
+    font-size: 20px;
+  }
+  
+  .toggle-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
   }
   
   .menu-section {
-    padding: 0 12px;
+    margin-bottom: 16px;
+    padding: 0 8px;
   }
   
-  .top-nav {
-    padding: 12px 20px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  
-  .nav-tabs {
-    flex-wrap: wrap;
-  }
-  
-  .content-wrapper {
-    padding: 20px 16px;
-  }
-  
-  .section-title {
-    font-size: 26px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  
-  .profile-card {
-    padding: 24px 20px;
-  }
-  
-  .input-row {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .sidebar-logo {
-    font-size: 22px;
+  .menu-title {
+    font-size: 10px;
+    margin-bottom: 8px;
+    padding: 0 8px;
   }
   
   .menu-item {
-    padding: 12px 14px;
+    padding: 10px 12px;
+    margin-bottom: 4px;
+    font-size: 13px;
   }
   
   .menu-icon {
-    font-size: 18px;
-    margin-right: 12px;
+    font-size: 16px;
+    margin-right: 8px;
   }
   
   .menu-text {
-    font-size: 14px;
+    font-size: 13px;
+  }
+  
+  .theme-toggle {
+    padding: 10px 14px;
+    font-size: 12px;
   }
   
   .top-nav {
-    padding: 10px 16px;
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .nav-tabs {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
   }
   
   .nav-tab {
-    padding: 8px 16px;
-    font-size: 14px;
+    padding: 8px 14px;
+    font-size: 12px;
+    min-width: auto;
+  }
+  
+  .user-actions {
+    width: 100%;
+    gap: 8px;
   }
   
   .logout-btn {
-    padding: 8px 16px;
-    font-size: 14px;
+    width: 100%;
+    padding: 8px 14px;
+    font-size: 12px;
   }
   
-  .section-title {
-    font-size: 22px;
+  .content-wrapper {
+    padding: 16px 12px;
+    overflow-y: auto;
+  }
+  
+  .content-section {
+    padding: 24px 16px;
+    border-radius: 16px;
     margin-bottom: 20px;
   }
   
+  .section-title {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
   .stat-card {
-    padding: 20px;
+    padding: 16px;
     flex-direction: column;
     text-align: center;
+    gap: 12px;
   }
   
   .stat-icon {
-    font-size: 40px;
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+    margin: 0 auto;
   }
   
   .stat-info h3 {
-    font-size: 28px;
+    font-size: 24px;
+  }
+  
+  .stat-info p {
+    font-size: 12px;
+  }
+  
+  .profile-section {
+    max-width: 100%;
+  }
+  
+  .profile-card {
+    padding: 24px 16px;
+    border-radius: 16px;
+  }
+  
+  .profile-header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
   }
   
   .avatar {
@@ -840,16 +998,339 @@ body {
   }
   
   .profile-name {
-    font-size: 22px;
+    font-size: 24px;
   }
   
   .section-heading {
     font-size: 18px;
+    margin-bottom: 16px;
   }
   
-  .save-btn {
+  .input-group {
+    margin-bottom: 16px;
+  }
+  
+  .input-group label {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .input-group input {
+    padding: 12px 16px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+  
+  .input-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .action-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .save-btn,
+  .reset-btn,
+  .delete-btn {
     width: 100%;
-    padding: 14px 24px;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  
+  .placeholder-text {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .placeholder-text p {
+    font-size: 14px;
+  }
+  
+  .action-btn {
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+}
+
+/* Small Phones (480px and below) */
+@media (max-width: 480px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    order: 1;
+    min-height: auto;
+    padding: 8px 0;
+  }
+  
+  .sidebar.collapsed {
+    max-height: 50px;
+    overflow: hidden;
+  }
+  
+  .sidebar-header {
+    padding: 8px 12px;
+    margin-bottom: 8px;
+  }
+  
+  .sidebar-logo {
+    font-size: 18px;
+  }
+  
+  .toggle-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+  
+  .menu-section {
+    margin-bottom: 12px;
+    padding: 0 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .menu-title {
+    display: none;
+  }
+  
+  .menu-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    width: 100%;
+  }
+  
+  .menu-item {
+    padding: 8px 10px;
+    margin-bottom: 0;
+    font-size: 12px;
+    flex: 0 0 auto;
+    border-radius: 8px;
+  }
+  
+  .menu-icon {
+    font-size: 14px;
+    margin-right: 4px;
+  }
+  
+  .menu-text {
+    font-size: 11px;
+    display: inline;
+  }
+  
+  .sidebar-footer {
+    padding: 8px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    margin-top: 8px;
+  }
+  
+  .theme-toggle {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 11px;
+    justify-content: center;
+  }
+  
+  .main-content {
+    order: 2;
+  }
+  
+  .top-nav {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  
+  .nav-tabs {
+    gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .nav-tab {
+    padding: 6px 12px;
+    font-size: 11px;
+    white-space: nowrap;
+    min-width: auto;
+    flex-shrink: 0;
+  }
+  
+  .user-actions {
+    gap: 4px;
+    flex-direction: column-reverse;
+  }
+  
+  .logout-btn {
+    width: 100%;
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+  
+  .content-wrapper {
+    padding: 12px 8px;
+    overflow-y: auto;
+  }
+  
+  .content-section {
+    padding: 16px 12px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .section-title {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .stat-card {
+    padding: 12px;
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    margin: 0 auto;
+  }
+  
+  .stat-info h3 {
+    font-size: 20px;
+    margin-bottom: 2px;
+  }
+  
+  .stat-info p {
+    font-size: 11px;
+  }
+  
+  .profile-section {
+    max-width: 100%;
+  }
+  
+  .profile-card {
+    padding: 16px 12px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(31, 38, 135, 0.15);
+  }
+  
+  .profile-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+  }
+  
+  .avatar-section {
+    margin-bottom: 16px;
+  }
+  
+  .avatar {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .avatar-text {
+    font-size: 32px;
+  }
+  
+  .profile-name {
+    font-size: 20px;
+    margin-top: 12px;
+  }
+  
+  .info-section {
+    margin-bottom: 24px;
+  }
+  
+  .section-heading {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .input-group {
+    margin-bottom: 12px;
+  }
+  
+  .input-group label {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  
+  .input-group input {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+  
+  .input-group input::placeholder {
+    font-size: 12px;
+  }
+  
+  .input-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .action-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .save-btn,
+  .reset-btn,
+  .delete-btn {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+  
+  .danger-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .placeholder-text {
+    padding: 16px 12px;
+    text-align: center;
+  }
+  
+  .placeholder-text p {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  
+  .action-btn {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  /* Horizontal scrolling for tables on small screens */
+  table {
+    font-size: 12px;
+  }
+  
+  th, td {
+    padding: 8px;
   }
 }
 
@@ -899,17 +1380,17 @@ input:focus-visible,
 /* ===== LEADERBOARD SPECIFIC STYLES ===== */
 .leaderboard-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: linear-gradient(135deg, #667eea 30%, #764ba2 30%, #f093fb 50%);
   padding: 40px 20px;
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .leaderboard-container::before {
   content: '';
   position: absolute;
-  width: 200%;
+  width: 300%;
   height: 200%;
   background: 
     radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
