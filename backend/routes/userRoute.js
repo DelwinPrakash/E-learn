@@ -5,6 +5,7 @@ import { discussionCard, createThread, addReply, getReplies, deleteThread, delet
 
 const router = express.Router();
 
+// Auth Routes
 router.get("/verify-email", verifyEmail);
 router.post("/reset-password", recoverPassword);
 router.post("/verify-email-for-password-reset", verifyEmailForPasswordReset);
