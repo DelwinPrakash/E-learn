@@ -18,21 +18,13 @@
       <h3>Start a New Discussion</h3>
       <div class="form-group">
         <label for="threadTitle">Thread Title</label>
-        <input 
-          id="threadTitle"
-          type="text" 
-          placeholder="Enter thread title" 
-          [(ngModel)]="newThreadTitle"
+        <input id="threadTitle" type="text" placeholder="Enter thread title" [(ngModel)]="newThreadTitle"
           class="input-field">
       </div>
       <div class="form-group">
         <label for="threadContent">Description</label>
-        <textarea 
-          id="threadContent"
-          placeholder="Write your question or topic here..." 
-          [(ngModel)]="newThreadContent"
-          rows="5"
-          class="textarea-field"></textarea>
+        <textarea id="threadContent" placeholder="Write your question or topic here..." [(ngModel)]="newThreadContent"
+          rows="5" class="textarea-field"></textarea>
       </div>
       <div class="form-actions">
         <button class="btn-post" (click)="createNewThread()">Post Thread</button>
@@ -58,7 +50,7 @@
           <p class="thread-content-preview">{{ thread.content }}</p>
           <div class="thread-meta">
             <span class="meta-item">👤 {{ thread.author }}</span>
-            <span class="meta-item">📅 {{ thread.createdAt }}</span>
+            <span class="meta-item">📅 {{ thread.createdAt | date:'mediumDate' }}</span>
           </div>
         </div>
 
@@ -91,7 +83,7 @@
       <h2 class="thread-detail-title">{{ selectedThread.title }}</h2>
       <div class="thread-author-info">
         <span class="author-name">👤 {{ selectedThread.author }}</span>
-        <span class="author-date">📅 {{ selectedThread.createdAt }}</span>
+        <span class="author-date">📅 {{ selectedThread.createdAt | date:'medium' }}</span>
       </div>
       <div class="thread-description">
         <p>{{ selectedThread.content }}</p>
@@ -113,16 +105,16 @@
           <div class="reply-content-wrapper">
             <div class="reply-header">
               <h4 class="reply-author">{{ reply.author }}</h4>
-              <span class="reply-date">{{ reply.createdAt }}</span>
+              <span class="reply-date">{{ reply.createdAt | date:'short' }}</span>
               <button class="btn-delete-small" *ngIf="reply.author === userName" (click)="deleteReply(reply.id)">
                 🗑️
               </button>
             </div>
             <p class="reply-content">{{ reply.content }}</p>
             <div class="reply-actions">
-              <button class="btn-like" (click)="likeReply(reply)">
+              <!-- <button class="btn-like" (click)="likeReply(reply)">
                 👍 {{ reply.likes }}
-              </button>
+              </button> -->
             </div>
           </div>
         </div>
@@ -138,10 +130,7 @@
     <div class="new-reply-section">
       <h3>Add Your Reply</h3>
       <div class="reply-form">
-        <textarea 
-          placeholder="Write your response here..." 
-          [(ngModel)]="newReplyContent"
-          rows="4"
+        <textarea placeholder="Write your response here..." [(ngModel)]="newReplyContent" rows="4"
           class="textarea-field"></textarea>
         <div class="form-actions">
           <button class="btn-post" (click)="addReply()">Post Reply</button>

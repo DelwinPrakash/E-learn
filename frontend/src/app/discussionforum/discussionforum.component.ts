@@ -1,26 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment.development';
-
-interface Thread {
-  id: string;
-  title: string;
-  content: string;
-  author: string;
-  replies: number;
-  views: number;
-  createdAt: string;
-  lastReplyAt: string;
-}
-
-interface Reply {
-  id: string;
-  threadId: string;
-  content: string;
-  author: string;
-  createdAt: string;
-  likes: number;
-}
+import { DiscussionService, Thread, Reply } from '../services/discussion.service';
+import { AuthService, UserInfo } from '../services/auth.service';
 
 @Component({
   selector: 'app-discussionforum',
@@ -37,8 +17,9 @@ export class DiscussionfomrComponent implements OnInit {
   showNewThreadForm: boolean = false;
   showThreadDetail: boolean = false;
   userName: string = '';
+  userId: string = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private discussionService: DiscussionService, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.loadUserName();
@@ -46,66 +27,46 @@ export class DiscussionfomrComponent implements OnInit {
   }
 
   loadUserName(): void {
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      this.userName = user.firstName + ' ' + user.lastName;
-    }
+    this.authService.user$.subscribe(user => {
+      if (user) {
+        this.userName = user.name;
+        this.userId = user.user_id;
+      }
+    });
   }
 
   loadThreads(): void {
-    // Load threads from mock data or API
-    this.threads = [
-      {
-        id: '1',
-        title: 'How to prepare for JavaScript interviews?',
-        content: 'Can anyone share tips for preparing JavaScript interviews?',
-        author: 'John Doe',
-        replies: 5,
-        views: 23,
-        createdAt: '2 days ago',
-        lastReplyAt: '1 day ago'
+    this.discussionService.getThreads().subscribe({
+      next: (data) => {
+        this.threads = data;
       },
-      {
-        id: '2',
-        title: 'Best Angular practices',
-        content: 'What are the current best practices in Angular development?',
-        author: 'Jane Smith',
-        replies: 8,
-        views: 45,
-        createdAt: '3 days ago',
-        lastReplyAt: '2 hours ago'
-      },
-      {
-        id: '3',
-        title: 'Learning TypeScript fundamentals',
-        content: 'I am new to TypeScript. Where should I start?',
-        author: 'Mike Johnson',
-        replies: 3,
-        views: 12,
-        createdAt: '5 days ago',
-        lastReplyAt: '3 days ago'
+      error: (error) => {
+        console.error('Error fetching threads:', error);
       }
-    ];
+    });
   }
 
   createNewThread(): void {
     if (this.newThreadTitle.trim() && this.newThreadContent.trim()) {
-      const newThread: Thread = {
-        id: Date.now().toString(),
+      const newThreadData = {
         title: this.newThreadTitle,
         content: this.newThreadContent,
-        author: this.userName,
-        replies: 0,
-        views: 1,
-        createdAt: 'just now',
-        lastReplyAt: 'just now'
+        author_id: this.userId
       };
-      this.threads.unshift(newThread);
-      this.newThreadTitle = '';
-      this.newThreadContent = '';
-      this.showNewThreadForm = false;
-      alert('Thread created successfully!');
+
+      this.discussionService.createThread(newThreadData).subscribe({
+        next: (response) => {
+          this.loadThreads(); // Reload threads to show the new one
+          this.newThreadTitle = '';
+          this.newThreadContent = '';
+          this.showNewThreadForm = false;
+          alert('Thread created successfully!');
+        },
+        error: (error) => {
+          console.error('Error creating thread:', error);
+          alert('Failed to create thread.');
+        }
+      });
     } else {
       alert('Please fill in all fields');
     }
@@ -118,41 +79,38 @@ export class DiscussionfomrComponent implements OnInit {
   }
 
   loadReplies(threadId: string): void {
-    // Mock replies data
-    this.replies = [
-      {
-        id: '1',
-        threadId: threadId,
-        content: 'Great question! You should focus on async/await, closures, and event loop.',
-        author: 'Alex Chen',
-        createdAt: '1 day ago',
-        likes: 12
+    this.discussionService.getReplies(threadId).subscribe({
+      next: (data) => {
+        this.replies = data;
       },
-      {
-        id: '2',
-        threadId: threadId,
-        content: 'Don\'t forget about promises and error handling. These are frequently asked!',
-        author: 'Sarah Williams',
-        createdAt: '1 day ago',
-        likes: 8
+      error: (error) => {
+        console.error('Error fetching replies:', error);
       }
-    ];
+    });
   }
 
   addReply(): void {
     if (this.newReplyContent.trim() && this.selectedThread) {
-      const newReply: Reply = {
-        id: Date.now().toString(),
-        threadId: this.selectedThread.id,
+      const newReplyData = {
+        thread_id: this.selectedThread.id,
         content: this.newReplyContent,
-        author: this.userName,
-        createdAt: 'just now',
-        likes: 0
+        author_id: this.userId
       };
-      this.replies.push(newReply);
-      this.selectedThread.replies += 1;
-      this.newReplyContent = '';
-      alert('Reply posted successfully!');
+
+      this.discussionService.addReply(newReplyData).subscribe({
+        next: (response) => {
+          if (this.selectedThread) {
+            this.loadReplies(this.selectedThread.id);
+            this.selectedThread.replies += 1; // Optimistic update
+          }
+          this.newReplyContent = '';
+          alert('Reply posted successfully!');
+        },
+        error: (error) => {
+          console.error('Error adding reply:', error);
+          alert('Failed to add reply.');
+        }
+      });
     } else {
       alert('Please write a reply');
     }
@@ -165,20 +123,42 @@ export class DiscussionfomrComponent implements OnInit {
   }
 
   likeReply(reply: Reply): void {
-    reply.likes += 1;
+    // reply.likes += 1;
   }
 
   deleteThread(threadId: string): void {
     if (confirm('Are you sure you want to delete this thread?')) {
-      this.threads = this.threads.filter(t => t.id !== threadId);
-      alert('Thread deleted successfully!');
+      this.discussionService.deleteThread(threadId).subscribe({
+        next: () => {
+          this.threads = this.threads.filter(t => t.id !== threadId);
+          if (this.selectedThread && this.selectedThread.id === threadId) {
+            this.backToThreads();
+          }
+          alert('Thread deleted successfully!');
+        },
+        error: (error) => {
+          console.error('Error deleting thread:', error);
+          alert('Failed to delete thread.');
+        }
+      });
     }
   }
 
   deleteReply(replyId: string): void {
     if (confirm('Are you sure you want to delete this reply?')) {
-      this.replies = this.replies.filter(r => r.id !== replyId);
-      alert('Reply deleted successfully!');
+      this.discussionService.deleteReply(replyId).subscribe({
+        next: () => {
+          this.replies = this.replies.filter(r => r.id !== replyId);
+          if (this.selectedThread) {
+            this.selectedThread.replies = Math.max(0, this.selectedThread.replies - 1);
+          }
+          alert('Reply deleted successfully!');
+        },
+        error: (error) => {
+          console.error('Error deleting reply:', error);
+          alert('Failed to delete reply.');
+        }
+      });
     }
   }
 }
