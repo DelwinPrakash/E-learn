@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DiscussionService, Thread, Reply } from '../services/discussion.service';
-import { AuthService, UserInfo } from '../services/auth.service';
+import { AuthService, UserInfo } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-discussionforum',

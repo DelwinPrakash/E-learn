@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService, UserInfo } from '../services/auth.service';
+import { AuthService, UserInfo } from '../../../core/auth/auth.service';
 import { environment } from 'src/environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
