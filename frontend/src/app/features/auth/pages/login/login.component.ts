@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment.development';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { AuthService as AuthApiService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -13,12 +12,12 @@ export class LoginComponent {
   email = '';
   password = '';
 
-  constructor(private router: Router, private http: HttpClient, private authService: AuthService) {}
+  constructor(private router: Router, private authService: AuthService, private authApiService: AuthApiService) { }
 
   onLogin() {
     const credentials = { email: this.email, password: this.password };
 
-    this.http.post<any>(`${environment.BACKEND_BASE_URL}/api/auth/login`, credentials).subscribe({
+    this.authApiService.login(credentials).subscribe({
       next: (res) => {
         this.authService.setToken(res.token);
         this.authService.setUserDetails(res.user);
