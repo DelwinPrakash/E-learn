@@ -19,6 +19,14 @@ const User = sequelize.define("User", {
   phone: {
     type: DataTypes.STRING(20),
   },
+  rank: {
+    type: DataTypes.INTEGER,
+    defaultValue: 1000,
+  },
+  xp: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
