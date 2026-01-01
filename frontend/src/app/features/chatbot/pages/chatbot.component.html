@@ -1,0 +1,14 @@
+<div class="chatbot-container">
+  <div class="chat-header"> 🤖 ChatBuddy</div>
+
+  <div class="messages" #messagesContainer role="log" aria-live="polite">
+    <div *ngFor="let m of messages" class="message" [ngClass]="m.sender">
+      <div class="bubble">{{ m.text }}</div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <textarea name="message" aria-label="Chat message" [(ngModel)]="newMessage" (keydown)="onKeydown($event)" placeholder="Type your question..." rows="2" autofocus></textarea>
+    <button aria-label="Send message" (click)="send()" [disabled]="loading || !newMessage.trim()">{{ loading ? '...' : 'Send' }}</button>
+  </div>
+</div>

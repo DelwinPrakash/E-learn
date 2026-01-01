@@ -7,6 +7,7 @@ import { SignupComponent } from './features/auth/pages/signup/signup.component';
 import { LeaderboardComponent } from './features/leaderboard/pages/leaderboard.component';
 import { EmailverificationComponent } from './features/emailverification/pages/emailverification.component';
 import { DiscussionfomrComponent } from './features/discussionforum/pages/discussionforum.component';
+import { ChatbotComponent } from './features/chatbot/pages/chatbot.component';
 import { authGuard } from './core/guard/auth.guard';
 
 const routes: Routes = [
@@ -17,6 +18,7 @@ const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
   { path: 'flashcard', component: FlashcardComponent },
   { path: 'leaderboard', component: LeaderboardComponent },
+  { path: 'chatbot', component: ChatbotComponent },
   { path: 'discussion-forum', component: DiscussionfomrComponent },
   { path: '**', redirectTo: '/dashboard' } // Wildcard route
 ];

@@ -10,6 +10,7 @@ import { LoginComponent } from './features/auth/pages/login/login.component';
 import { SignupComponent } from './features/auth/pages/signup/signup.component';
 import { LeaderboardComponent } from './features/leaderboard/pages/leaderboard.component';
 import { DiscussionfomrComponent } from './features/discussionforum/pages/discussionforum.component';
+import { ChatbotComponent } from './features/chatbot/pages/chatbot.component';
 import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
@@ -20,7 +21,8 @@ import { HttpClientModule } from '@angular/common/http';
     LoginComponent,
     SignupComponent,
     LeaderboardComponent,
-    DiscussionfomrComponent
+    DiscussionfomrComponent,
+    ChatbotComponent
   ],
   imports: [
     BrowserModule,
