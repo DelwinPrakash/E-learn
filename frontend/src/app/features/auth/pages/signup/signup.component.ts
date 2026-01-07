@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment.development';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-signup',
@@ -12,12 +11,12 @@ export class SignupComponent {
   email = '';
   password = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private authService: AuthService) { }
 
   onSignup() {
     const credentials = { name: this.name, email: this.email, password: this.password };
 
-    this.http.post<any>(`${environment.BACKEND_BASE_URL}/api/auth/signup`, credentials).subscribe({
+    this.authService.signup(credentials).subscribe({
       next: (res) => {
         alert('Signup successful, verify your email 🎉');
       },
