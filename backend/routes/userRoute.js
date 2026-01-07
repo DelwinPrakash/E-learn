@@ -18,4 +18,7 @@ router.post("/discussion/reply", addReply);
 router.delete("/discussion/:threadId", deleteThread);
 router.delete("/discussion/reply/:replyId", deleteReply);
 
+router.get("/flashcards/decks", verifyJWT, getDecks);
+router.get("/flashcards/decks/:deckId/cards", verifyJWT, getDeckCards);
+
 export default router;
