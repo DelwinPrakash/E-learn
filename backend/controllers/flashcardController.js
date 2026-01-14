@@ -9,7 +9,8 @@ const getDecks = async (req, res) => {
       include: [
         {
           model: Flashcard,
-          attributes: []
+          attributes: [],
+          required: false   // ✅ LEFT JOIN (CRITICAL)
         }
       ],
       attributes: [
@@ -22,13 +23,18 @@ const getDecks = async (req, res) => {
           "cardCount"
         ]
       ],
-      group: ["FlashcardDeck.deck_id"]
+      group: [
+        "FlashcardDeck.deck_id",
+        "FlashcardDeck.name",
+        "FlashcardDeck.description",
+        "FlashcardDeck.category"
+      ]
     });
 
-    return res.json(decks);
+    res.json(decks);
   } catch (error) {
     console.error("GET DECKS ERROR:", error);
-    return res.status(500).json({ message: "Server side error" });
+    res.status(500).json({ message: "Server side error" });
   }
 };
 

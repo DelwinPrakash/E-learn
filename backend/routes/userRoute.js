@@ -2,6 +2,8 @@ import express from "express";
 import { verifyEmail, verifyEmailForPasswordReset } from "../controllers/verifyEmail.js";
 import { recoverPassword } from "../controllers/authController.js";
 import { discussionCard, createThread, addReply, getReplies, deleteThread, deleteReply } from "../controllers/userController.js";
+import { verifyJWT } from "../middlewares/verifyJWT.js";
+import {  getDecks, getDeckCards } from "../controllers/flashcardController.js";
 
 const router = express.Router();
 
