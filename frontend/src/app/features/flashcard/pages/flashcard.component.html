@@ -5,12 +5,13 @@
     <p class="subtitle">Choose a deck to start learning</p>
     <button class="back-btn" (click)="goToDashboard()">← Back to Dashboard</button>
   </div>
+ 
 
   <div class="decks-grid">
     <div class="deck-card" *ngFor="let deck of decks" (click)="loadDeck(deck)">
       <div class="deck-header">
         <h3 class="deck-name">{{ deck.name }}</h3>
-        <span class="card-count">{{ deck.cardCount }} cards</span>
+        <span class="card-count">view cards</span>
       </div>
       <p class="deck-description">{{ deck.description }}</p>
       <div class="deck-footer">
