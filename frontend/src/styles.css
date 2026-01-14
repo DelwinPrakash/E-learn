@@ -1,1 +1,56 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global Styles */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 100%, #764ba2 100%);
+    --secondary-gradient: linear-gradient(135deg, #f093fb 100%, #f5576c 100%);
+    --background-dark: #1a202c;
+    --text-primary: #2d3748;
+    --text-secondary: #718096;
+    --font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family-base);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f7fafc;
+    color: var(--text-primary);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.5);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.8);
+}
+
+/* Global Utility Classes */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Mode Global Overrides if needed */
+body.dark-mode {
+    background-color: var(--background-dark);
+    color: #fff;
+}

@@ -11,18 +11,29 @@ import { ChatbotComponent } from './features/chatbot/pages/chatbot.component';
 import { VideoToTextComponent } from './features/video-to-text/pages/video-to-text.component';
 import { authGuard } from './core/guard/auth.guard';
 
+import { MainLayoutComponent } from './core/layout/main-layout/main-layout.component';
+
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'verify-email', component: EmailverificationComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'flashcard', component: FlashcardComponent },
-  { path: 'leaderboard', component: LeaderboardComponent },
-  { path: 'chatbot', component: ChatbotComponent },
-  { path: 'discussion-forum', component: DiscussionfomrComponent },
-  { path: 'video-to-text', component: VideoToTextComponent },
-  { path: '**', redirectTo: '/dashboard' } // Wildcard route
+
+  {
+    path: '',
+    component: MainLayoutComponent,
+    // canActivate: [authGuard],
+    children: [
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'flashcard', component: FlashcardComponent },
+      { path: 'leaderboard', component: LeaderboardComponent },
+      { path: 'chatbot', component: ChatbotComponent },
+      { path: 'discussion-forum', component: DiscussionfomrComponent },
+      { path: 'video-to-text', component: VideoToTextComponent },
+    ]
+  },
+
+  { path: '**', redirectTo: '/dashboard' }
 ];
 
 @NgModule({

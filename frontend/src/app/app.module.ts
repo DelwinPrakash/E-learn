@@ -11,6 +11,7 @@ import { SignupComponent } from './features/auth/pages/signup/signup.component';
 import { LeaderboardComponent } from './features/leaderboard/pages/leaderboard.component';
 import { DiscussionfomrComponent } from './features/discussionforum/pages/discussionforum.component';
 import { ChatbotComponent } from './features/chatbot/pages/chatbot.component';
+import { MainLayoutComponent } from './core/layout/main-layout/main-layout.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MarkdownModule } from 'ngx-markdown';
 import { VideoToTextComponent } from './features/video-to-text/pages/video-to-text.component';
@@ -25,7 +26,8 @@ import { VideoToTextComponent } from './features/video-to-text/pages/video-to-te
     LeaderboardComponent,
     DiscussionfomrComponent,
     ChatbotComponent,
-    VideoToTextComponent
+    VideoToTextComponent,
+    MainLayoutComponent
   ],
   imports: [
     BrowserModule,
