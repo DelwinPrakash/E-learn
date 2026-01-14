@@ -1,34 +1,38 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { AuthService } from '../core/auth/auth.service'; // ✅ FIXED
 
 @Injectable({
   providedIn: 'root'
 })
 export class FlashcardService {
 
-  private API = 'http://localhost:3000/api/flashcards';
+  private apiUrl = 'http://localhost:3000/api/user';
 
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService
-  ) {}
+  constructor(private http: HttpClient) {}
 
-  private headers() {
-    const token = this.authService.getToken();
-    return {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${token}`
-      })
-    };
+  getDecks() {
+    const token = localStorage.getItem('token');
+
+    return this.http.get<any[]>(
+      `${this.apiUrl}/flashcards/decks`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
   }
 
-  getDecks(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.API}/decks`, this.headers());
-  }
+  getDeckCards(deckId: string) {
+    const token = localStorage.getItem('token');
 
-  getDeckCards(deckId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.API}/decks/${deckId}/cards`, this.headers());
+    return this.http.get<any[]>(
+      `${this.apiUrl}/flashcards/decks/${deckId}/cards`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
   }
 }

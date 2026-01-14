@@ -19,10 +19,14 @@ export class LoginComponent {
 
     this.authApiService.login(credentials).subscribe({
       next: (res) => {
-        this.authService.setToken(res.token);
-        this.authService.setUserDetails(res.user);
+        //this.authService.setToken(res.token);
+        //this.authService.setUserDetails(res.user);
+        console.log("LOGIN RESPONSE FULL:", res);
+        console.log("TOKEN VALUE:", res.token);
         console.log(res.user);
         alert("Login successful!");
+       this.authService.setToken(res.token);
+        this.authService.setUserDetails(res.user);
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
