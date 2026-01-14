@@ -13,6 +13,7 @@ import { DiscussionfomrComponent } from './features/discussionforum/pages/discus
 import { ChatbotComponent } from './features/chatbot/pages/chatbot.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MarkdownModule } from 'ngx-markdown';
+import { VideoToTextComponent } from './features/video-to-text/pages/video-to-text.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { MarkdownModule } from 'ngx-markdown';
     SignupComponent,
     LeaderboardComponent,
     DiscussionfomrComponent,
-    ChatbotComponent
+    ChatbotComponent,
+    VideoToTextComponent
   ],
   imports: [
     BrowserModule,

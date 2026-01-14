@@ -45,6 +45,7 @@ export class DashboardComponent implements OnInit {
     ],
     learn: [
       { name: 'Video Class', icon: '🎥', route: 'video-class' },
+      { name: 'Video to Text', icon: '✨', route: 'video-to-text' },
       { name: 'Materials', icon: '📚', route: 'materials' },
       { name: 'Learning Paths', icon: '🛤️', route: 'learning-paths' }
     ],
@@ -61,7 +62,7 @@ export class DashboardComponent implements OnInit {
 
   userDetails: UserInfo | null = null;
 
-  constructor(private router: Router, private authService: AuthService, private http: HttpClient) {}
+  constructor(private router: Router, private authService: AuthService, private http: HttpClient) { }
 
   ngOnInit(): void {
     this.loadUserData();
@@ -103,7 +104,7 @@ export class DashboardComponent implements OnInit {
 
   selectTab(tab: string): void {
     this.activeTab = tab;
-    
+
     if (tab === 'Profile') {
       this.activeSection = 'profile';
     } else {
@@ -122,40 +123,42 @@ export class DashboardComponent implements OnInit {
       'chatbot': 'Dashboard',
       'flashcard': 'Dashboard',
       'quiz': 'Dashboard',
-      'discussion-forum': 'Dashboard'
+      'discussion-forum': 'Dashboard',
+      'video-to-text': 'Dashboard'
     };
     this.activeTab = tabMap[section] || 'Dashboard';
   }
 
   // Add these methods to your existing DashboardComponent class:
 
-getAllSections(): string[] {
-  const sections = new Set<string>();
-  sections.add('Dashboard');
-  sections.add('Profile');
-  // Add other sections as needed
-  return Array.from(sections);
-}
+  getAllSections(): string[] {
+    const sections = new Set<string>();
+    sections.add('Dashboard');
+    sections.add('Profile');
+    // Add other sections as needed
+    return Array.from(sections);
+  }
 
-getSectionTitle(section: string): string {
-  const titleMap: { [key: string]: string } = {
-    'dashboard': 'Dashboard',
-    'profile': 'Profile Settings',
-    'leaderboard': 'Leaderboard',
-    'video-class': 'Video Classes',
-    'materials': 'Learning Materials',
-    'learning-paths': 'Learning Paths',
-    'chatbot': 'AI Chatbot',
-    'flashcard': 'Flash Cards',
-    'quiz': 'Quizzes',
-    'discussion-forum': 'Discussion Forum'
-  };
-  return titleMap[section] || section;
-}
+  getSectionTitle(section: string): string {
+    const titleMap: { [key: string]: string } = {
+      'dashboard': 'Dashboard',
+      'profile': 'Profile Settings',
+      'leaderboard': 'Leaderboard',
+      'video-class': 'Video Classes',
+      'materials': 'Learning Materials',
+      'learning-paths': 'Learning Paths',
+      'chatbot': 'AI Chatbot',
+      'flashcard': 'Flash Cards',
+      'quiz': 'Quizzes',
+      'discussion-forum': 'Discussion Forum',
+      'video-to-text': 'Video to Text'
+    };
+    return titleMap[section] || section;
+  }
 
   toggleTheme(): void {
     this.isDarkMode = !this.isDarkMode;
-    
+
     if (this.isDarkMode) {
       document.body.classList.add('dark-mode');
       localStorage.setItem('theme', 'dark');
@@ -218,12 +221,12 @@ getSectionTitle(section: string): string {
   }
 
   logout(): void {
-    const user_token = {token: localStorage.getItem('e_learning_token') || ''};
+    const user_token = { token: localStorage.getItem('e_learning_token') || '' };
 
     const decode_token = jwtDecode(user_token.token);
     const token: any = decode_token;
 
-    this.http.post<any>(`${environment.BACKEND_BASE_URL}/api/auth/logout`, {session: token.session}).subscribe({
+    this.http.post<any>(`${environment.BACKEND_BASE_URL}/api/auth/logout`, { session: token.session }).subscribe({
       next: (res) => {
         console.log('Logout successful:', res);
       },
