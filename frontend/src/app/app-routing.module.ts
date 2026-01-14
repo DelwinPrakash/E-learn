@@ -8,6 +8,7 @@ import { LeaderboardComponent } from './features/leaderboard/pages/leaderboard.c
 import { EmailverificationComponent } from './features/emailverification/pages/emailverification.component';
 import { DiscussionfomrComponent } from './features/discussionforum/pages/discussionforum.component';
 import { ChatbotComponent } from './features/chatbot/pages/chatbot.component';
+import { VideoToTextComponent } from './features/video-to-text/pages/video-to-text.component';
 import { authGuard } from './core/guard/auth.guard';
 
 const routes: Routes = [
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'leaderboard', component: LeaderboardComponent },
   { path: 'chatbot', component: ChatbotComponent },
   { path: 'discussion-forum', component: DiscussionfomrComponent },
+  { path: 'video-to-text', component: VideoToTextComponent },
   { path: '**', redirectTo: '/dashboard' } // Wildcard route
 ];
 

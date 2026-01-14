@@ -1,0 +1,68 @@
+<div class="video-to-text-container">
+  <div class="header">
+    <h1 class="title">🎥 Video to Text</h1>
+    <p class="subtitle">Transform your educational videos into searchable text</p>
+    <button class="back-btn" (click)="goToDashboard()">← Back to Dashboard</button>
+  </div>
+
+  <div class="content-grid">
+    <!-- Input Section -->
+    <div class="input-section glass-card">
+      <h2 class="section-title">Upload Video</h2>
+
+      <div class="upload-area" (click)="fileInput.click()" [class.has-file]="fileName">
+        <div class="upload-icon">📤</div>
+        <p class="upload-text" *ngIf="!fileName">Drag & drop or click to upload video</p>
+        <p class="file-name" *ngIf="fileName">{{ fileName }}</p>
+        <input #fileInput type="file" (change)="onFileSelected($event)" accept="video/*" style="display: none">
+      </div>
+
+      <div class="divider">
+        <span>OR</span>
+      </div>
+
+      <div class="url-input-group">
+        <label>Video URL</label>
+        <input type="text" [(ngModel)]="videoUrl" placeholder="Paste direct media link (e.g. .mp4, .mp3)..."
+          class="glass-input">
+        <p class="input-hint" style="margin-top: 5px; color: rgba(255, 255, 255, 0.6); font-size: 12px;">
+          Note: Use direct links to video files. YouTube/Drive URLs are not supported.
+        </p>
+      </div>
+
+      <div class="actions">
+        <button class="convert-btn" (click)="convertVideo()" [disabled]="isConverting || (!selectedFile && !videoUrl)">
+          <span *ngIf="!isConverting">✨ Convert to Text</span>
+          <span *ngIf="isConverting">⏳ Converting...</span>
+        </button>
+        <button class="clear-btn" (click)="clearAll()" [disabled]="isConverting">
+          🗑️ Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Output Section -->
+    <div class="output-section glass-card">
+      <div class="output-header">
+        <h2 class="section-title">Transcription Results</h2>
+        <button class="copy-btn" *ngIf="transcription">📋 Copy</button>
+      </div>
+
+      <div class="transcription-container">
+        <div *ngIf="isConverting" class="loading-state">
+          <div class="loader"></div>
+          <p>{{ statusMessage || 'Analyzing video audio... This may take a few moments.' }}</p>
+        </div>
+
+        <div *ngIf="!isConverting && transcription" class="text-content">
+          {{ transcription }}
+        </div>
+
+        <div *ngIf="!isConverting && !transcription" class="empty-state">
+          <div class="empty-icon">📝</div>
+          <p>Your transcription will appear here after conversion.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

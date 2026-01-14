@@ -11,10 +11,8 @@
     <div class="menu-section">
       <div class="menu-title">Overview</div>
       <ul class="menu-list">
-        <li *ngFor="let item of menuItems.overview" 
-            class="menu-item" 
-            [class.active]="activeSection === item.route"
-            (click)="selectMenuItem(item.route)">
+        <li *ngFor="let item of menuItems.overview" class="menu-item" [class.active]="activeSection === item.route"
+          (click)="selectMenuItem(item.route)">
           <span class="menu-icon">{{ item.icon }}</span>
           <span class="menu-text">{{ item.name }}</span>
         </li>
@@ -24,10 +22,8 @@
     <div class="menu-section">
       <div class="menu-title">Learn</div>
       <ul class="menu-list">
-        <li *ngFor="let item of menuItems.learn" 
-            class="menu-item" 
-            [class.active]="activeSection === item.route"
-            (click)="selectMenuItem(item.route)">
+        <li *ngFor="let item of menuItems.learn" class="menu-item" [class.active]="activeSection === item.route"
+          (click)="selectMenuItem(item.route)">
           <span class="menu-icon">{{ item.icon }}</span>
           <span class="menu-text">{{ item.name }}</span>
         </li>
@@ -37,10 +33,8 @@
     <div class="menu-section">
       <div class="menu-title">Practice</div>
       <ul class="menu-list">
-        <li *ngFor="let item of menuItems.practice" 
-            class="menu-item" 
-            [class.active]="activeSection === item.route"
-            (click)="selectMenuItem(item.route)">
+        <li *ngFor="let item of menuItems.practice" class="menu-item" [class.active]="activeSection === item.route"
+          (click)="selectMenuItem(item.route)">
           <span class="menu-icon">{{ item.icon }}</span>
           <span class="menu-text">{{ item.name }}</span>
         </li>
@@ -50,10 +44,8 @@
     <div class="menu-section">
       <div class="menu-title">Profile</div>
       <ul class="menu-list">
-        <li *ngFor="let item of menuItems.profile" 
-            class="menu-item" 
-            [class.active]="activeSection === item.route"
-            (click)="selectMenuItem(item.route)">
+        <li *ngFor="let item of menuItems.profile" class="menu-item" [class.active]="activeSection === item.route"
+          (click)="selectMenuItem(item.route)">
           <span class="menu-icon">{{ item.icon }}</span>
           <span class="menu-text">{{ item.name }}</span>
         </li>
@@ -73,10 +65,8 @@
     <!-- Top Navigation -->
     <div class="top-nav">
       <div class="nav-tabs">
-        <button *ngFor="let tab of getAllSections()" 
-                class="nav-tab" 
-                [class.active]="activeTab === tab"
-                (click)="selectTab(tab)">
+        <button *ngFor="let tab of getAllSections()" class="nav-tab" [class.active]="activeTab === tab"
+          (click)="selectTab(tab)">
           {{ tab }}
         </button>
       </div>
@@ -130,7 +120,8 @@
 
         <!-- Quick Actions -->
         <div style="margin-top: 48px;">
-          <h2 style="font-size: 28px; font-weight: 800; color: white; margin-bottom: 24px; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);">
+          <h2
+            style="font-size: 28px; font-weight: 800; color: white; margin-bottom: 24px; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);">
             Quick Actions
           </h2>
           <div class="stats-grid">
@@ -162,6 +153,13 @@
                 <p>See your ranking</p>
               </div>
             </div>
+            <div class="stat-card" (click)="selectMenuItem('video-to-text')" style="cursor: pointer;">
+              <div class="stat-icon">✨</div>
+              <div class="stat-info">
+                <h3>Video to Text</h3>
+                <p>Transcribe video to text</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -182,37 +180,22 @@
             <h2 class="section-heading">Personal Information</h2>
             <div class="input-group">
               <label>Username</label>
-              <input 
-                type="text" 
-                [value]="userDetails?.name" 
-                (input)="updateUsername($event)"
+              <input type="text" [value]="userDetails?.name" (input)="updateUsername($event)"
                 placeholder="Enter your username">
             </div>
             <div class="input-row">
               <div class="input-group">
                 <label>First Name</label>
-                <input 
-                  type="text" 
-                  [value]="user.firstName" 
-                  (input)="updateFirstName($event)"
-                  placeholder="First name">
+                <input type="text" [value]="user.firstName" (input)="updateFirstName($event)" placeholder="First name">
               </div>
               <div class="input-group">
                 <label>Last Name</label>
-                <input 
-                  type="text" 
-                  [value]="user.lastName" 
-                  (input)="updateLastName($event)"
-                  placeholder="Last name">
+                <input type="text" [value]="user.lastName" (input)="updateLastName($event)" placeholder="Last name">
               </div>
             </div>
             <div class="input-group">
               <label>Email Address</label>
-              <input 
-                type="email" 
-                [value]="user.email" 
-                (input)="updateEmail($event)"
-                placeholder="Enter your email">
+              <input type="email" [value]="user.email" (input)="updateEmail($event)" placeholder="Enter your email">
             </div>
           </div>
 
