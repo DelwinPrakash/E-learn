@@ -3,7 +3,9 @@
 
   <div class="messages" #messagesContainer role="log" aria-live="polite">
     <div *ngFor="let m of messages" class="message" [ngClass]="m.sender">
-      <div class="bubble">{{ m.text }}</div>
+      <div class="bubble">
+        <markdown [data]="m.text"></markdown>
+      </div>
     </div>
   </div>
 
