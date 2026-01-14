@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from 'src/environments/environment.development';
+import { AuthService } from 'src/app/core/auth/auth.service';
 
 export interface ChatMessage {
   sender: 'user' | 'bot';
@@ -9,20 +12,40 @@ export interface ChatMessage {
 
 @Injectable({ providedIn: 'root' })
 export class ChatbotService {
-  constructor() { }
+  private apiUrl = `${environment.BACKEND_BASE_URL}/api/chat`;
+
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   sendMessage(text: string): Observable<{ text: string }> {
-    // For now return a stubbed response. Replace with HTTP calls to your backend when ready.
-    const reply = this.generateReply(text);
-    return of({ text: reply }).pipe(delay(700));
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post<{ response: string }>(this.apiUrl, { message: text }, { headers }).pipe(
+      map(res => ({ text: res.response }))
+    );
   }
 
-  private generateReply(userText: string): string {
-    const lower = userText.toLowerCase();
-    if (lower.includes('hello') || lower.includes('hi')) return 'Hello! How can I help you with your learning today?';
-    if (lower.includes('quiz')) return 'You can take quizzes under the Quiz section. Want a sample question?';
-    if (lower.includes('flash') || lower.includes('flashcard')) return 'Flash cards help with active recall. Try the Flash Cards section to start practicing.';
-    if (lower.includes('course') || lower.includes('materials')) return 'You can access course materials from the Dashboard under Learning Materials.';
-    return "That's interesting — tell me more, or ask me a specific question about your course or quizzes.";
+  getChatHistory(): Observable<ChatMessage[]> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<{ chats: any[] }>(`${this.apiUrl}/history`, { headers }).pipe(
+      map(res => {
+        const history: ChatMessage[] = [];
+        res.chats.forEach(chat => {
+          if (chat.message) {
+            history.push({ sender: 'user', text: chat.message });
+          }
+          if (chat.response) {
+            history.push({ sender: 'bot', text: chat.response });
+          }
+        });
+        return history;
+      })
+    );
   }
 }

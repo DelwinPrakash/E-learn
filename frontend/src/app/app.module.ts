@@ -12,6 +12,7 @@ import { LeaderboardComponent } from './features/leaderboard/pages/leaderboard.c
 import { DiscussionfomrComponent } from './features/discussionforum/pages/discussionforum.component';
 import { ChatbotComponent } from './features/chatbot/pages/chatbot.component';
 import { HttpClientModule } from '@angular/common/http';
+import { MarkdownModule } from 'ngx-markdown';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { HttpClientModule } from '@angular/common/http';
     HttpClientModule,
     FormsModule, // Add FormsModule here
     RouterModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MarkdownModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

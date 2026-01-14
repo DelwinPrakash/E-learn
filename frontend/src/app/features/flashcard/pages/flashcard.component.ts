@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { FlashcardService } from '../../../services/flashcard.service';
+import { FlashcardService } from '../services/flashcard.service';
 
 @Component({
   selector: 'app-flashcard',
@@ -35,7 +35,7 @@ export class FlashcardComponent implements OnInit {
   constructor(
     private flashcardService: FlashcardService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadDecks();

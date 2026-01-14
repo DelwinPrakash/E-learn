@@ -15,9 +15,23 @@ export class ChatbotComponent implements OnInit {
   constructor(private chatbotService: ChatbotService) { }
 
   ngOnInit(): void {
-    // welcome message
-    this.messages.push({ sender: 'bot', text: 'Hi! I am your learning assistant. Ask me anything about the course.' });
-    setTimeout(() => this.scrollToBottom(), 0);
+    // Load chat history
+    this.chatbotService.getChatHistory().subscribe({
+      next: (history) => {
+        if (history && history.length > 0) {
+          this.messages = history;
+        } else {
+          // welcome message
+          this.messages.push({ sender: 'bot', text: 'Hi! I am your learning assistant. Ask me anything about the course.' });
+        }
+        setTimeout(() => this.scrollToBottom(), 100);
+      },
+      error: (err) => {
+        console.error('Failed to load chat history', err);
+        // Fallback to welcome message
+        this.messages.push({ sender: 'bot', text: 'Hi! I am your learning assistant. Ask me anything about the course.' });
+      }
+    });
   }
 
   private scrollToBottom(): void {

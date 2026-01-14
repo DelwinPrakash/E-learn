@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import UserSession from "../models/UserSession";
+import UserSession from "../models/UserSession.js";
 
 const verifyJWT = async (req, res, next) => {
     const token = req.headers.authorization.split(" ")[1];
@@ -9,7 +9,7 @@ const verifyJWT = async (req, res, next) => {
     try{
         const decode = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user_session = await UserSession.findOne({ where: { session_id: decode.session_id } });
+        const user_session = await UserSession.findOne({ where: { session_id: decode.session } });
         
         if(!user_session) return res.status(401).json({"message": "Session not found, unauthorized!"});
         
@@ -20,4 +20,4 @@ const verifyJWT = async (req, res, next) => {
     }
 }
 
-export default verifyJWT;
+export { verifyJWT };
