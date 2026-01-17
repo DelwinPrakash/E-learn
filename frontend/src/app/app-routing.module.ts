@@ -9,6 +9,7 @@ import { EmailverificationComponent } from './features/emailverification/pages/e
 import { DiscussionfomrComponent } from './features/discussionforum/pages/discussionforum.component';
 import { ChatbotComponent } from './features/chatbot/pages/chatbot.component';
 import { VideoToTextComponent } from './features/video-to-text/pages/video-to-text.component';
+import { ProfileComponent } from './features/profile/profile.component';
 import { authGuard } from './core/guard/auth.guard';
 
 import { MainLayoutComponent } from './core/layout/main-layout/main-layout.component';
@@ -30,6 +31,7 @@ const routes: Routes = [
       { path: 'chatbot', component: ChatbotComponent },
       { path: 'discussion-forum', component: DiscussionfomrComponent },
       { path: 'video-to-text', component: VideoToTextComponent },
+      { path: 'profile', component: ProfileComponent },
     ]
   },
 

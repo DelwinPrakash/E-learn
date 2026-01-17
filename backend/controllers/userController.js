@@ -1,11 +1,13 @@
 import Thread from "../models/Thread.js";
 import Reply from "../models/Reply.js";
 import User from "../models/User.js";
+import UserAuth from "../models/UserAuth.js";
 
 // Define associations
 Thread.belongsTo(User, { foreignKey: 'author_id' });
 Reply.belongsTo(User, { foreignKey: 'author_id' });
 Reply.belongsTo(Thread, { foreignKey: 'thread_id' });
+User.belongsTo(UserAuth, { foreignKey: 'user_id' });
 
 const flashCard = async () => { }
 
@@ -135,4 +137,33 @@ const deleteReply = async (req, res) => {
     }
 }
 
-export { flashCard, quizCard, discussionCard, createThread, addReply, getReplies, deleteThread, deleteReply };
+const getUserProfile = async (req, res) => {
+    try {
+        const userId = req.user.user_id;
+        const user = await User.findOne({
+            where: { user_id: userId },
+            include: [{
+                model: UserAuth,
+                attributes: ['email']
+            }],
+            attributes: ['name', 'role', 'phone', 'rank', 'xp', 'created_at']
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const userData = {
+            ...user.toJSON(),
+            email: user.UserAuth ? user.UserAuth.email : null
+        };
+        delete userData.UserAuth;
+
+        res.status(200).json(userData);
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+export { flashCard, quizCard, discussionCard, createThread, addReply, getReplies, deleteThread, deleteReply, getUserProfile };

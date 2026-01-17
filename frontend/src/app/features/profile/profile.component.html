@@ -1,0 +1,77 @@
+<div class="profile-container">
+  <div
+    class="glass-card"
+    *ngIf="user$ | async as user; else loading"
+  >
+
+    <!-- Decorative blobs -->
+    <div class="blob blob-purple"></div>
+    <div class="blob blob-indigo delay-2"></div>
+    <div class="blob blob-pink delay-4"></div>
+
+    <div class="content-grid">
+
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="avatar-wrapper">
+          <div class="avatar-glow"></div>
+          <div class="avatar">
+            {{ user.name.charAt(0) }}
+          </div>
+        </div>
+
+        <div class="profile-text">
+          <h2>{{ user.name }}</h2>
+          <span class="role-badge">{{ user.role }}</span>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="details-section">
+        <div class="info-grid">
+          <div class="info-card">
+            <span class="label">Email</span>
+            <span class="value">{{ user.email }}</span>
+          </div>
+
+          <div class="info-card">
+            <span class="label">Phone</span>
+            <span class="value">{{ user.phone || 'N/A' }}</span>
+          </div>
+
+          <div class="info-card">
+            <span class="label">Member Since</span>
+            <span class="value">
+              {{ user.created_at | date:'mediumDate' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="stats">
+          <h3>
+            ⚡ Performance Stats
+          </h3>
+
+          <div class="stats-grid">
+            <div class="stat-card yellow">
+              <div class="stat-value">{{ user.rank }}</div>
+              <div class="stat-label">Global Rank</div>
+            </div>
+
+            <div class="stat-card blue">
+              <div class="stat-value">{{ user.xp }}</div>
+              <div class="stat-label">Total XP</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <div class="loader">
+      <div class="spinner"></div>
+    </div>
+  </ng-template>
+</div>

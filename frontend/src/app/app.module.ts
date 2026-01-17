@@ -15,6 +15,7 @@ import { MainLayoutComponent } from './core/layout/main-layout/main-layout.compo
 import { HttpClientModule } from '@angular/common/http';
 import { MarkdownModule } from 'ngx-markdown';
 import { VideoToTextComponent } from './features/video-to-text/pages/video-to-text.component';
+import { ProfileComponent } from './features/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { VideoToTextComponent } from './features/video-to-text/pages/video-to-te
     DiscussionfomrComponent,
     ChatbotComponent,
     VideoToTextComponent,
+    ProfileComponent,
     MainLayoutComponent
   ],
   imports: [
