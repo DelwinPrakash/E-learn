@@ -183,7 +183,7 @@ import { NoteUploadService } from '../services/note-upload.service';
     .file-name { font-weight: 600; color: var(--accent-primary); font-size: 0.95rem; word-break: break-all; }
     .file-size { font-size: 0.8rem; color: var(--text-secondary); }
 
-       label moved to normal flow below the bar */
+    /* label moved to normal flow below the bar */
     .progress-bar-wrap {
       position: relative;
       background: var(--glass-border);
