@@ -2,8 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
-import { connectDB } from "./config/db.js";
+import "./models/index.js";
 import apiRoute from "./routes/index.js";
+import { connectDB, sequelize } from "./config/db.js";
 import { createServer } from "http";
 import { setupSocket } from "./socket/quizHandler.js";
 
@@ -16,7 +17,11 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
 
-connectDB();
+connectDB().then(() => {
+    sequelize.sync({ alter: true })
+        .then(() => console.log("Database & tables synced"))
+        .catch(err => console.error("Error syncing database:", err));
+});
 
 const PORT = process.env.PORT || 3000;
 
