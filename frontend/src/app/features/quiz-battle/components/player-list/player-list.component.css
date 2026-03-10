@@ -1,0 +1,76 @@
+.players {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.player {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--nav-bg);
+    padding: 12px 20px;
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    transition: all var(--transition-speed) ease;
+    animation: slideIn 0.5s ease backwards;
+}
+
+.player:hover {
+    background: var(--glass-bg);
+    transform: translateX(8px);
+}
+
+.avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--sidebar-bg-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: white;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.name {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 16px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--success-color);
+    border-radius: 50%;
+    margin-left: auto;
+    box-shadow: 0 0 10px var(--success-color);
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}

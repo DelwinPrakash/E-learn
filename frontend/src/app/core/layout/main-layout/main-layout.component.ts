@@ -36,7 +36,7 @@ export class MainLayoutComponent implements OnInit {
         practice: [
             { name: 'Chatbot', icon: '🤖', route: '/chatbot' },
             { name: 'Flash Card', icon: '🎴', route: '/flashcard' },
-            { name: 'Quiz', icon: '📝', route: '/quiz' },
+            { name: 'Quiz Battle', icon: '⚔️', route: '/quiz-battle' },
             { name: 'Discussion Forum', icon: '💬', route: '/discussion-forum' }
         ],
         profile: [

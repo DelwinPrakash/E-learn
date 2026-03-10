@@ -1,29 +1,23 @@
-:root {
-  --primary-gradient: linear-gradient(135deg, #667eea 100%, #764ba2 100%);
-  --sidebar-bg: linear-gradient(135deg, #667eea 100%, #764ba2 100%, #f093fb 100%);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --text-white: #ffffff;
-}
-
 /* ===== DASHBOARD CONTAINER ===== */
 .dashboard-container {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 20%, #764ba2 50%, #f093fb 100%);
+  background: var(--main-bg-gradient);
   position: relative;
   overflow: hidden;
+  transition: background var(--transition-speed) ease;
 }
 
 /* ===== SIDEBAR STYLES ===== */
 .sidebar {
   width: 300px;
-  background: var(--sidebar-bg);
+  background: var(--sidebar-bg-gradient);
   backdrop-filter: blur(10px);
-  border-right: 2px solid var(--glass-border);
+  border-right: 1px solid var(--glass-border);
   padding: 24px 0;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow-y: auto;
@@ -35,8 +29,11 @@
 .sidebar::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: 
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
     radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.1) 0%, transparent 50%);
   animation: float 20s ease-in-out infinite;
@@ -45,8 +42,15 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translate(-25%, -25%) rotate(0deg); }
-  50% { transform: translate(-10%, -10%) rotate(180deg); }
+
+  0%,
+  100% {
+    transform: translate(-25%, -25%) rotate(0deg);
+  }
+
+  50% {
+    transform: translate(-10%, -10%) rotate(180deg);
+  }
 }
 
 .sidebar.collapsed {
@@ -66,7 +70,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid var(--glass-border);
   margin-bottom: 24px;
   position: relative;
   z-index: 1;
@@ -84,7 +88,7 @@
 .toggle-btn {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--glass-border-strong);
   color: white;
   width: 36px;
   height: 36px;
@@ -93,7 +97,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all var(--transition-speed) ease;
   font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
@@ -114,7 +118,7 @@
 .menu-title {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   margin-bottom: 12px;
@@ -134,12 +138,12 @@
   margin-bottom: 6px;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: rgba(255, 255, 255, 0.9);
+  transition: all var(--transition-speed) ease;
+  color: var(--text-primary);
   font-weight: 500;
   position: relative;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   text-decoration: none;
 }
 
@@ -149,8 +153,8 @@
 }
 
 .menu-item.active {
-  background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
-  color: #667eea;
+  background: var(--sidebar-item-active-bg);
+  color: var(--sidebar-item-active-text);
   box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
   font-weight: 700;
   border-color: #fff;
@@ -173,7 +177,7 @@
 .sidebar-footer {
   margin-top: auto;
   padding: 16px 24px;
-  border-top: 2px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid var(--glass-border);
   position: relative;
   z-index: 1;
 }
@@ -183,12 +187,12 @@
   padding: 12px;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--glass-border-strong);
   border-radius: 12px;
   color: #fff;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: all var(--transition-speed) ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -204,26 +208,24 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: 
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(102, 126, 234, 0.25) 0%, transparent 50%),
-    linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+  background: var(--main-content-overlay);
   position: relative;
   overflow: hidden;
   height: 100vh;
+  transition: background var(--transition-speed) ease;
 }
 
 .top-nav {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--nav-bg);
   backdrop-filter: blur(20px);
   padding: 16px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid var(--glass-border);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 100;
+  transition: background var(--transition-speed) ease;
 }
 
 .user-actions {
@@ -236,7 +238,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: white;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -244,24 +246,25 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--primary-gradient);
+  background: var(--accent-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(255,255,255,0.5);
+  border: 2px solid rgba(255, 255, 255, 0.5);
   font-size: 14px;
+  color: #fff;
 }
 
 .logout-btn {
   padding: 8px 20px;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--glass-border-strong);
   border-radius: 50px;
-  color: white;
+  color: #fff;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-speed) ease;
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -285,6 +288,7 @@
   .dashboard-container {
     flex-direction: column;
   }
+
   .sidebar {
     width: 100%;
     height: auto;
@@ -292,16 +296,13 @@
     border-right: none;
     border-bottom: 2px solid var(--glass-border);
   }
+
   .sidebar.collapsed {
     width: 100%;
     height: auto;
   }
+
   .menu-section {
-      display: none; /* Hide toggle menu for now on extremely small screens or implement hamburger */
+    display: none;
   }
-  /* Re-enable menu when not collapsed or implement mobile menu differently. 
-     For now, sticking to logic that sidebar is sidebar. 
-     Actually, for sidebar on mobile, usually it's a slide-out or fixed bottom nav.
-     Let's keep it simple for now as per desktop-first but acknowledging touch. 
-  */
 }

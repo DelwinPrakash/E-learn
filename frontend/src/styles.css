@@ -1,25 +1,88 @@
-/* Global Styles */
+/* Global Theme Variables */
 :root {
-    --primary-gradient: linear-gradient(135deg, #667eea 100%, #764ba2 100%);
-    --secondary-gradient: linear-gradient(135deg, #f093fb 100%, #f5576c 100%);
-    --background-dark: #1a202c;
-    --text-primary: #2d3748;
-    --text-secondary: #718096;
+    /* Core Brand Colors */
+    --accent-primary: #6366f1;
+    --accent-secondary: #a855f7;
+    --success-color: #10b981;
+    --danger-color: #f43f5e;
+    --warning-color: #fbbf24;
+
+    /* Global Gradients - Light Mode Current Defaults */
+    --main-bg-gradient: linear-gradient(135deg, #667eea 20%, #764ba2 50%, #f093fb 100%);
+    --sidebar-bg-gradient: linear-gradient(135deg, #667eea 100%, #764ba2 100%, #f093fb 100%);
+    --main-content-overlay: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(102, 126, 234, 0.25) 0%, transparent 50%),
+        linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+
+    /* Glass Surfaces */
+    --glass-bg: rgba(255, 255, 255, 0.12);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-border-strong: rgba(255, 255, 255, 0.4);
+    --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+    --glass-shadow-hover: 0 40px 50px rgba(31, 38, 135, 0.3);
+
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --text-muted: rgba(255, 255, 255, 0.6);
+
+    /* UI Elements */
+    --nav-bg: rgba(255, 255, 255, 0.1);
+    --sidebar-item-active-bg: #ffffff;
+    --sidebar-item-active-text: #667eea;
+
+    /* Inputs */
+    --input-bg: rgba(248, 250, 252, 0.95);
+    --input-text-color: #1e293b;
+    --input-placeholder: #64748b;
+    --input-border: rgba(14, 165, 233, 0.3);
+
     --font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
+    --transition-speed: 0.3s;
+}
+
+/* Dark Mode Overrides */
+body.dark-mode {
+    --main-bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    --sidebar-bg-gradient: linear-gradient(135deg, #0f172a 100%, #17153b 100%);
+    --main-content-overlay: radial-gradient(circle at 20% 80%, rgba(15, 23, 42, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(30, 41, 59, 0.3) 0%, transparent 50%);
+
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border-strong: rgba(255, 255, 255, 0.15);
+    --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    --glass-shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.6);
+
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+
+    --nav-bg: rgba(15, 23, 42, 0.85);
+    --sidebar-item-active-bg: var(--accent-primary);
+    --sidebar-item-active-text: #ffffff;
+
+    --input-bg: rgba(30, 41, 59, 0.8);
+    --input-text-color: #f8fafc;
+    --input-border: rgba(14, 165, 233, 0.2);
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
 }
 
 body {
     font-family: var(--font-family-base);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #f7fafc;
+    background: var(--main-bg-gradient);
+    background-attachment: fixed;
     color: var(--text-primary);
+    min-height: 100vh;
 }
 
 /* Scrollbar Styling */
@@ -43,14 +106,9 @@ body {
 
 /* Global Utility Classes */
 .glass-panel {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-/* Dark Mode Global Overrides if needed */
-body.dark-mode {
-    background-color: var(--background-dark);
-    color: #fff;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: 20px;
 }

@@ -65,8 +65,8 @@
 
         <div class="sidebar-footer">
             <button class="theme-toggle" [class.active]="isDarkMode" (click)="toggleTheme()">
-                <span class="menu-icon">{{ isDarkMode ? '☀️' : '🌙' }}</span>
-                <span class="menu-text">{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}</span>
+                <span class="menu-icon">{{ isDarkMode ? '🌙' : '☀️' }}</span>
+                <span class="menu-text">{{ isDarkMode ? 'Dark Mode' : 'Light Mode' }}</span>
             </button>
         </div>
     </div>
@@ -84,7 +84,7 @@
                     <div class="user-avatar">{{ getInitials() }}</div>
                 </div>
                 <button class="logout-btn" (click)="logout()">
-                    🚪 Logout
+                    Logout
                 </button>
             </div>
         </div>
