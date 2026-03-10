@@ -9,28 +9,35 @@ import { AuthService } from '../../../core/auth/auth.service';
   template: `
     <div class="upload-container">
       <div class="glass-panel form-card">
-        <h2>⬆️ Upload Video Class</h2>
+        <div class="header-section">
+          <h2>Upload Video Class</h2>
+          <p class="subtitle">Share your knowledge with your students</p>
+        </div>
+        
         <div class="form-group">
           <label>Title</label>
-          <input type="text" [(ngModel)]="title" placeholder="Video Title" class="input-field">
+          <input type="text" [(ngModel)]="title" placeholder="e.g. Introduction to Advanced Calculus" class="input-field">
         </div>
+        
         <div class="form-group">
           <label>Subject</label>
-          <input type="text" [(ngModel)]="subject" placeholder="e.g. Mathematics, AI" class="input-field">
+          <input type="text" [(ngModel)]="subject" placeholder="e.g. Mathematics" class="input-field">
         </div>
+        
         <div class="form-group">
           <label>Video URL</label>
-          <input type="text" [(ngModel)]="url" placeholder="YouTube or Video Link" class="input-field">
+          <input type="url" [(ngModel)]="url" placeholder="https://youtube.com/..." class="input-field">
         </div>
+        
         <div class="form-group">
           <label>Description</label>
-          <textarea [(ngModel)]="description" rows="4" placeholder="Brief description of the class..." class="textarea-field"></textarea>
+          <textarea [(ngModel)]="description" rows="4" placeholder="What will students learn in this class?" class="textarea-field"></textarea>
         </div>
-        <div class="form-actions">
-           <button class="btn-primary" (click)="uploadVideo()" [disabled]="isLoading">
-             {{ isLoading ? 'Uploading...' : 'Upload Video' }}
-           </button>
-        </div>
+        
+        <button class="btn-primary" (click)="uploadVideo()" [disabled]="isLoading">
+           <span *ngIf="!isLoading">Publish Class</span>
+           <span *ngIf="isLoading" class="loader-text">Uploading...</span>
+        </button>
       </div>
     </div>
   `,
@@ -38,8 +45,17 @@ import { AuthService } from '../../../core/auth/auth.service';
     .upload-container {
       display: flex;
       justify-content: center;
-      padding: 40px;
+      align-items: center;
+      padding: 60px 20px;
+      min-height: calc(100vh - 80px);
+      animation: fadeIn 0.5s ease-out;
     }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .form-card {
       width: 100%;
       max-width: 600px;
@@ -53,23 +69,42 @@ import { AuthService } from '../../../core/auth/auth.service';
       flex-direction: column;
       gap: 25px;
     }
-    h2 {
-      color: var(--text-primary);
+    
+    .header-section {
       text-align: center;
       margin-bottom: 10px;
       font-weight: 800;
       font-size: 2rem;
     }
+    
+    h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+    
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
+    
     label {
       color: var(--text-secondary);
       font-size: 0.95rem;
       font-weight: 600;
     }
+    
     .input-field, .textarea-field {
       padding: 14px 18px;
       border-radius: 12px;
@@ -83,6 +118,22 @@ import { AuthService } from '../../../core/auth/auth.service';
     .input-field:focus, .textarea-field:focus {
       border-color: var(--accent-primary);
     }
+    
+    .input-field:focus, .textarea-field:focus {
+      border-color: #667eea;
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+    
+    .input-field:hover:not(:focus), .textarea-field:hover:not(:focus) {
+      border-color: #cbd5e0;
+    }
+    
+    .textarea-field {
+      resize: vertical;
+      min-height: 120px;
+    }
+    
     .btn-primary {
       width: 100%;
       padding: 16px;
@@ -95,13 +146,41 @@ import { AuthService } from '../../../core/auth/auth.service';
       cursor: pointer;
       transition: all 0.3s ease;
     }
-    .btn-primary:hover {
+    
+    .btn-primary:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
+    
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+    
     .btn-primary:disabled {
       opacity: 0.7;
       cursor: not-allowed;
+      transform: none;
+    }
+    
+    .loader-text {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .loader-text::after {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   `]
 })
