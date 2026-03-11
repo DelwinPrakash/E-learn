@@ -45,7 +45,7 @@ const getDeckCards = async (req, res) => {
   try {
     const cards = await Flashcard.findAll({
       where: { deck_id: deckId },
-      order: [["created_at", "ASC"]]
+      order: [["card_id", "ASC"]]
     });
 
     return res.json(cards);
