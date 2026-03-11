@@ -63,13 +63,6 @@
       >
         Rising Stars ↑
       </button>
-      <button 
-        [class.active]="selectedFilter === 'high-winrate'" 
-        (click)="selectedFilter = 'high-winrate'; filterPlayers()"
-        class="filter-btn"
-      >
-        90%+ Win Rate
-      </button>
     </div>
   </div>
 
@@ -77,10 +70,7 @@
     <div class="table-header">
       <div class="col-rank">Rank</div>
       <div class="col-player">Player</div>
-      <div class="col-score">Score</div>
-      <div class="col-wins">Wins</div>
-      <div class="col-battles">Battles</div>
-      <div class="col-winrate">Win Rate</div>
+      <div class="col-score">XP</div>
       <div class="col-trend">Trend</div>
     </div>
 
@@ -104,22 +94,7 @@
         </div>
         
         <div class="col-score">
-          <div class="score-badge">{{ player.score }}</div>
-        </div>
-        
-        <div class="col-wins">
-          <span class="wins-value">{{ player.wins }}</span>
-        </div>
-        
-        <div class="col-battles">
-          <span class="battles-value">{{ player.battles }}</span>
-        </div>
-        
-        <div class="col-winrate">
-          <div class="winrate-bar">
-            <div class="winrate-fill" [style.width.%]="player.winRate"></div>
-            <span class="winrate-text">{{ player.winRate }}%</span>
-          </div>
+          <div class="score-badge">{{ player.xp }}</div>
         </div>
         
         <div class="col-trend">
