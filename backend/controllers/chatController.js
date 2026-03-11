@@ -64,3 +64,26 @@ export const getChatHistory = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
+export const summarizeText = async (req, res) => {
+    try {
+        const { text } = req.body;
+
+        if (!text) {
+            return res.status(400).json({ error: "Text is required for summarization" });
+        }
+
+        const model = genAI.getGenerativeModel({
+            model: "gemini-2.5-flash",
+            systemInstruction: "You are an expert summarizer. Provide a concise, structured, and easy-to-read summary for the provided transcription text. Focus only on the main points.",
+        });
+
+        const result = await model.generateContent(text);
+        const summary = result.response.text();
+
+        res.status(200).json({ summary });
+    } catch (error) {
+        console.error("Error summarizing text with Gemini:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};

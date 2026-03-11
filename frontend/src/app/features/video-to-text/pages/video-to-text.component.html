@@ -63,6 +63,29 @@
           <p>Your transcription will appear here after conversion.</p>
         </div>
       </div>
+
+      <!-- Summary Output Section -->
+      <div class="output-header" style="margin-top: 2rem;" *ngIf="transcription || isSummarizing">
+        <h2 class="section-title">Summary</h2>
+        <button class="copy-btn" *ngIf="summary">📋 Copy</button>
+      </div>
+
+      <div class="transcription-container" *ngIf="transcription || isSummarizing">
+        <div *ngIf="isSummarizing" class="loading-state">
+          <div class="loader"></div>
+          <p>Generating a concise summary using AI...</p>
+        </div>
+
+        <div *ngIf="!isSummarizing && summary" class="text-content">
+          <!-- We can just display text, or consider rendering markdown if the prompt returns it structured -->
+          <div style="white-space: pre-wrap;">{{ summary }}</div>
+        </div>
+
+        <div *ngIf="!isSummarizing && !summary && transcription" class="empty-state">
+          <p style="color: rgba(255, 255, 255, 0.4); font-size: 0.9rem;">Summary unavailable.</p>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
