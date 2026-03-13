@@ -43,7 +43,8 @@ export class MainLayoutComponent implements OnInit {
             { name: 'Profile', icon: '👤', route: '/profile' }
         ],
         teacher: [
-            { name: 'Upload Video', icon: '⬆️', route: '/video-upload' }
+            { name: 'Upload Video', icon: '⬆️', route: '/video-upload' },
+            { name: 'Upload Notes', icon: '📄', route: '/notes-upload' }
         ]
     };
 

@@ -11,11 +11,11 @@ import { ChatbotComponent } from './features/chatbot/pages/chatbot.component';
 import { VideoToTextComponent } from './features/video-to-text/pages/video-to-text.component';
 import { ProfileComponent } from './features/profile/profile.component';
 import { TeacherUploadComponent } from './features/upload-video-for-teachers/pages/upload.component';
+import { TeacherNotesUploadComponent } from './features/upload-notes-for-teachers/pages/notes-upload.component';
 import { VideoClassComponent } from './features/video-class/pages/video-class.component';
 import { SchedulerComponent } from './features/microlearning-scheduler/pages/scheduler.component';
 import { QuizBattleComponent } from './features/quiz-battle/pages/quiz-battle.component';
 import { authGuard } from './core/guard/auth.guard';
-
 import { MainLayoutComponent } from './core/layout/main-layout/main-layout.component';
 
 const routes: Routes = [
@@ -37,6 +37,7 @@ const routes: Routes = [
       { path: 'video-to-text', component: VideoToTextComponent },
       { path: 'profile', component: ProfileComponent },
       { path: 'video-upload', component: TeacherUploadComponent },
+      { path: 'notes-upload', component: TeacherNotesUploadComponent },
       { path: 'video-class', component: VideoClassComponent },
       { path: 'scheduler', component: SchedulerComponent },
       { path: 'quiz-battle', component: QuizBattleComponent },
