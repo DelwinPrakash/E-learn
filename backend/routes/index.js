@@ -4,6 +4,7 @@ import userRoute from "./userRoute.js";
 import chatRoute from "./chatRoute.js";
 import videoRoute from "./videoRoute.js";
 import schedulerRoute from "./schedulerRoute.js";
+import noteRoute from "./noteRoute.js";
 
 const router = express.Router();
 
@@ -12,5 +13,6 @@ router.use("/chat", chatRoute);
 router.use("/user", userRoute);
 router.use("/video", videoRoute);
 router.use("/scheduler", schedulerRoute);
+router.use("/note", noteRoute);
 
 export default router;
