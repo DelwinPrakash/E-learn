@@ -49,6 +49,14 @@ import { NoteUploadService } from '../services/note-upload.service';
           <span class="progress-label">{{ uploadProgress }}%</span>
         </div>
 
+        <div class="form-group checkbox-group">
+          <label class="checkbox-container">
+            <input type="checkbox" [(ngModel)]="generateFlashcards">
+            <span class="checkmark"></span>
+            Auto-generate flashcards from this note
+          </label>
+        </div>
+
         <button class="btn-primary" (click)="uploadNote()" [disabled]="isLoading">
           <span *ngIf="!isLoading">📄 Publish Notes</span>
           <span *ngIf="isLoading" class="loader-text">Uploading...</span>
@@ -244,6 +252,51 @@ import { NoteUploadService } from '../services/note-upload.service';
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
+    .checkbox-group {
+      margin-top: -8px;
+      margin-bottom: 24px;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      user-select: none;
+    }
+    .checkbox-container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+    .checkmark {
+      height: 22px;
+      width: 22px;
+      background-color: #e2e8f0;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .checkbox-container:hover input ~ .checkmark { background-color: #cbd5e0; }
+    .checkbox-container input:checked ~ .checkmark { background: var(--primary-gradient); }
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+      left: 8px;
+      top: 4px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .checkbox-container input:checked ~ .checkmark:after { display: block; }
+
     @keyframes spin { to { transform: rotate(360deg); } }
   `]
 })
@@ -252,6 +305,7 @@ export class TeacherNotesUploadComponent {
     subject: string = '';
     description: string = '';
     selectedFile: File | null = null;
+    generateFlashcards: boolean = false;
     isLoading: boolean = false;
     uploadProgress: number = 0;
 
@@ -300,6 +354,7 @@ export class TeacherNotesUploadComponent {
         formData.append('subject', this.subject);
         formData.append('description', this.description);
         formData.append('pdf', this.selectedFile);
+        formData.append('generateFlashcards', this.generateFlashcards.toString());
 
         this.noteUploadService.uploadNote(
             formData,
@@ -311,6 +366,7 @@ export class TeacherNotesUploadComponent {
                 this.title = '';
                 this.subject = '';
                 this.description = '';
+                this.generateFlashcards = false;
                 this.selectedFile = null;
             },
             (_status, message) => {

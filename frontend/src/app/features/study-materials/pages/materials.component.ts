@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { NoteUploadService } from '../../upload-notes-for-teachers/services/note-upload.service';
+import { FlashcardService } from '../../flashcard/services/flashcard.service';
 import { environment } from 'src/environments/environment.development';
 
 interface Note {
@@ -75,6 +76,11 @@ interface Note {
             <!-- Delete (teacher/admin only) -->
             <button *ngIf="canDelete(note)" class="btn-delete" (click)="deleteNote(note.note_id)">
               🗑️ Delete
+            </button>
+            <!-- Generate Flashcards (teacher/admin only) -->
+            <button *ngIf="canDelete(note)" class="btn-gen" (click)="generateFlashcards(note)" [disabled]="isGenerating">
+              ✨ <span *ngIf="!isGenerating">Generate Flashcards</span>
+              <span *ngIf="isGenerating">Generating...</span>
             </button>
           </div>
         </div>
@@ -237,18 +243,34 @@ interface Note {
       transition: background 0.2s ease;
     }
     .btn-delete:hover { background: rgba(239,68,68,0.3); }
+
+    .btn-gen {
+      padding: 8px 14px;
+      background: rgba(102,126,234,0.12);
+      color: #818cf8;
+      border: 1px solid rgba(102,126,234,0.25);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btn-gen:hover:not(:disabled) { background: rgba(102,126,234,0.25); }
+    .btn-gen:disabled { opacity: 0.6; cursor: not-allowed; }
   `]
 })
 export class MaterialsComponent implements OnInit {
     notes: Note[] = [];
     filteredNotes: Note[] = [];
     isLoading = true;
+    isGenerating = false;
     subjectFilter = '';
     currentUserId = '';
 
     constructor(
         private noteUploadService: NoteUploadService,
-        private authService: AuthService
+        private authService: AuthService,
+        private flashcardService: FlashcardService
     ) { }
 
     ngOnInit() {
@@ -300,6 +322,22 @@ export class MaterialsComponent implements OnInit {
                 this.filteredNotes = this.filteredNotes.filter(n => n.note_id !== id);
             },
             error: () => alert('Failed to delete note')
+        });
+    }
+
+    generateFlashcards(note: Note) {
+        if (this.isGenerating) return;
+        this.isGenerating = true;
+        this.flashcardService.generateFlashcards(note.note_id).subscribe({
+            next: (resp) => {
+                this.isGenerating = false;
+                alert(`Success! Generated ${resp.count} flashcards.`);
+            },
+            error: (err) => {
+                this.isGenerating = false;
+                console.error('Flashcard generation failed:', err);
+                alert('Failed to generate flashcards: ' + (err.error?.message || 'Server error'));
+            }
         });
     }
 }
