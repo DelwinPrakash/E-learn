@@ -1,19 +1,30 @@
 import Note from "../models/Note.js";
 import User from "../models/User.js";
+import fs from "fs";
+import path from "path";
 
 const uploadNote = async (req, res) => {
     try {
-        const { title, description, url, subject } = req.body;
+        const { title, description, subject } = req.body;
         const author_id = req.user.user_id;
         const userRole = req.user.role;
 
         if (userRole !== 'teacher' && userRole !== 'admin') {
+            if (req.file) fs.unlink(req.file.path, () => {});
             return res.status(403).json({ message: "Unauthorized. Only teachers can upload notes." });
         }
 
-        if (!title || !url || !subject) {
-            return res.status(400).json({ message: "Missing required fields" });
+        if (!title || !subject) {
+            if (req.file) fs.unlink(req.file.path, () => {});
+            return res.status(400).json({ message: "Missing required fields: title and subject" });
         }
+
+        if (!req.file) {
+            return res.status(400).json({ message: "No PDF file uploaded" });
+        }
+
+        // Build a relative URL path (forward slashes for HTTP)
+        const url = req.file.path.replace(/\\/g, "/");
 
         const newNote = await Note.create({
             title,
@@ -26,6 +37,7 @@ const uploadNote = async (req, res) => {
         res.status(201).json(newNote);
     } catch (error) {
         console.error("Error uploading note:", error);
+        if (req.file) fs.unlink(req.file.path, () => {});
         res.status(500).json({ message: "Server Error" });
     }
 };
@@ -61,6 +73,12 @@ const deleteNote = async (req, res) => {
         if (!note) return res.status(404).json({ message: "Note not found" });
 
         if (userRole === 'admin' || (userRole === 'teacher' && note.author_id === userId)) {
+            // Delete file from disk
+            if (note.url) {
+                fs.unlink(path.resolve(note.url), (err) => {
+                    if (err) console.warn("Could not delete note file:", err.message);
+                });
+            }
             await Note.destroy({ where: { note_id: noteId } });
             return res.status(200).json({ message: "Note deleted" });
         }
