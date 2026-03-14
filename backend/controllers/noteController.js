@@ -2,6 +2,7 @@ import Note from "../models/Note.js";
 import User from "../models/User.js";
 import fs from "fs";
 import path from "path";
+import { generateFlashcardsCore } from "./flashcardGeneratorController.js";
 
 const uploadNote = async (req, res) => {
     try {
@@ -33,6 +34,16 @@ const uploadNote = async (req, res) => {
             subject,
             author_id
         });
+
+        // Optional: Auto-generate flashcards if requested
+        if (req.body.generateFlashcards === 'true' || req.body.generateFlashcards === true) {
+            // Trigger background generation (don't await if you want it to be async, 
+            // but for now let's keep it simple or use a background worker if available)
+            // Here we'll await or just let it run if we don't want to block the response
+            generateFlashcardsCore(newNote.note_id).catch(err => {
+                console.error("Auto-generation of flashcards failed:", err);
+            });
+        }
 
         res.status(201).json(newNote);
     } catch (error) {
