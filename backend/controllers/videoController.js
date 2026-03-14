@@ -1,19 +1,31 @@
 import Video from "../models/Video.js";
 import User from "../models/User.js";
+import fs from "fs";
+import path from "path";
 
 const uploadVideo = async (req, res) => {
     try {
-        const { title, description, url, subject } = req.body;
+        const { title, description, subject } = req.body;
         const author_id = req.user.user_id;
         const userRole = req.user.role;
 
         if (userRole !== 'teacher' && userRole !== 'admin') {
+            // Remove uploaded file if unauthorized
+            if (req.file) fs.unlink(req.file.path, () => {});
             return res.status(403).json({ message: "Unauthorized. Only teachers can upload videos." });
         }
 
-        if (!title || !url || !subject) {
-            return res.status(400).json({ message: "Missing required fields" });
+        if (!title || !subject) {
+            if (req.file) fs.unlink(req.file.path, () => {});
+            return res.status(400).json({ message: "Missing required fields: title and subject" });
         }
+
+        if (!req.file) {
+            return res.status(400).json({ message: "No video file uploaded" });
+        }
+
+        // Build a relative URL path (forward slashes for HTTP)
+        const url = req.file.path.replace(/\\/g, "/");
 
         const newVideo = await Video.create({
             title,
@@ -26,6 +38,7 @@ const uploadVideo = async (req, res) => {
         res.status(201).json(newVideo);
     } catch (error) {
         console.error("Error uploading video:", error);
+        if (req.file) fs.unlink(req.file.path, () => {});
         res.status(500).json({ message: "Server Error" });
     }
 };
@@ -61,6 +74,12 @@ const deleteVideo = async (req, res) => {
         if (!video) return res.status(404).json({ message: "Video not found" });
 
         if (userRole === 'admin' || (userRole === 'teacher' && video.author_id === userId)) {
+            // Delete file from disk
+            if (video.url) {
+                fs.unlink(path.resolve(video.url), (err) => {
+                    if (err) console.warn("Could not delete video file:", err.message);
+                });
+            }
             await Video.destroy({ where: { video_id: videoId } });
             return res.status(200).json({ message: "Video deleted" });
         }

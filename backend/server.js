@@ -17,6 +17,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Ensure upload directories exist on startup
+fs.mkdirSync(path.join(__dirname, "uploads/videos"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "uploads/notes"), { recursive: true });
 
 const app = express();
