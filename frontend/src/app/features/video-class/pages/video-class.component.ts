@@ -9,14 +9,14 @@ interface Video {
   description: string;
   url: string;
   subject: string;
-    author_id: string;
+  author_id: string;
   User?: { name: string };
   created_at: string;
 }
 
 @Component({
-  selector: 'app-video-class',
-  template: `
+    selector: 'app-video-class',
+    template: `
     <div class="page-wrapper">
       <!-- Header -->
       <div class="page-header">
@@ -78,7 +78,7 @@ interface Video {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .page-wrapper {
       padding: 32px 24px;
       max-width: 1200px;
@@ -147,23 +147,12 @@ interface Video {
 
     /* Card */
     .video-card {
-      padding: 20px;
-      border-radius: 20px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      transition: all var(--transition-speed) ease;
       border-radius: 16px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 15px;
-      color: var(--text-primary);
       transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
-    .video-card:hover {
-      transform: translateY(-5px);
-      background: rgba(255, 255, 255, 0.15);
     .video-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.15); }
 
     /* Player */
@@ -188,26 +177,6 @@ interface Video {
       flex: 1;
     }
     .subject-tag {
-      background: var(--accent-primary);
-      color: white;
-      padding: 4px 12px;
-      border-radius: 50px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      width: fit-content;
-    }
-    .video-info h3 {
-      font-size: 1.25rem;
-      margin: 8px 0;
-      font-weight: 800;
-    }
-    .description {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      line-height: 1.5;
-      flex-grow: 1;
-    }
-    .meta {
       display: inline-block;
       background: rgba(99,102,241,0.15);
       color: #818cf8;
@@ -229,11 +198,6 @@ interface Video {
 
     /* Delete */
     .btn-delete {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger-color);
-      border: 1px solid rgba(239, 68, 68, 0.2);
-      padding: 10px;
-      border-radius: 12px;
       margin: 0 16px 16px;
       padding: 8px;
       background: rgba(239,68,68,0.12);
@@ -241,58 +205,30 @@ interface Video {
       border: 1px solid rgba(239,68,68,0.25);
       border-radius: 8px;
       cursor: pointer;
-      font-weight: 700;
-      margin-top: 10px;
-      transition: all 0.3s ease;
       font-size: 0.85rem;
       transition: background 0.2s ease;
-    }
-    .btn-delete:hover {
-      background: var(--danger-color);
-      color: white;
     }
     .btn-delete:hover { background: rgba(239,68,68,0.3); }
   `]
 })
 export class VideoClassComponent implements OnInit {
-  videos: Video[] = [];
+    videos: Video[] = [];
     filteredVideos: Video[] = [];
-  isLoading = true;
+    isLoading = true;
     subjectFilter = '';
-  currentUserId = '';
+    currentUserId = '';
 
-  constructor(
+    constructor(
         private videoClassService: VideoClassService,
         private authService: AuthService
     ) { }
 
-  ngOnInit() {
-    this.loadVideos();
-    const user = this.authService.getUser();
-    if (user) this.currentUserId = user.user_id;
-  }
     ngOnInit() {
         const user = this.authService.getUser();
         if (user) this.currentUserId = user.user_id;
         this.loadVideos();
     }
 
-  loadVideos() {
-    this.isLoading = true;
-    const token = this.authService.getToken();
-    const headers = { 'Authorization': `Bearer ${token}` };
-
-    this.http.get<Video[]>(`${environment.BACKEND_BASE_URL}/api/video/list`, { headers }).subscribe({
-      next: (data) => {
-        this.videos = data;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.isLoading = false;
-      }
-    });
-  }
     loadVideos() {
         this.isLoading = true;
         this.videoClassService.getVideos().subscribe({
