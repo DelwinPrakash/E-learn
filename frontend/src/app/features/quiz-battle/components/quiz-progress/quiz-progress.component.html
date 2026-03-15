@@ -1,0 +1,9 @@
+<div class="glass-card" *ngIf="(quiz.questions$ | async) as qs">
+  <div class="meta">
+    <span>Battle Progress</span>
+    <span>{{ (quiz.currentQuestionIndex$ | async)! + 1 }} / {{ qs.length }}</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" [style.width.%]="((quiz.currentQuestionIndex$ | async)! + 1) / qs.length * 100"></div>
+  </div>
+</div>

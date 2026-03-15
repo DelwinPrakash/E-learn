@@ -1,0 +1,26 @@
+<div class="glass-card question-card" *ngIf="(quiz.questions$ | async) as qs">
+  <div class="card-header">
+    <div class="badge">Question {{ (quiz.currentQuestionIndex$ | async)! + 1 }} / {{ qs.length }}</div>
+    <div class="time-track" *ngIf="quiz.isLocked$ | async">
+      Time Taken: <span>{{ (quiz.timeTaken$ | async) | number:'1.2-2' }}s</span>
+    </div>
+    <app-quiz-timer *ngIf="!(quiz.isLocked$ | async)"></app-quiz-timer>
+  </div>
+
+  <div class="card-body">
+    <h2 class="question-text">{{ qs[(quiz.currentQuestionIndex$ | async) || 0].text }}</h2>
+    <app-answer-options [options]="qs[(quiz.currentQuestionIndex$ | async) || 0].options"
+      [correctIndex]="qs[(quiz.currentQuestionIndex$ | async) || 0].correctIndex">
+    </app-answer-options>
+  </div>
+
+  <div class="card-footer">
+    <button class="submit-btn" *ngIf="!(quiz.isLocked$ | async)" (click)="submit()"
+      [disabled]="(quiz.selectedAnswer$ | async) === null">
+      Submit Answer
+    </button>
+    <button class="next-btn" *ngIf="quiz.isLocked$ | async" (click)="next()">
+      Next<span class="arrow">→</span>
+    </button>
+  </div>
+</div>

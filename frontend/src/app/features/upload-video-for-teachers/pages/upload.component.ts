@@ -43,51 +43,61 @@ import { AuthService } from '../../../core/auth/auth.service';
     .form-card {
       width: 100%;
       max-width: 600px;
-      padding: 30px;
+      padding: 40px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      box-shadow: var(--glass-shadow);
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 25px;
     }
     h2 {
       color: var(--text-primary);
       text-align: center;
       margin-bottom: 10px;
+      font-weight: 800;
+      font-size: 2rem;
     }
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
     label {
       color: var(--text-secondary);
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      font-weight: 600;
     }
     .input-field, .textarea-field {
-      padding: 12px;
+      padding: 14px 18px;
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(255, 255, 255, 0.05);
-      color: white;
+      border: 1px solid var(--glass-border);
+      background: var(--input-bg);
+      color: var(--input-text-color);
       outline: none;
       transition: all 0.3s ease;
+      font-family: inherit;
     }
     .input-field:focus, .textarea-field:focus {
       border-color: var(--accent-primary);
-      box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
     }
     .btn-primary {
       width: 100%;
-      padding: 12px;
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      padding: 16px;
+      background: var(--accent-primary);
       color: white;
       border: none;
       border-radius: 12px;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 1.1rem;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: all 0.3s ease;
     }
     .btn-primary:hover {
       transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
     .btn-primary:disabled {
       opacity: 0.7;
