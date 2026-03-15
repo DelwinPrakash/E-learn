@@ -1,0 +1,9 @@
+<div class="glass-card">
+  <div class="title">Live Standings</div>
+  <div class="list">
+    <div class="row" *ngFor="let p of (quiz.getLeaderboard())">
+      <div class="name">{{ p.name }}</div>
+      <div class="score">{{ p.score }} pts</div>
+    </div>
+  </div>
+</div>

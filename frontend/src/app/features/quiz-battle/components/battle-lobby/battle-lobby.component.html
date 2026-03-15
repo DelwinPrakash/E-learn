@@ -1,0 +1,69 @@
+<div class="lobby-card glass-panel">
+  <div class="lobby-header">
+    <h1 class="title">Aptitude Battle</h1>
+    <p class="subtitle">Global Matchmaking PvP Arena</p>
+  </div>
+
+  <!-- Step 1: Choose Mode -->
+  <div class="mode-selection" *ngIf="!(quiz.gameMode$ | async)">
+    <h3 class="section-label">SELECT GAME MODE</h3>
+    <div class="mode-grid">
+      <div class="mode-item" (click)="quiz.setGameMode('single')">
+        <div class="mode-icon-wrap">
+          <span class="icon">👤</span>
+          <div class="glow"></div>
+        </div>
+        <span class="name">Single Player</span>
+        <p class="desc">Practice solo at your own pace.</p>
+        <div class="action-hint">SELECT</div>
+      </div>
+      <div class="mode-item" (click)="quiz.setGameMode('multiplayer')">
+        <div class="mode-icon-wrap">
+          <span class="icon">⚔️</span>
+          <div class="glow red"></div>
+        </div>
+        <span class="name">Multiplayer</span>
+        <p class="desc">Compete against others in real-time.</p>
+        <div class="action-hint">SELECT</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Choose Topic -->
+  <div class="topics-container" *ngIf="(quiz.gameMode$ | async) && !(quiz.selectedTopic$ | async)">
+    <div class="back-link" (click)="quiz.resetQuiz()">← Back to Mode Selection</div>
+    <h3 class="section-label">CHOOSE YOUR SPECIALIZATION</h3>
+    <div class="topics-grid">
+      <div *ngFor="let topic of quiz.topics" class="topic-item" (click)="selectTopic(topic.id)">
+        <div class="topic-icon-wrap">
+          <span class="icon">{{ topic.icon }}</span>
+          <div class="glow"></div>
+        </div>
+        <span class="name">{{ topic.name }}</span>
+        <div class="action-hint">SELECT</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Ready to Start -->
+  <div class="ready-section" *ngIf="(quiz.gameMode$ | async) && (quiz.selectedTopic$ | async)">
+    <div class="topic-preview">
+      <div class="mode-pill">{{ (quiz.gameMode$ | async)?.toUpperCase() }} MODE</div>
+      <div class="topic-pill">{{ (quiz.selectedTopic$ | async)?.toUpperCase() }}</div>
+      <p class="desc">Aptitude questions are synchronized and ready.</p>
+    </div>
+
+    <div class="lobby-actions">
+      <button class="battle-begin-btn" (click)="start()">
+        <span class="btn-text">{{ (quiz.gameMode$ | async) === 'multiplayer' ? 'INITIALIZE MATCHMAKING' : 'START
+          CHALLENGE' }}</span>
+        <span class="btn-sub">{{ (quiz.gameMode$ | async) === 'multiplayer' ? 'Finding best available opponent...' :
+          'Get ready to test your skills.' }}</span>
+      </button>
+      <div class="secondary-actions">
+        <button class="change-btn" (click)="selectTopic('')">CHANGE TOPIC</button>
+        <button class="change-btn" (click)="quiz.resetQuiz()">CHANGE MODE</button>
+      </div>
+    </div>
+  </div>
+</div>

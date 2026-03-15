@@ -21,6 +21,15 @@ import { VideoClassComponent } from './features/video-class/pages/video-class.co
 import { AuthHeaderInterceptor } from './core/interceptor/auth-header.interceptor';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SchedulerComponent } from './features/microlearning-scheduler/pages/scheduler.component';
+import { QuizBattleComponent } from './features/quiz-battle/pages/quiz-battle.component';
+import { BattleLobbyComponent } from './features/quiz-battle/components/battle-lobby/battle-lobby.component';
+import { QuestionCardComponent } from './features/quiz-battle/components/question-card/question-card.component';
+import { AnswerOptionsComponent } from './features/quiz-battle/components/answer-options/answer-options.component';
+import { QuizTimerComponent } from './features/quiz-battle/components/quiz-timer/quiz-timer.component';
+import { ScoreBoardComponent } from './features/quiz-battle/components/score-board/score-board.component';
+import { PlayerListComponent } from './features/quiz-battle/components/player-list/player-list.component';
+import { QuizProgressComponent } from './features/quiz-battle/components/quiz-progress/quiz-progress.component';
+import { ResultBoardComponent } from './features/quiz-battle/components/result-board/result-board.component';
 
 @NgModule({
   declarations: [
@@ -37,12 +46,21 @@ import { SchedulerComponent } from './features/microlearning-scheduler/pages/sch
     TeacherUploadComponent,
     VideoClassComponent,
     MainLayoutComponent,
-    SchedulerComponent
+    SchedulerComponent,
+    QuizBattleComponent,
+    BattleLobbyComponent,
+    QuestionCardComponent,
+    AnswerOptionsComponent,
+    QuizTimerComponent,
+    PlayerListComponent,
+    ScoreBoardComponent,
+    QuizProgressComponent,
+    ResultBoardComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
-    FormsModule,
+    FormsModule,    
     RouterModule,
     AppRoutingModule,
     ReactiveFormsModule,

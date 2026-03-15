@@ -1,0 +1,11 @@
+<div class="options">
+  <button *ngFor="let opt of options; index as i"
+          class="opt"
+          [class.selected]="selected === i && !locked"
+          [class.correct]="locked && (i === correctIndex)"
+          [class.wrong]="locked && selected === i && i !== correctIndex"
+          (click)="pick(i)"
+          [disabled]="locked">
+    {{opt}}
+  </button>
+</div>

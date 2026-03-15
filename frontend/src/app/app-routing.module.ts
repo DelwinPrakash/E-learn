@@ -13,6 +13,7 @@ import { ProfileComponent } from './features/profile/profile.component';
 import { TeacherUploadComponent } from './features/upload-video-for-teachers/pages/upload.component';
 import { VideoClassComponent } from './features/video-class/pages/video-class.component';
 import { SchedulerComponent } from './features/microlearning-scheduler/pages/scheduler.component';
+import { QuizBattleComponent } from './features/quiz-battle/pages/quiz-battle.component';
 import { authGuard } from './core/guard/auth.guard';
 
 import { MainLayoutComponent } from './core/layout/main-layout/main-layout.component';
@@ -38,6 +39,7 @@ const routes: Routes = [
       { path: 'video-upload', component: TeacherUploadComponent },
       { path: 'video-class', component: VideoClassComponent },
       { path: 'scheduler', component: SchedulerComponent },
+      { path: 'quiz-battle', component: QuizBattleComponent },
     ]
   },
 
