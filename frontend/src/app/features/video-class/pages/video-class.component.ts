@@ -95,12 +95,11 @@ interface Video {
       gap: 16px;
       margin-bottom: 32px;
     }
+
     .header-text h1 {
+      color: var(--text-primary);
       font-size: 2.2rem;
       font-weight: 800;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
       margin-bottom: 6px;
     }
     .header-text p { color: var(--text-secondary); font-size: 1rem; }
@@ -108,15 +107,16 @@ interface Video {
     .filter-input {
       padding: 10px 16px;
       border-radius: 10px;
-      border: 2px solid #e2e8f0;
-      background: rgba(255,255,255,0.9);
-      color: var(--text-primary);
+      border: 1px solid var(--glass-border-strong);
+      background: var(--input-bg);
+      color: var(--input-text-color);
       font-size: 0.95rem;
       outline: none;
-      transition: all 0.3s ease;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
       min-width: 220px;
     }
-    .filter-input:focus { border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.15); }
+    .filter-input::placeholder { color: var(--input-placeholder); }
+    .filter-input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
 
     /* States */
     .state-box {
@@ -130,8 +130,8 @@ interface Video {
     }
     .spinner {
       width: 40px; height: 40px;
-      border: 3px solid rgba(102,126,234,0.2);
-      border-top-color: #667eea;
+      border: 3px solid var(--glass-border);
+      border-top-color: var(--accent-primary);
       border-radius: 50%;
       animation: spin 0.9s linear infinite;
     }
@@ -153,7 +153,7 @@ interface Video {
       flex-direction: column;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
-    .video-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.15); }
+    .video-card:hover { transform: translateY(-4px); box-shadow: var(--glass-shadow-hover); }
 
     /* Player */
     .player-wrap {
@@ -178,12 +178,13 @@ interface Video {
     }
     .subject-tag {
       display: inline-block;
-      background: rgba(99,102,241,0.15);
-      color: #818cf8;
+      background: rgba(0, 8, 255, 0.15);
+      color: var(--primary-color);
+      border: 1px solid rgba(99,102,241,0.25);
       padding: 3px 10px;
       border-radius: 20px;
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 700;
       width: fit-content;
     }
     .video-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin: 0; }
@@ -199,16 +200,17 @@ interface Video {
     /* Delete */
     .btn-delete {
       margin: 0 16px 16px;
-      padding: 8px;
-      background: rgba(239,68,68,0.12);
-      color: #fca5a5;
-      border: 1px solid rgba(239,68,68,0.25);
+      padding: 8px 14px;
+      background: rgba(244,63,94,0.1);
+      color: var(--danger-color);
+      border: 1px solid rgba(244,63,94,0.25);
       border-radius: 8px;
       cursor: pointer;
       font-size: 0.85rem;
+      font-weight: 600;
       transition: background 0.2s ease;
     }
-    .btn-delete:hover { background: rgba(239,68,68,0.3); }
+    .btn-delete:hover { background: rgba(244,63,94,0.22); }
   `]
 })
 export class VideoClassComponent implements OnInit {
