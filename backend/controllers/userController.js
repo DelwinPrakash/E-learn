@@ -211,4 +211,27 @@ const getUserProfile = async (req, res) => {
     }
 };
 
-export { flashCard, quizCard, discussionCard, createThread, updateThread, addReply, getReplies, deleteThread, deleteReply, getUserProfile };
+const getLeaderboard = async (req, res) => {
+    try {
+        const users = await User.findAll({
+            attributes: ['user_id', 'name', 'xp', 'role'], // Fetching necessary fields
+            order: [['xp', 'DESC']], // Sorting by XP descending
+        });
+
+        // Add rank to each user based on their position in the sorted array
+        const leaderboard = users.map((user, index) => ({
+            rank: index + 1,
+            user_id: user.user_id,
+            name: user.name,
+            xp: user.xp,
+            role: user.role
+        }));
+
+        res.status(200).json(leaderboard);
+    } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+export { flashCard, quizCard, discussionCard, createThread, updateThread, addReply, getReplies, deleteThread, deleteReply, getUserProfile, getLeaderboard };

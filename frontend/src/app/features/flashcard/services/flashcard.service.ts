@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from '../../../core/auth/auth.service'; // ✅ FIXED
+import { AuthService } from '../../../core/auth/auth.service';
 import { environment } from 'src/environments/environment.development';
 
 @Injectable({
@@ -31,5 +31,10 @@ export class FlashcardService {
 
   getDeckCards(deckId: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.API}/decks/${deckId}/cards`, this.headers());
+  }
+
+  generateFlashcards(noteId: string): Observable<any> {
+    const url = `${environment.BACKEND_BASE_URL}/api/flashcards-gen/generate/${noteId}`;
+    return this.http.post<any>(url, {}, this.headers());
   }
 }

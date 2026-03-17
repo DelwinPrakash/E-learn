@@ -1,7 +1,7 @@
 import express from "express";
 import { verifyEmail, verifyEmailForPasswordReset } from "../controllers/verifyEmail.js";
 import { recoverPassword } from "../controllers/authController.js";
-import { discussionCard, createThread, updateThread, addReply, getReplies, deleteThread, deleteReply, getUserProfile } from "../controllers/userController.js";
+import { discussionCard, createThread, updateThread, addReply, getReplies, deleteThread, deleteReply, getUserProfile, getLeaderboard } from "../controllers/userController.js";
 import { verifyJWT } from "../middlewares/verifyJWT.js";
 import { getDecks, getDeckCards } from "../controllers/flashcardController.js";
 
@@ -11,7 +11,9 @@ const router = express.Router();
 router.get("/verify-email", verifyEmail);
 router.post("/reset-password", recoverPassword);
 router.post("/verify-email-for-password-reset", verifyEmailForPasswordReset);
+
 router.get("/profile", verifyJWT, getUserProfile);
+router.get("/leaderboard", verifyJWT, getLeaderboard);
 
 // Discussion Forum Routes
 router.get("/discussion", discussionCard);

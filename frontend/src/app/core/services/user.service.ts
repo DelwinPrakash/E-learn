@@ -23,7 +23,6 @@ export class UserService {
 
     constructor(private http: HttpClient, private authService: AuthService) { }
 
-    
     getUserProfile(): Observable<UserProfile> {
         const token = this.authService.getToken();
         const headers = new HttpHeaders({

@@ -17,6 +17,7 @@ import UserAuth from "./UserAuth.js";
 import UserPerformance from "./UserPerformance.js";
 import UserSession from "./UserSession.js";
 import Video from "./Video.js";
+import Note from "./Note.js";
 
 // DEFINE ASSOCIATIONS HERE
 FlashcardDeck.hasMany(Flashcard, {
@@ -46,5 +47,6 @@ export {
   UserAuth,
   UserPerformance,
   UserSession,
-  Video
+  Video,
+  Note
 };

@@ -25,7 +25,7 @@
         <label>Video URL</label>
         <input type="text" [(ngModel)]="videoUrl" placeholder="Paste direct media link (e.g. .mp4, .mp3)..."
           class="glass-input">
-        <p class="input-hint" style="margin-top: 5px; color: rgba(255, 255, 255, 0.6); font-size: 12px;">
+        <p class="input-hint">
           Note: Use direct links to video files. YouTube/Drive URLs are not supported.
         </p>
       </div>
@@ -63,6 +63,29 @@
           <p>Your transcription will appear here after conversion.</p>
         </div>
       </div>
+
+      <!-- Summary Output Section -->
+      <div class="output-header" style="margin-top: 2rem;" *ngIf="transcription || isSummarizing">
+        <h2 class="section-title">Summary</h2>
+        <button class="copy-btn" *ngIf="summary">📋 Copy</button>
+      </div>
+
+      <div class="transcription-container" *ngIf="transcription || isSummarizing">
+        <div *ngIf="isSummarizing" class="loading-state">
+          <div class="loader"></div>
+          <p>Generating a concise summary using AI...</p>
+        </div>
+
+        <div *ngIf="!isSummarizing && summary" class="text-content">
+          <!-- We can just display text, or consider rendering markdown if the prompt returns it structured -->
+          <div style="white-space: pre-wrap;">{{ summary }}</div>
+        </div>
+
+        <div *ngIf="!isSummarizing && !summary && transcription" class="empty-state">
+          <p style="color: rgba(255, 255, 255, 0.4); font-size: 0.9rem;">Summary unavailable.</p>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>

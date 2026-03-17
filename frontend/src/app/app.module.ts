@@ -17,6 +17,8 @@ import { MarkdownModule } from 'ngx-markdown';
 import { VideoToTextComponent } from './features/video-to-text/pages/video-to-text.component';
 import { ProfileComponent } from './features/profile/profile.component';
 import { TeacherUploadComponent } from './features/upload-video-for-teachers/pages/upload.component';
+import { TeacherNotesUploadComponent } from './features/upload-notes-for-teachers/pages/notes-upload.component';
+import { MaterialsComponent } from './features/study-materials/pages/materials.component';
 import { VideoClassComponent } from './features/video-class/pages/video-class.component';
 import { AuthHeaderInterceptor } from './core/interceptor/auth-header.interceptor';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -44,6 +46,8 @@ import { ResultBoardComponent } from './features/quiz-battle/components/result-b
     VideoToTextComponent,
     ProfileComponent,
     TeacherUploadComponent,
+    TeacherNotesUploadComponent,
+    MaterialsComponent,
     VideoClassComponent,
     MainLayoutComponent,
     SchedulerComponent,

@@ -1,6 +1,10 @@
 node_modules
+.angular
 dist
+npm-debug.log
 .git
 Dockerfile
-.dockerignore
-.env
+Dockerfile.dev
+docker-compose.yml
+.DS_Store
+README.md

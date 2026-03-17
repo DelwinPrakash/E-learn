@@ -1,5 +1,5 @@
 <div class="chatbot-container">
-  <div class="chat-header"> 🤖 ChatBuddy</div>
+  <div class="chat-header">🤖 ChatBuddy</div>
 
   <div class="messages" #messagesContainer role="log" aria-live="polite">
     <div *ngFor="let m of messages" class="message" [ngClass]="m.sender">
@@ -7,10 +7,31 @@
         <markdown [data]="m.text"></markdown>
       </div>
     </div>
+
+    <div *ngIf="loading" class="message bot">
+      <div class="bubble is-loading">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+    </div>
   </div>
 
   <div class="input-area">
-    <textarea name="message" aria-label="Chat message" [(ngModel)]="newMessage" (keydown)="onKeydown($event)" placeholder="Type your question..." rows="2" autofocus></textarea>
-    <button aria-label="Send message" (click)="send()" [disabled]="loading || !newMessage.trim()">{{ loading ? '...' : 'Send' }}</button>
+    <textarea
+      name="message"
+      aria-label="Chat message"
+      [(ngModel)]="newMessage"
+      (keydown)="onKeydown($event)"
+      placeholder="Type your question..."
+      rows="2"
+      autofocus>
+    </textarea>
+    <button
+      aria-label="Send message"
+      (click)="send()"
+      [disabled]="loading || !newMessage.trim()">
+      Send
+    </button>
   </div>
 </div>

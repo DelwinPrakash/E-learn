@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranscriptionService } from '../services/transcription.service';
+import { SummarizationService } from '../services/summarization.service';
 
 @Component({
     selector: 'app-video-to-text',
@@ -11,13 +12,16 @@ export class VideoToTextComponent {
     videoUrl: string = '';
     selectedFile: File | null = null;
     transcription: string = '';
+    summary: string = '';
     isConverting: boolean = false;
+    isSummarizing: boolean = false;
     fileName: string = '';
     statusMessage: string = '';
 
     constructor(
         private router: Router,
-        private transcriptionService: TranscriptionService
+        private transcriptionService: TranscriptionService,
+        private summarizationService: SummarizationService
     ) { }
 
     onFileSelected(event: any): void {
@@ -41,6 +45,7 @@ export class VideoToTextComponent {
 
         this.isConverting = true;
         this.transcription = '';
+        this.summary = '';
         this.statusMessage = 'Starting conversion...';
 
         const source = this.selectedFile || this.videoUrl;
@@ -64,8 +69,12 @@ export class VideoToTextComponent {
                     alert('Transcription failed: ' + errorMsg);
                 } else {
                     this.transcription = transcript.text || 'No text found.';
-                    this.statusMessage = 'Conversion complete!';
+                    this.statusMessage = 'Conversion complete! Generating summary...';
                     this.isConverting = false;
+
+                    if (this.transcription && this.transcription !== 'No text found.') {
+                        this.generateSummary(this.transcription);
+                    }
                 }
             },
             error: (err: any) => {
@@ -77,6 +86,23 @@ export class VideoToTextComponent {
                 } else {
                     alert('An error occurred. Check console for details.');
                 }
+            }
+        });
+    }
+
+    generateSummary(text: string): void {
+        this.isSummarizing = true;
+
+        this.summarizationService.summarize(text).subscribe({
+            next: (response) => {
+                this.summary = response.summary;
+                this.isSummarizing = false;
+                this.statusMessage = 'Summary generated successfully!';
+            },
+            error: (err) => {
+                console.error('Summarization error:', err);
+                this.isSummarizing = false;
+                this.statusMessage = 'Summarization failed.';
             }
         });
     }
@@ -96,7 +122,9 @@ export class VideoToTextComponent {
         this.selectedFile = null;
         this.fileName = '';
         this.transcription = '';
+        this.summary = '';
         this.statusMessage = '';
         this.isConverting = false;
+        this.isSummarizing = false;
     }
 }

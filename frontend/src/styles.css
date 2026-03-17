@@ -38,6 +38,7 @@
     --input-placeholder: #64748b;
     --input-border: rgba(14, 165, 233, 0.3);
 
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
     --transition-speed: 0.3s;
 }
@@ -66,6 +67,7 @@ body.dark-mode {
     --input-bg: rgba(30, 41, 59, 0.8);
     --input-text-color: #f8fafc;
     --input-border: rgba(14, 165, 233, 0.2);
+    --primary-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
 * {
