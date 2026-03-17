@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
+import { AuthService, UserInfo } from '../../../core/auth/auth.service';
+import { environment } from 'src/environments/environment.development';
 
 export interface Player {
   id: string;
@@ -19,6 +22,8 @@ type QuizStatus = 'waiting' | 'searching' | 'playing' | 'finished';
 
 @Injectable({ providedIn: 'root' })
 export class QuizBattleService {
+  private socket: Socket;
+
   private questionsSubject = new BehaviorSubject<Question[]>([]);
   questions$ = this.questionsSubject.asObservable();
 
@@ -54,9 +59,12 @@ export class QuizBattleService {
   private selectedTopicSubject = new BehaviorSubject<string | null>(null);
   selectedTopic$ = this.selectedTopicSubject.asObservable();
 
-  private questionStart = 0;
   private timeTakenSubject = new BehaviorSubject<number>(0);
   timeTaken$ = this.timeTakenSubject.asObservable();
+
+  private questionStart = 0;
+  private currentDuoId: string | null = null;
+  private currentUserId: string | null = null;
 
   topics = [
     { id: 'percentage', name: 'Percentage Calculations', icon: '📈' },
@@ -66,11 +74,66 @@ export class QuizBattleService {
     { id: 'time', name: 'Time & Work', icon: '⏳' }
   ];
 
-  constructor() {
-    this.joinMockPlayers();
+  constructor(private authService: AuthService) {
+    this.socket = io(environment.BACKEND_BASE_URL || 'http://localhost:3000');
+    this.setupSocketListeners();
+    this.setupLocalPlayer();
   }
 
-  getQuestionsByTopic(topicId: string): Question[] {
+  private setupLocalPlayer() {
+    const user = this.authService.getUser();
+    if (user) {
+      this.currentUserId = user.user_id;
+      this.playersSubject.next([{ id: user.user_id, name: user.name, avatar: '', score: 0 }]);
+    }
+  }
+
+  private setupSocketListeners() {
+    this.socket.on('match_found', (data: any) => {
+      this.currentDuoId = data.duoId;
+      
+      const p1 = this.playersSubject.getValue()[0];
+      const p2 = {
+        id: 'opp',
+        name: data.opponent.name,
+        avatar: '',
+        score: 0
+      };
+      
+      this.playersSubject.next([p1, p2]);
+      
+      if (data.questions && data.questions.length > 0) {
+        this.questionsSubject.next(data.questions);
+      } else {
+        // Fallback to local questions if backend doesn't send them yet
+        this.questionsSubject.next(this.getQuestionsByTopicFallback(this.selectedTopicSubject.value || ''));
+      }
+
+      this.statusSubject.next('playing');
+      this.currentIndexSubject.next(0);
+      this.scoresSubject.next({ [this.currentUserId || 'p1']: 0, 'opp': 0 });
+      this.nextQuestionCycle();
+    });
+
+    this.socket.on('opponent_score_update', (data: any) => {
+      // Data structure from backend: { userId, scoreDelta }
+      if (data.userId !== this.currentUserId) {
+         this.opponentStatusSubject.next('answered');
+         const currentScores = this.scoresSubject.value;
+         this.scoresSubject.next({
+           ...currentScores,
+           'opp': (currentScores['opp'] || 0) + data.scoreDelta
+         });
+      }
+    });
+
+    this.socket.on('error', (err: any) => {
+      console.error('Socket error:', err);
+      this.cancelMatchmaking();
+    });
+  }
+
+  getQuestionsByTopicFallback(topicId: string): Question[] {
     const questionBank: Record<string, Question[]> = {
       percentage: [
         { id: 1, text: 'If 20% of a number is 120, then 120% of that number will be:', options: ['20', '120', '480', '720'], correctIndex: 3 },
@@ -111,21 +174,8 @@ export class QuizBattleService {
     return (questionBank[topicId] || []).slice(0, 5);
   }
 
-  joinMockPlayers() {
-    const players: Player[] = [
-      { id: 'p1', name: 'Alice', avatar: '', score: 0 },
-      { id: 'p2', name: 'Bob', avatar: '', score: 0 },
-      { id: 'p3', name: 'Cleo', avatar: '', score: 0 }
-    ];
-    this.playersSubject.next(players);
-    const initScores: Record<string, number> = {};
-    players.forEach(p => initScores[p.id] = 0);
-    this.scoresSubject.next(initScores);
-  }
-
   selectTopic(topicId: string) {
     this.selectedTopicSubject.next(topicId);
-    this.questionsSubject.next(this.getQuestionsByTopic(topicId));
   }
 
   setGameMode(mode: 'single' | 'multiplayer') {
@@ -133,30 +183,31 @@ export class QuizBattleService {
   }
 
   startSearching() {
+    this.setupLocalPlayer(); // Refresh in case they just logged in
     if (!this.selectedTopicSubject.value || !this.gameModeSubject.value) return;
 
     if (this.gameModeSubject.value === 'single') {
+      this.questionsSubject.next(this.getQuestionsByTopicFallback(this.selectedTopicSubject.value));
       this.statusSubject.next('playing');
       this.currentIndexSubject.next(0);
-      this.scoresSubject.next({ 'p1': 0 });
+      this.scoresSubject.next({ [this.currentUserId || 'p1']: 0 });
       this.nextQuestionCycle();
     } else {
+      if (!this.currentUserId) {
+        console.error('Cannot join queue: UserId not found');
+        return;
+      }
       this.statusSubject.next('searching');
-      setTimeout(() => {
-        this.statusSubject.next('playing');
-        this.currentIndexSubject.next(0);
-        this.scoresSubject.next({ 'p1': 0, 'opp': 0 });
-        this.nextQuestionCycle();
-      }, 3000);
+      this.socket.emit('join_queue', {
+        userId: this.currentUserId,
+        topicId: this.selectedTopicSubject.value
+      });
     }
   }
 
   nextQuestionCycle() {
     this.resetQuestionState();
     this.startCountdown();
-    if (this.gameModeSubject.value === 'multiplayer') {
-      this.simulateOpponentProgress();
-    }
   }
 
   resetQuestionState() {
@@ -187,26 +238,6 @@ export class QuizBattleService {
     }, 1000);
   }
 
-  simulateOpponentProgress() {
-    const delay = Math.random() * 6000 + 1000;
-    this.opponentStatusSubject.next('waiting');
-    setTimeout(() => {
-      if (this.statusSubject.value !== 'playing') return;
-      this.opponentStatusSubject.next('answered');
-
-      const isCorrect = Math.random() > 0.3;
-      if (isCorrect) {
-        const timeTaken = delay / 1000;
-        const scoreGain = Math.round(100 - (timeTaken * 5));
-        const currentScores = this.scoresSubject.value;
-        this.scoresSubject.next({
-          ...currentScores,
-          'opp': (currentScores['opp'] || 0) + scoreGain
-        });
-      }
-    }, delay);
-  }
-
   selectAnswer(index: number) {
     if (this.lockedSubject.value) return;
     this.selectedAnswerSubject.next(index);
@@ -224,21 +255,28 @@ export class QuizBattleService {
     this.lockedSubject.next(true);
 
     const q = this.questionsSubject.value[this.currentIndexSubject.value];
-    if (!q) return;
-
-    if (index === q.correctIndex) {
-      const scoreGain = Math.round(100 - (elapsedSeconds * 5));
+    let scoreGain = 0;
+    
+    // Fallback: If no correctIndex (e.g. dynamic backend questions pending map) defaults to 0 internally or matching text
+    // Assuming backend questions have a correctIndex mapped.
+    if (q && index === q.correctIndex) {
+      scoreGain = Math.round(100 - (elapsedSeconds * 5));
       const currentScores = this.scoresSubject.value;
       this.scoresSubject.next({
         ...currentScores,
-        'p1': (currentScores['p1'] || 0) + scoreGain
+        [this.currentUserId || 'p1']: (currentScores[this.currentUserId || 'p1'] || 0) + scoreGain
       });
     }
 
-    if (this.gameModeSubject.value === 'single') {
-      setTimeout(() => this.proceedToNext(), 1500);
-    } else {
+    if (this.gameModeSubject.value === 'multiplayer' && this.currentDuoId && this.currentUserId) {
+      this.socket.emit('submit_answer', {
+        duoId: this.currentDuoId,
+        userId: this.currentUserId,
+        scoreDelta: scoreGain
+      });
       setTimeout(() => this.checkAndMoveToNext(), 1500);
+    } else {
+      setTimeout(() => this.proceedToNext(), 1500);
     }
   }
 
@@ -247,7 +285,7 @@ export class QuizBattleService {
       this.proceedToNext();
     } else {
       const checkInterval = setInterval(() => {
-        if (this.opponentStatusSubject.value === 'answered') {
+        if (this.opponentStatusSubject.value === 'answered' || this.countdownSubject.value <= 0) {
           clearInterval(checkInterval);
           this.proceedToNext();
         }
@@ -257,7 +295,7 @@ export class QuizBattleService {
 
   proceedToNext() {
     const next = this.currentIndexSubject.value + 1;
-    if (next >= 5) {
+    if (next >= this.questionsSubject.value.length) {
       this.finishQuiz();
       return;
     }
@@ -268,6 +306,13 @@ export class QuizBattleService {
   finishQuiz() {
     this.statusSubject.next('finished');
     if (this.timer) clearInterval(this.timer);
+
+    if (this.gameModeSubject.value === 'multiplayer' && this.currentDuoId) {
+      this.socket.emit('game_over', {
+        duoId: this.currentDuoId,
+        scores: this.scoresSubject.value
+      });
+    }
   }
 
   cancelMatchmaking() {
@@ -280,6 +325,8 @@ export class QuizBattleService {
     this.selectedTopicSubject.next(null);
     this.gameModeSubject.next(null);
     this.currentIndexSubject.next(0);
+    this.currentDuoId = null;
+    this.questionsSubject.next([]);
     this.resetQuestionState();
     if (this.timer) clearInterval(this.timer);
   }
