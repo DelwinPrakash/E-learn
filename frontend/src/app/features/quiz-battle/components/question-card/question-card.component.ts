@@ -14,8 +14,4 @@ export class QuestionCardComponent implements OnInit {
   submit() {
     this.quiz.submitAnswer();
   }
-
-  next() {
-    this.quiz.nextQuestion();
-  }
 }

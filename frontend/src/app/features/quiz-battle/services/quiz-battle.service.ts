@@ -1,11 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+import { io, Socket } from 'socket.io-client';
+import { AuthService } from 'src/app/core/auth/auth.service';
 
 export interface Player {
   id: string;
   name: string;
   avatar: string;
   score: number;
+  xp?: number;
 }
 
 export interface Question {
@@ -18,7 +23,10 @@ export interface Question {
 type QuizStatus = 'waiting' | 'searching' | 'playing' | 'finished';
 
 @Injectable({ providedIn: 'root' })
-export class QuizBattleService {
+export class QuizBattleService implements OnDestroy {
+  private socket: Socket | null = null;
+  private backendUrl = environment.BACKEND_BASE_URL;
+
   private questionsSubject = new BehaviorSubject<Question[]>([]);
   questions$ = this.questionsSubject.asObservable();
 
@@ -54,78 +62,39 @@ export class QuizBattleService {
   private selectedTopicSubject = new BehaviorSubject<string | null>(null);
   selectedTopic$ = this.selectedTopicSubject.asObservable();
 
-  private questionStart = 0;
   private timeTakenSubject = new BehaviorSubject<number>(0);
   timeTaken$ = this.timeTakenSubject.asObservable();
 
-  topics = [
-    { id: 'percentage', name: 'Percentage Calculations', icon: '📈' },
-    { id: 'age', name: 'Age Problems', icon: '👴' },
-    { id: 'ratio', name: 'Ratio & Proportion', icon: '⚖️' },
-    { id: 'profit', name: 'Profit & Loss', icon: '💰' },
-    { id: 'time', name: 'Time & Work', icon: '⏳' }
-  ];
+  private questionStart = 0;
+  private currentUserId: string = '';
+  private duoId: string = '';
+  private winnerIdSubject = new BehaviorSubject<string | null>(null);
+  winnerId$ = this.winnerIdSubject.asObservable();
+  xpGained: number = 0;
 
-  constructor() {
-    this.joinMockPlayers();
+  topics: any[] = [];
+
+  constructor(private http: HttpClient, private authService: AuthService) {
+    this.extractUserId();
+    this.fetchTopics();
   }
 
-  getQuestionsByTopic(topicId: string): Question[] {
-    const questionBank: Record<string, Question[]> = {
-      percentage: [
-        { id: 1, text: 'If 20% of a number is 120, then 120% of that number will be:', options: ['20', '120', '480', '720'], correctIndex: 3 },
-        { id: 2, text: 'A student has to obtain 33% of the total marks to pass. He got 125 marks and failed by 40 marks. The maximum marks are:', options: ['300', '500', '800', '1000'], correctIndex: 1 },
-        { id: 3, text: 'What is 25% of 25% of 100?', options: ['6.25', '0.625', '62.5', '25'], correctIndex: 0 },
-        { id: 4, text: 'If the price of a commodity is increased by 50%, by what fraction must its consumption be reduced so as to keep the same expenditure?', options: ['1/4', '1/3', '1/2', '2/3'], correctIndex: 1 },
-        { id: 5, text: '30% of 28% of 480 is same as:', options: ['15% of 56% of 480', '60% of 28% of 240', 'Both are correct', 'None of these'], correctIndex: 2 }
-      ],
-      age: [
-        { id: 1, text: "Father is four times the age of his son. In 20 years, he will be twice as old as his son. Find the father's present age.", options: ['40', '32', '36', '48'], correctIndex: 0 },
-        { id: 2, text: 'The ratio of ages of A and B is 3:4. The sum of their ages is 28 years. The ratio of their ages after 4 years will be:', options: ['4:3', '3:4', '4:5', '7:9'], correctIndex: 2 },
-        { id: 3, text: "A's age is 1/6 of B's age. B's age will be twice of C's age after 10 years. If C's eighth birthday was celebrated two years ago, then the age of A is:", options: ['5 years', '10 years', '15 years', '20 years'], correctIndex: 0 },
-        { id: 4, text: 'Present ages of Sameer and Anand are in the ratio of 5 : 4 respectively. Three years hence, the ratio of their ages will become 11 : 9 respectively. What is Anand\'s present age in years?', options: ['24', '27', '40', 'Cannot be determined'], correctIndex: 0 },
-        { id: 5, text: 'The sum of the ages of a father and his son is 45 years. Five years ago, the product of their ages was 34. The ages of the son and the father are respectively:', options: ['6 and 39', '7 and 38', '9 and 36', '11 and 34'], correctIndex: 0 }
-      ],
-      ratio: [
-        { id: 1, text: 'If A:B = 2:3 and B:C = 4:5, then A:B:C is:', options: ['8:12:15', '2:3:5', '8:10:15', '12:8:15'], correctIndex: 0 },
-        { id: 2, text: 'Two numbers are in the ratio 3 : 5. If 9 is subtracted from each, the new numbers are in the ratio 12 : 23. The smaller number is:', options: ['27', '33', '49', '55'], correctIndex: 1 },
-        { id: 3, text: 'If 40% of a number is equal to two-third of another number, what is the ratio of first number to the second number?', options: ['2:5', '3:7', '5:3', '7:3'], correctIndex: 2 },
-        { id: 4, text: 'The salaries of A, B, and C are in the ratio 2 : 3 : 5. If the increments of 15%, 10% and 20% are allowed respectively in their salaries, then what will be the new ratio of their salaries?', options: ['3:3:10', '10:11:20', '23:33:60', 'None of these'], correctIndex: 2 },
-        { id: 5, text: 'A sum of money is to be distributed among A, B, C, D in the proportion of 5 : 2 : 4 : 3. If C gets Rs. 1000 more than D, what is B\'s share?', options: ['Rs. 500', 'Rs. 1500', 'Rs. 2000', 'None of these'], correctIndex: 2 }
-      ],
-      profit: [
-        { id: 1, text: 'A person incurs 5% loss by selling a watch for Rs. 1140. At what price should the watch be sold to earn 5% profit?', options: ['Rs. 1200', 'Rs. 1230', 'Rs. 1260', 'Rs. 1290'], correctIndex: 2 },
-        { id: 2, text: 'A shopkeeper sells some articles at Rs. 10 each and makes a profit of 25%. If he sells them at Rs. 8 each, what will be his profit or loss percentage?', options: ['5% profit', 'No profit no loss', '5% loss', '10% loss'], correctIndex: 1 },
-        { id: 3, text: 'The cost price of 20 articles is the same as the selling price of x articles. If the profit is 25%, then the value of x is:', options: ['15', '16', '18', '25'], correctIndex: 1 },
-        { id: 4, text: 'If a man were to sell his chair for Rs. 720, he would lose 25%, to gain 25% he should sell it for:', options: ['Rs. 1200', 'Rs. 1000', 'Rs. 960', 'Rs. 900'], correctIndex: 0 },
-        { id: 5, text: 'A vendor bought toffees at 6 for a rupee. How many for a rupee must he sell to gain 20%?', options: ['3', '4', '5', '6'], correctIndex: 2 }
-      ],
-      time: [
-        { id: 1, text: 'A can do a work in 15 days and B in 20 days. If they work on it together for 4 days, then the fraction of the work that is left is:', options: ['1/4', '1/10', '7/15', '8/15'], correctIndex: 3 },
-        { id: 2, text: 'A and B together can complete a piece of work in 4 days. If A alone can complete the same work in 12 days, in how many days can B alone complete that work?', options: ['4 days', '5 days', '6 days', '7 days'], correctIndex: 2 },
-        { id: 3, text: 'If 6 men and 8 boys can do a piece of work in 10 days while 26 men and 48 boys can do the same in 2 days, the time taken by 15 men and 20 boys in doing the same type of work will be:', options: ['4 days', '5 days', '6 days', '7 days'], correctIndex: 0 },
-        { id: 4, text: 'A can do a piece of work in 80 days. He works at it for 10 days and then B alone finishes the remaining work in 42 days. In how much time will A and B working together, finish the work?', options: ['30 days', '25 days', '20 days', '40 days'], correctIndex: 0 },
-        { id: 5, text: '4 men and 6 women can complete a work in 8 days, while 3 men and 7 women can complete it in 10 days. In how many days will 10 women complete it?', options: ['35', '40', '45', '50'], correctIndex: 1 }
-      ]
-    };
-    return (questionBank[topicId] || []).slice(0, 5);
+  private extractUserId() {
+    const user = this.authService.getUser();
+    if (user) this.currentUserId = user.user_id;
   }
 
-  joinMockPlayers() {
-    const players: Player[] = [
-      { id: 'p1', name: 'Alice', avatar: '', score: 0 },
-      { id: 'p2', name: 'Bob', avatar: '', score: 0 },
-      { id: 'p3', name: 'Cleo', avatar: '', score: 0 }
-    ];
-    this.playersSubject.next(players);
-    const initScores: Record<string, number> = {};
-    players.forEach(p => initScores[p.id] = 0);
-    this.scoresSubject.next(initScores);
+  private fetchTopics() {
+    this.http.get<any[]>(`${this.backendUrl}/api/quiz/topics`).subscribe({
+      next: (data) => {
+        this.topics = data;
+      },
+      error: (err) => console.error('Error fetching topics', err)
+    });
   }
 
   selectTopic(topicId: string) {
     this.selectedTopicSubject.next(topicId);
-    this.questionsSubject.next(this.getQuestionsByTopic(topicId));
   }
 
   setGameMode(mode: 'single' | 'multiplayer') {
@@ -133,30 +102,79 @@ export class QuizBattleService {
   }
 
   startSearching() {
-    if (!this.selectedTopicSubject.value || !this.gameModeSubject.value) return;
+    const topicId = this.selectedTopicSubject.value;
+    const mode = this.gameModeSubject.value;
+    if (!topicId || !mode) return;
 
-    if (this.gameModeSubject.value === 'single') {
-      this.statusSubject.next('playing');
-      this.currentIndexSubject.next(0);
-      this.scoresSubject.next({ 'p1': 0 });
-      this.nextQuestionCycle();
+    if (mode === 'single') {
+      this.statusSubject.next('searching');
+      this.http.get<Question[]>(`${this.backendUrl}/api/quiz/questions?topicId=${topicId}`).subscribe({
+        next: (questions) => {
+          this.questionsSubject.next(questions);
+          this.playersSubject.next([{ id: 'p1', name: 'You', avatar: '👤', score: 0 }]);
+          this.statusSubject.next('playing');
+          this.currentIndexSubject.next(0);
+          this.scoresSubject.next({ 'p1': 0 });
+          this.nextQuestionCycle();
+        },
+        error: (err) => {
+          console.error(err);
+          this.cancelMatchmaking();
+        }
+      });
     } else {
       this.statusSubject.next('searching');
-      setTimeout(() => {
+      this.connectSocket();
+      this.socket?.emit('join_queue', { userId: this.currentUserId, topicId });
+    }
+  }
+
+  private connectSocket() {
+    if (!this.socket) {
+      this.socket = io(this.backendUrl);
+      
+      this.socket.on('match_found', (data: any) => {
+        this.duoId = data.duoId;
+        this.questionsSubject.next(data.questions);
+        
+        const myPlayer: Player = { id: 'p1', name: 'You', avatar: '👤', score: 0 };
+        const oppPlayer: Player = { id: 'opp', name: data.opponent.name, avatar: '🤖', score: 0, xp: data.opponent.xp };
+        this.playersSubject.next([myPlayer, oppPlayer]);
+        
         this.statusSubject.next('playing');
         this.currentIndexSubject.next(0);
         this.scoresSubject.next({ 'p1': 0, 'opp': 0 });
         this.nextQuestionCycle();
-      }, 3000);
+      });
+
+      this.socket.on('opponent_score_update', (data: any) => {
+         if (data.userId !== this.currentUserId) {
+           const currentScores = this.scoresSubject.value;
+           this.scoresSubject.next({
+             ...currentScores,
+             'opp': (currentScores['opp'] || 0) + data.scoreDelta
+           });
+         }
+      });
+
+      this.socket.on('opponent_finished', () => {
+         this.opponentStatusSubject.next('answered');
+      });
+
+      this.socket.on('battle_result', (data: any) => {
+         this.winnerIdSubject.next(data.winnerId);
+         const myData = data.players[this.currentUserId];
+         if (myData) {
+            this.xpGained = myData.xpGained;
+         }
+         this.finishQuiz(); 
+      });
     }
   }
 
   nextQuestionCycle() {
     this.resetQuestionState();
     this.startCountdown();
-    if (this.gameModeSubject.value === 'multiplayer') {
-      this.simulateOpponentProgress();
-    }
   }
 
   resetQuestionState() {
@@ -187,26 +205,6 @@ export class QuizBattleService {
     }, 1000);
   }
 
-  simulateOpponentProgress() {
-    const delay = Math.random() * 6000 + 1000;
-    this.opponentStatusSubject.next('waiting');
-    setTimeout(() => {
-      if (this.statusSubject.value !== 'playing') return;
-      this.opponentStatusSubject.next('answered');
-
-      const isCorrect = Math.random() > 0.3;
-      if (isCorrect) {
-        const timeTaken = delay / 1000;
-        const scoreGain = Math.round(100 - (timeTaken * 5));
-        const currentScores = this.scoresSubject.value;
-        this.scoresSubject.next({
-          ...currentScores,
-          'opp': (currentScores['opp'] || 0) + scoreGain
-        });
-      }
-    }, delay);
-  }
-
   selectAnswer(index: number) {
     if (this.lockedSubject.value) return;
     this.selectedAnswerSubject.next(index);
@@ -226,8 +224,9 @@ export class QuizBattleService {
     const q = this.questionsSubject.value[this.currentIndexSubject.value];
     if (!q) return;
 
+    let scoreGain = 0;
     if (index === q.correctIndex) {
-      const scoreGain = Math.round(100 - (elapsedSeconds * 5));
+      scoreGain = Math.round(100 - (elapsedSeconds * 5));
       const currentScores = this.scoresSubject.value;
       this.scoresSubject.next({
         ...currentScores,
@@ -235,34 +234,46 @@ export class QuizBattleService {
       });
     }
 
-    if (this.gameModeSubject.value === 'single') {
-      setTimeout(() => this.proceedToNext(), 1500);
-    } else {
-      setTimeout(() => this.checkAndMoveToNext(), 1500);
+    if (this.gameModeSubject.value === 'multiplayer') {
+      this.socket?.emit('submit_answer', { duoId: this.duoId, userId: this.currentUserId, scoreDelta: scoreGain });
     }
-  }
 
-  checkAndMoveToNext() {
-    if (this.opponentStatusSubject.value === 'answered') {
-      this.proceedToNext();
-    } else {
-      const checkInterval = setInterval(() => {
-        if (this.opponentStatusSubject.value === 'answered') {
-          clearInterval(checkInterval);
-          this.proceedToNext();
-        }
-      }, 500);
-    }
+    // Move to next automatically after delay
+    setTimeout(() => this.proceedToNext(), 1500);
   }
 
   proceedToNext() {
     const next = this.currentIndexSubject.value + 1;
-    if (next >= 5) {
-      this.finishQuiz();
-      return;
+    const total = this.questionsSubject.value.length;
+    if (next >= total) {
+      this.sendGameOver();
+    } else {
+      this.currentIndexSubject.next(next);
+      this.nextQuestionCycle();
     }
-    this.currentIndexSubject.next(next);
-    this.nextQuestionCycle();
+  }
+
+  sendGameOver() {
+    const finalScore = this.scoresSubject.value['p1'] || 0;
+    if (this.gameModeSubject.value === 'single') {
+       this.http.post(`${this.backendUrl}/api/quiz/single-player-result`, {
+          topicId: this.selectedTopicSubject.value,
+          score: finalScore
+       }).subscribe({
+          next: (res: any) => {
+             this.xpGained = res.xpGained || 0;
+             this.finishQuiz();
+          },
+          error: (err) => {
+             console.error('Error saving single player score', err);
+             this.finishQuiz();
+          }
+       });
+    } else {
+       // Multiplayer - tell socket we're done
+       this.socket?.emit('game_over', { duoId: this.duoId, userId: this.currentUserId, finalScore });
+       this.opponentStatusSubject.next('waiting'); 
+    }
   }
 
   finishQuiz() {
@@ -273,6 +284,10 @@ export class QuizBattleService {
   cancelMatchmaking() {
     this.statusSubject.next('waiting');
     this.gameModeSubject.next(null);
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
+    }
   }
 
   resetQuiz() {
@@ -280,17 +295,26 @@ export class QuizBattleService {
     this.selectedTopicSubject.next(null);
     this.gameModeSubject.next(null);
     this.currentIndexSubject.next(0);
+    this.xpGained = 0;
+    this.winnerIdSubject.next(null);
     this.resetQuestionState();
     if (this.timer) clearInterval(this.timer);
-  }
-
-  nextQuestion() {
-    this.proceedToNext();
+    
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
+    }
   }
 
   getLeaderboard() {
     const scores = this.scoresSubject.value;
     const players = this.playersSubject.value.map(p => ({ ...p, score: scores[p.id] || 0 }));
     return players.sort((a, b) => b.score - a.score);
+  }
+
+  ngOnDestroy() {
+    if (this.socket) {
+      this.socket.disconnect();
+    }
   }
 }

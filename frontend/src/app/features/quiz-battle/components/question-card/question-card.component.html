@@ -19,8 +19,5 @@
       [disabled]="(quiz.selectedAnswer$ | async) === null">
       Submit Answer
     </button>
-    <button class="next-btn" *ngIf="quiz.isLocked$ | async" (click)="next()">
-      Next<span class="arrow">→</span>
-    </button>
   </div>
 </div>
