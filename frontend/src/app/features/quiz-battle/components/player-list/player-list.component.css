@@ -1,76 +1,77 @@
 .players {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .player {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    background: var(--nav-bg);
-    padding: 12px 20px;
-    border-radius: 16px;
-    border: 1px solid var(--glass-border);
-    transition: all var(--transition-speed) ease;
-    animation: slideIn 0.5s ease backwards;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(248, 250, 252, 0.9);
+  padding: 12px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  transition: background 0.2s ease, transform 0.2s ease;
+  animation: slideIn 0.5s ease backwards;
+}
+
+:host-context(body.dark-mode) .player {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .player:hover {
-    background: var(--glass-bg);
-    transform: translateX(8px);
+  background: rgba(99, 102, 241, 0.06);
+  transform: translateX(8px);
+}
+
+:host-context(body.dark-mode) .player:hover {
+  background: rgba(99, 102, 241, 0.12);
 }
 
 .avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: var(--sidebar-bg-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    color: white;
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #ffffff;
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .name {
-    color: var(--text-primary);
-    font-weight: 700;
-    font-size: 16px;
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 1rem;
+  flex: 1;
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+:host-context(body.dark-mode) .name {
+  color: #f8fafc;
 }
 
 .status-dot {
-    width: 10px;
-    height: 10px;
-    background: var(--success-color);
-    border-radius: 50%;
-    margin-left: auto;
-    box-shadow: 0 0 10px var(--success-color);
-    animation: blink 2s infinite;
+  width: 10px;
+  height: 10px;
+  background: var(--success-color);
+  border-radius: 50%;
+  margin-left: auto;
+  box-shadow: 0 0 10px var(--success-color);
+  animation: blink 2s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes blink {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.4;
-    }
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
 }

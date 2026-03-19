@@ -1,7 +1,7 @@
 <div class="result-overlay">
   <div class="result-card">
     <div class="celebration-icon">🎊</div>
-    <h1 class="title">Battle Results</h1>
+    <h1 class="result-title">Battle Results</h1>
     <h3 *ngIf="quiz.xpGained > 0" style="color: #10b981; margin-bottom: 20px; text-shadow: 0 0 10px rgba(16,185,129,0.3);">
       +{{ quiz.xpGained }} XP Earned!
     </h3>
@@ -9,7 +9,7 @@
       <div class="row" *ngFor="let p of leaderboard; index as i" [class.winner]="i === 0">
         <div class="rank">#{{ i + 1 }}</div>
         <div class="avatar">{{ p.name.charAt(0) }}</div>
-        <div class="name">{{ p.name }}</div>
+        <div class="result-name">{{ p.name }}</div>
         <div class="score">{{ p.score }} pts</div>
       </div>
     </div>
