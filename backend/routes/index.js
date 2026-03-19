@@ -6,6 +6,7 @@ import videoRoute from "./videoRoute.js";
 import schedulerRoute from "./schedulerRoute.js";
 import noteRoute from "./noteRoute.js";
 import flashcardGeneratorRoute from "./flashcardGeneratorRoute.js";
+import quizRoute from "./quizRoute.js";
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.use("/video", videoRoute);
 router.use("/scheduler", schedulerRoute);
 router.use("/note", noteRoute);
 router.use("/flashcards-gen", flashcardGeneratorRoute);
+router.use("/quiz", quizRoute);
 
 export default router;

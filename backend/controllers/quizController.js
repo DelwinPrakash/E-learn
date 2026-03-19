@@ -1,0 +1,70 @@
+import Topic from "../models/Topic.js";
+import Question from "../models/Question.js";
+import User from "../models/User.js";
+import { sequelize } from "../config/db.js";
+
+const getTopics = async (req, res) => {
+    try {
+        const topics = await Topic.findAll();
+        const result = topics.map(t => ({
+            id: t.topic_id,
+            name: t.name,
+            icon: '📚'
+        }));
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Error fetching topics:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+const getQuestions = async (req, res) => {
+    try {
+        const { topicId } = req.query;
+        let limit = parseInt(req.query.limit) || 5;
+
+        if (!topicId) {
+            return res.status(400).json({ message: "Missing topicId" });
+        }
+
+        const questions = await Question.findAll({
+            where: { topic_id: topicId },
+            order: sequelize.random(),
+            limit: limit
+        });
+
+        const formattedQuestions = questions.map((q, index) => {
+            const content = q.content || {};
+            return {
+                id: q.question_id,
+                text: content.text || content.question || 'Missing question text',
+                options: content.options || [],
+                correctIndex: typeof content.correctIndex === 'number' ? content.correctIndex : 0
+            };
+        });
+
+        res.status(200).json(formattedQuestions);
+    } catch (error) {
+        console.error("Error fetching questions:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+const singlePlayerResult = async (req, res) => {
+    try {
+        const { topicId, score } = req.body;
+        const userId = req.user.user_id;
+
+        let xpGained = Math.round((Number(score) || 0) / 2);
+        if (xpGained < 5) xpGained = 5;
+        if (xpGained > 50) xpGained = 50;
+        
+        await User.increment('xp', { by: xpGained, where: { user_id: userId } });
+        res.status(200).json({ message: "XP updated", xpGained });
+    } catch (error) {
+        console.error("Error updating single player result:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+export { getTopics, getQuestions, singlePlayerResult };

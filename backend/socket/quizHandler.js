@@ -1,15 +1,16 @@
 import { Server } from "socket.io";
-import QuizDuo from "../models/QuizDuo.js"; // Use QuizDuo for battle sessions
+import QuizDuo from "../models/QuizDuo.js";
 import User from "../models/User.js";
-import { Op } from "sequelize";
+import Question from "../models/Question.js";
+import { sequelize } from "../config/db.js";
 
-// In-memory queue: { [topicId]: [{ socketId, userId, rank, name }] }
 const queues = {};
+const activeMatches = {};
 
 export const setupSocket = (server) => {
     const io = new Server(server, {
         cors: {
-            origin: "*", // Adjust for production
+            origin: "*", 
             methods: ["GET", "POST"],
         },
     });
@@ -30,43 +31,79 @@ export const setupSocket = (server) => {
                     queues[topicId] = [];
                 }
 
-                // Check if user is already in queue
                 const existingIndex = queues[topicId].findIndex(p => p.userId === userId);
                 if (existingIndex !== -1) {
-                    queues[topicId][existingIndex].socketId = socket.id; // Update socket id
+                    queues[topicId][existingIndex].socketId = socket.id;
                 } else {
-                    queues[topicId].push({ socketId: socket.id, userId, rank: user.rank, name: user.name });
+                    queues[topicId].push({ socketId: socket.id, userId, xp: user.xp || 0, name: user.name });
                 }
 
                 socket.join(topicId);
                 console.log(`User ${user.name} joined queue for topic ${topicId}`);
 
-                // Try to find a match
                 matchMake(io, topicId);
-
             } catch (error) {
                 console.error("Join queue error:", error);
                 socket.emit("error", { message: "Failed to join queue" });
             }
         });
 
-        // User submits an answer during the game
         socket.on("submit_answer", async ({ duoId, userId, scoreDelta }) => {
-            // Just verify the validation on client side for MVP, or process server side
-            // Here we just relay or update temporary state. 
-            // For a secure implementation, we should validate answers here.
-            // Assuming client calculates score for now to keep it simple as per request complexity.
-
             io.to(duoId).emit("opponent_score_update", { userId, scoreDelta });
         });
 
-        socket.on("game_over", async ({ duoId, scores }) => {
-            // scores: { [userId]: finalScore }
-            // Update DB
-            try {
-                // Logic to update QuizDuo with final scores and winner
-            } catch (e) {
-                console.error(e);
+        socket.on("game_over", async ({ duoId, userId, finalScore }) => {
+            const match = activeMatches[duoId];
+            if (!match) return;
+
+            if (userId === match.player1_id) {
+                match.player1_score = finalScore;
+            } else if (userId === match.player2_id) {
+                match.player2_score = finalScore;
+            }
+
+            // Tell the other player this player finished
+            io.to(duoId).emit("opponent_finished", { userId });
+
+            // If both players finished
+            if (match.player1_score !== undefined && match.player2_score !== undefined) {
+                try {
+                    let winnerId = null;
+                    let p1XpGained = 10;
+                    let p2XpGained = 10;
+
+                    if (match.player1_score > match.player2_score) {
+                        winnerId = match.player1_id;
+                        p1XpGained = 30;
+                    } else if (match.player2_score > match.player1_score) {
+                        winnerId = match.player2_id;
+                        p2XpGained = 30;
+                    }
+
+                    // Update QuizDuo
+                    await QuizDuo.update({
+                        status: 'finished',
+                        winner_id: winnerId,
+                        player1_score: match.player1_score,
+                        player2_score: match.player2_score
+                    }, { where: { duo_id: duoId } });
+
+                    // Update XP
+                    await User.increment('xp', { by: p1XpGained, where: { user_id: match.player1_id } });
+                    await User.increment('xp', { by: p2XpGained, where: { user_id: match.player2_id } });
+
+                    io.to(duoId).emit("battle_result", {
+                        winnerId,
+                        players: {
+                            [match.player1_id]: { score: match.player1_score, xpGained: p1XpGained },
+                            [match.player2_id]: { score: match.player2_score, xpGained: p2XpGained }
+                        }
+                    });
+
+                    delete activeMatches[duoId];
+                } catch (e) {
+                    console.error("Error finalizing game:", e);
+                }
             }
         });
 
@@ -81,22 +118,13 @@ const matchMake = async (io, topicId) => {
     const queue = queues[topicId];
     if (queue.length < 2) return;
 
-    // Simple FIFO match for now, or sort by rank
-    // To implement Rank-based: sort queue by rank, then find neighbors.
-
-    // Sorting by rank to find closest match
-    queue.sort((a, b) => a.rank - b.rank);
-
-    // Find a pair within rank threshold? For MVP, just match the first two close enough or just first two.
-    // Let's just match first two for MVP speed to test.
+    // Sort by XP to match closest
+    queue.sort((a, b) => a.xp - b.xp);
 
     const player1 = queue.shift();
     const player2 = queue.shift();
 
     if (player1 && player2) {
-        const roomId = `match_${player1.userId}_${player2.userId}`; // or UUID
-
-        // Create DB Entry
         try {
             const newDuo = await QuizDuo.create({
                 player1_id: player1.userId,
@@ -107,19 +135,45 @@ const matchMake = async (io, topicId) => {
 
             const duoId = newDuo.duo_id;
 
-            // Notify players
-            io.to(player1.socketId).emit("match_found", {
-                opponent: { name: player2.name, rank: player2.rank },
-                duoId,
-                role: 'player1'
-            });
-            io.to(player2.socketId).emit("match_found", {
-                opponent: { name: player1.name, rank: player1.rank },
-                duoId,
-                role: 'player2'
+            // Initialize active match tracker
+            activeMatches[duoId] = {
+                player1_id: player1.userId,
+                player2_id: player2.userId,
+                player1_socket: player1.socketId,
+                player2_socket: player2.socketId
+            };
+
+            // Fetch questions
+            const questions = await Question.findAll({
+                where: { topic_id: topicId },
+                order: sequelize.random(),
+                limit: 5
             });
 
-            // Make them join a room for private communication if needed
+            const formattedQuestions = questions.map((q) => {
+                const content = q.content || {};
+                return {
+                    id: q.question_id,
+                    text: content.text || content.question || 'Missing question',
+                    options: content.options || [],
+                    correctIndex: typeof content.correctIndex === 'number' ? content.correctIndex : 0
+                };
+            });
+
+            io.to(player1.socketId).emit("match_found", {
+                opponent: { id: player2.userId, name: player2.name, xp: player2.xp },
+                duoId,
+                role: 'player1',
+                questions: formattedQuestions
+            });
+
+            io.to(player2.socketId).emit("match_found", {
+                opponent: { id: player1.userId, name: player1.name, xp: player1.xp },
+                duoId,
+                role: 'player2',
+                questions: formattedQuestions
+            });
+
             const p1Socket = io.sockets.sockets.get(player1.socketId);
             const p2Socket = io.sockets.sockets.get(player2.socketId);
 
@@ -130,7 +184,6 @@ const matchMake = async (io, topicId) => {
 
         } catch (err) {
             console.error("Error creating match:", err);
-            // Refund queue?
             queue.push(player1);
             queue.push(player2);
         }
