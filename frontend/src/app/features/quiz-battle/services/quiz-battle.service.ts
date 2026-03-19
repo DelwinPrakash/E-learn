@@ -42,7 +42,9 @@ export class QuizBattleService implements OnDestroy {
   private opponentStatusSubject = new BehaviorSubject<'waiting' | 'answered'>('waiting');
   opponentStatus$ = this.opponentStatusSubject.asObservable();
 
-  private countdownSubject = new BehaviorSubject<number>(10);
+  public readonly QUESTION_TIMEOUT = 10;
+
+  private countdownSubject = new BehaviorSubject<number>(this.QUESTION_TIMEOUT);
   countdown$ = this.countdownSubject.asObservable();
 
   private timer: any;
@@ -95,6 +97,10 @@ export class QuizBattleService implements OnDestroy {
 
   selectTopic(topicId: string) {
     this.selectedTopicSubject.next(topicId);
+  }
+
+  selectedTopicName(){
+    return this.topics.find(topic => topic.id === this.selectedTopicSubject.value)?.name;
   }
 
   setGameMode(mode: 'single' | 'multiplayer') {
@@ -181,14 +187,14 @@ export class QuizBattleService implements OnDestroy {
     this.selectedAnswerSubject.next(null);
     this.lockedSubject.next(false);
     this.timeTakenSubject.next(0);
-    this.countdownSubject.next(10);
+    this.countdownSubject.next(this.QUESTION_TIMEOUT);
     this.opponentStatusSubject.next('waiting');
     this.questionStart = Date.now();
   }
 
   startCountdown() {
     if (this.timer) clearInterval(this.timer);
-    this.countdownSubject.next(10);
+    this.countdownSubject.next(this.QUESTION_TIMEOUT);
     this.timer = setInterval(() => {
       const current = this.countdownSubject.value;
       if (current > 0) {
@@ -217,7 +223,7 @@ export class QuizBattleService implements OnDestroy {
 
     const endTime = Date.now();
     const elapsedMs = endTime - this.questionStart;
-    const elapsedSeconds = Math.min(10, elapsedMs / 1000);
+    const elapsedSeconds = Math.min(this.QUESTION_TIMEOUT, elapsedMs / 1000);
     this.timeTakenSubject.next(elapsedSeconds);
     this.lockedSubject.next(true);
 
@@ -226,13 +232,22 @@ export class QuizBattleService implements OnDestroy {
 
     let scoreGain = 0;
     if (index === q.correctIndex) {
-      scoreGain = Math.round(100 - (elapsedSeconds * 5));
-      const currentScores = this.scoresSubject.value;
-      this.scoresSubject.next({
-        ...currentScores,
-        'p1': (currentScores['p1'] || 0) + scoreGain
-      });
+      // Correct: +100 base + up to +50 speed bonus
+      const remainingTime = this.QUESTION_TIMEOUT - elapsedSeconds;
+      scoreGain = 100 + Math.round(50 * Math.max(0, remainingTime / this.QUESTION_TIMEOUT));
+    } else if (index === -1) {
+      // Did Not Answer (Timeout) penalty
+      scoreGain = -20;
+    } else {
+      // Incorrect Answer penalty
+      scoreGain = -50;
     }
+
+    const currentScores = this.scoresSubject.value;
+    this.scoresSubject.next({
+      ...currentScores,
+      'p1': (currentScores['p1'] || 0) + scoreGain
+    });
 
     if (this.gameModeSubject.value === 'multiplayer') {
       this.socket?.emit('submit_answer', { duoId: this.duoId, userId: this.currentUserId, scoreDelta: scoreGain });

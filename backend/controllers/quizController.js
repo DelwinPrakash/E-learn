@@ -55,9 +55,8 @@ const singlePlayerResult = async (req, res) => {
         const { topicId, score } = req.body;
         const userId = req.user.user_id;
 
-        let xpGained = Math.round((Number(score) || 0) / 2);
-        if (xpGained < 5) xpGained = 5;
-        if (xpGained > 50) xpGained = 50;
+        let xpGained = Math.round((Number(score) || 0) / 10);
+        xpGained = Math.max(-25, Math.min(75, xpGained));
         
         await User.increment('xp', { by: xpGained, where: { user_id: userId } });
         res.status(200).json({ message: "XP updated", xpGained });

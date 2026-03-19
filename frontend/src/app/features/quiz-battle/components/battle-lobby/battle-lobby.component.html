@@ -49,7 +49,7 @@
   <div class="ready-section" *ngIf="(quiz.gameMode$ | async) && (quiz.selectedTopic$ | async)">
     <div class="topic-preview">
       <div class="mode-pill">{{ (quiz.gameMode$ | async)?.toUpperCase() }} MODE</div>
-      <div class="topic-pill">{{ (quiz.selectedTopic$ | async)?.toUpperCase() }}</div>
+      <div class="topic-pill">{{ (quiz.selectedTopicName())?.toUpperCase() }}</div>
       <p class="desc">Aptitude questions are synchronized and ready.</p>
     </div>
 

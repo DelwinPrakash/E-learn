@@ -69,16 +69,21 @@ export const setupSocket = (server) => {
             if (match.player1_score !== undefined && match.player2_score !== undefined) {
                 try {
                     let winnerId = null;
-                    let p1XpGained = 10;
-                    let p2XpGained = 10;
+                    let p1XpGained = Math.round(match.player1_score / 10);
+                    let p2XpGained = Math.round(match.player2_score / 10);
 
-                    if (match.player1_score > match.player2_score) {
+                    // Add winner bonus (+15) if scores are positive
+                    if (match.player1_score > match.player2_score && match.player1_score > 0) {
                         winnerId = match.player1_id;
-                        p1XpGained = 30;
-                    } else if (match.player2_score > match.player1_score) {
+                        p1XpGained += 15;
+                    } else if (match.player2_score > match.player1_score && match.player2_score > 0) {
                         winnerId = match.player2_id;
-                        p2XpGained = 30;
+                        p2XpGained += 15;
                     }
+
+                    // Apply caps and floors (+90 Max, -25 Min)
+                    p1XpGained = Math.max(-25, Math.min(90, p1XpGained));
+                    p2XpGained = Math.max(-25, Math.min(90, p2XpGained));
 
                     // Update QuizDuo
                     await QuizDuo.update({
