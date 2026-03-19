@@ -211,6 +211,15 @@ interface Video {
       transition: background 0.2s ease;
     }
     .btn-delete:hover { background: rgba(244,63,94,0.22); }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      .page-wrapper { padding: 20px 16px; }
+      .header-text h1 { font-size: 1.8rem; }
+      .page-header { flex-direction: column; align-items: stretch; }
+      .filter-input { width: 100%; min-width: unset; }
+      .video-grid { grid-template-columns: 1fr; }
+    }
   `]
 })
 export class VideoClassComponent implements OnInit {

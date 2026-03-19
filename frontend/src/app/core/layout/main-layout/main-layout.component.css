@@ -283,26 +283,97 @@
   z-index: 1;
 }
 
+/* Mobile Navigation Styles */
+.sidebar-overlay {
+  display: none;
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary, #fff);
+  cursor: pointer;
+  margin-right: 16px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background var(--transition-speed) ease;
+}
+
+.mobile-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 /* Touch friendly for mobile */
 @media (max-width: 768px) {
   .dashboard-container {
     flex-direction: column;
   }
 
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    backdrop-filter: blur(4px);
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Slide-in Sidebar */
   .sidebar {
-    width: 100%;
-    height: auto;
-    padding: 12px;
-    border-right: none;
-    border-bottom: 2px solid var(--glass-border);
+    position: fixed;
+    top: 0;
+    left: -100%; /* Hidden by default entirely off-screen */
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    transition: left var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid var(--glass-border);
+    padding: 24px 0;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
   }
 
+  .sidebar.mobile-open {
+    left: 0; /* Slide in */
+  }
+
+  /* Override collapsed state intentionally on mobile so it doesn't break slide-in */
   .sidebar.collapsed {
-    width: 100%;
-    height: auto;
+    width: 280px;
+    left: -100%;
   }
 
+  .sidebar.collapsed.mobile-open {
+    left: 0;
+    width: 280px;
+  }
+
+  .sidebar.collapsed .menu-text,
+  .sidebar.collapsed .menu-title,
+  .sidebar.collapsed .sidebar-logo {
+    opacity: 1;
+    width: auto;
+  }
+  
+  /* Make sure sections are visible */
   .menu-section {
-    display: none;
+    display: block;
+  }
+
+  .content-wrapper {
+    padding: 16px; /* Less padding on mobile */
+  }
+  
+  .top-nav {
+    padding: 12px 16px;
   }
 }

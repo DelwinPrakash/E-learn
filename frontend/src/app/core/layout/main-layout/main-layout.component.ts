@@ -18,6 +18,7 @@ interface MenuItem {
 })
 export class MainLayoutComponent implements OnInit {
     isSidebarCollapsed: boolean = false;
+    isMobileMenuOpen: boolean = false;
     isDarkMode: boolean = false;
     userDetails: UserInfo | null = null;
 
@@ -120,7 +121,19 @@ export class MainLayoutComponent implements OnInit {
     }
 
     toggleSidebar(): void {
-        this.isSidebarCollapsed = !this.isSidebarCollapsed;
+        if (window.innerWidth <= 768) {
+            this.isMobileMenuOpen = false;
+        } else {
+            this.isSidebarCollapsed = !this.isSidebarCollapsed;
+        }
+    }
+
+    toggleMobileMenu(): void {
+        this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    }
+
+    closeMobileMenu(): void {
+        this.isMobileMenuOpen = false;
     }
 
     toggleTheme(): void {

@@ -1,6 +1,9 @@
 <div class="dashboard-container">
+    <!-- Mobile Overlay -->
+    <div class="sidebar-overlay" *ngIf="isMobileMenuOpen" (click)="closeMobileMenu()"></div>
+
     <!-- Sidebar -->
-    <div class="sidebar" [class.collapsed]="isSidebarCollapsed">
+    <div class="sidebar" [class.collapsed]="isSidebarCollapsed" [class.mobile-open]="isMobileMenuOpen">
         <div class="sidebar-header">
             <div class="sidebar-logo">📚 EduLearn</div>
             <button class="toggle-btn" (click)="toggleSidebar()">
@@ -12,7 +15,7 @@
             <div class="menu-title">Overview</div>
             <ul class="menu-list">
                 <li *ngFor="let item of filteredOverviewItems" class="menu-item" [class.active]="isActive(item.route)"
-                    [routerLink]="[item.route]">
+                    [routerLink]="[item.route]" (click)="closeMobileMenu()">
                     <span class="menu-icon">{{ item.icon }}</span>
                     <span class="menu-text">{{ item.name }}</span>
                 </li>
@@ -23,7 +26,7 @@
             <div class="menu-title">Learn</div>
             <ul class="menu-list">
                 <li *ngFor="let item of filteredLearnItems" class="menu-item" [class.active]="isActive(item.route)"
-                    [routerLink]="[item.route]">
+                    [routerLink]="[item.route]" (click)="closeMobileMenu()">
                     <span class="menu-icon">{{ item.icon }}</span>
                     <span class="menu-text">{{ item.name }}</span>
                 </li>
@@ -34,7 +37,7 @@
             <div class="menu-title">Practice</div>
             <ul class="menu-list">
                 <li *ngFor="let item of filteredPracticeItems" class="menu-item" [class.active]="isActive(item.route)"
-                    [routerLink]="[item.route]">
+                    [routerLink]="[item.route]" (click)="closeMobileMenu()">
                     <span class="menu-icon">{{ item.icon }}</span>
                     <span class="menu-text">{{ item.name }}</span>
                 </li>
@@ -45,7 +48,7 @@
             <div class="menu-title">Teacher Area</div>
             <ul class="menu-list">
                 <li *ngFor="let item of filteredTeacherItems" class="menu-item" [class.active]="isActive(item.route)"
-                    [routerLink]="[item.route]">
+                    [routerLink]="[item.route]" (click)="closeMobileMenu()">
                     <span class="menu-icon">{{ item.icon }}</span>
                     <span class="menu-text">{{ item.name }}</span>
                 </li>
@@ -56,7 +59,7 @@
             <div class="menu-title">Profile</div>
             <ul class="menu-list">
                 <li *ngFor="let item of filteredProfileItems" class="menu-item" [class.active]="isActive(item.route)"
-                    [routerLink]="[item.route]">
+                    [routerLink]="[item.route]" (click)="closeMobileMenu()">
                     <span class="menu-icon">{{ item.icon }}</span>
                     <span class="menu-text">{{ item.name }}</span>
                 </li>
@@ -76,7 +79,13 @@
         <!-- Top Navigation -->
         <div class="top-nav">
             <div class="nav-brand">
-                <!-- Optional: Breadcrumbs or Page Title could go here -->
+                <button class="mobile-menu-btn" (click)="toggleMobileMenu()" aria-label="Toggle Menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
             </div>
             <div class="user-actions">
                 <div class="user-profile" *ngIf="userDetails">
