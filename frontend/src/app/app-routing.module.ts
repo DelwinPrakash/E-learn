@@ -12,6 +12,7 @@ import { VideoToTextComponent } from './features/video-to-text/pages/video-to-te
 import { ProfileComponent } from './features/profile/profile.component';
 import { TeacherUploadComponent } from './features/upload-video-for-teachers/pages/upload.component';
 import { TeacherNotesUploadComponent } from './features/upload-notes-for-teachers/pages/notes-upload.component';
+import { TeacherCreateQuizComponent } from './features/create-quiz-for-teachers/pages/create-quiz.component';
 import { VideoClassComponent } from './features/video-class/pages/video-class.component';
 import { MaterialsComponent } from './features/study-materials/pages/materials.component';
 import { SchedulerComponent } from './features/microlearning-scheduler/pages/scheduler.component';
@@ -39,6 +40,7 @@ const routes: Routes = [
       { path: 'profile', component: ProfileComponent },
       { path: 'video-upload', component: TeacherUploadComponent },
       { path: 'notes-upload', component: TeacherNotesUploadComponent },
+      { path: 'create-quiz', component: TeacherCreateQuizComponent },
       { path: 'video-class', component: VideoClassComponent },
       { path: 'materials', component: MaterialsComponent },
       { path: 'scheduler', component: SchedulerComponent },

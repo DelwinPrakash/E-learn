@@ -18,6 +18,7 @@ import { VideoToTextComponent } from './features/video-to-text/pages/video-to-te
 import { ProfileComponent } from './features/profile/profile.component';
 import { TeacherUploadComponent } from './features/upload-video-for-teachers/pages/upload.component';
 import { TeacherNotesUploadComponent } from './features/upload-notes-for-teachers/pages/notes-upload.component';
+import { TeacherCreateQuizComponent } from './features/create-quiz-for-teachers/pages/create-quiz.component';
 import { MaterialsComponent } from './features/study-materials/pages/materials.component';
 import { VideoClassComponent } from './features/video-class/pages/video-class.component';
 import { AuthHeaderInterceptor } from './core/interceptor/auth-header.interceptor';
@@ -47,6 +48,7 @@ import { ResultBoardComponent } from './features/quiz-battle/components/result-b
     ProfileComponent,
     TeacherUploadComponent,
     TeacherNotesUploadComponent,
+    TeacherCreateQuizComponent,
     MaterialsComponent,
     VideoClassComponent,
     MainLayoutComponent,

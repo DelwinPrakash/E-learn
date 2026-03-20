@@ -1,0 +1,74 @@
+<div class="upload-container">
+  <div class="glass-panel form-card">
+    <div class="header-section">
+      <h2>📝 Create New Quiz</h2>
+      <p class="subtitle">Design a new quiz to challenge your students</p>
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+    <form [formGroup]="quizForm" (ngSubmit)="onSubmit()">
+      <!-- Quiz Metadata Section -->
+      <div class="form-group">
+        <label for="title">Quiz Title <span class="required">*</span></label>
+        <input type="text" id="title" formControlName="title" placeholder="e.g., Fundamentals of Algebra" class="input-field" />
+      </div>
+
+      <div class="form-group">
+        <label for="difficulty">Difficulty Level <span class="required">*</span></label>
+        <select id="difficulty" formControlName="difficulty" class="input-field">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Questions Section -->
+      <div class="section-header">
+        <h2 style="font-size: 1.5rem; margin-bottom: 0; color: var(--text-primary, #fff);">Questions</h2>
+        <button type="button" class="btn-secondary add-btn" (click)="addQuestion()">+ Add Question</button>
+      </div>
+
+      <div formArrayName="questions">
+        <div *ngFor="let question of questions.controls; let qIndex = index" [formGroupName]="qIndex" class="question-card">
+          <div class="question-header">
+            <h3>Question {{ qIndex + 1 }}</h3>
+            <button *ngIf="questions.length > 1" type="button" class="btn-icon delete-btn" (click)="removeQuestion(qIndex)" title="Remove Question">✖</button>
+          </div>
+          
+          <div class="form-group">
+            <label>Question Text <span class="required">*</span></label>
+            <textarea formControlName="text" placeholder="Enter the question here..." class="textarea-field" rows="3"></textarea>
+          </div>
+
+          <div class="options-container">
+            <label style="margin-bottom: 12px; display: block;">Options & Correct Answer <span class="required">*</span></label>
+            <div class="option-row" *ngFor="let option of getOptions(qIndex).controls; let optIndex = index">
+              <label class="radio-container" title="Select this option as the correct answer">
+                <input type="radio" 
+                       [value]="optIndex" 
+                       [checked]="question.get('correctIndex')?.value === optIndex"
+                       (change)="setCorrectIndex(qIndex, optIndex)"
+                       [name]="'correctans_' + qIndex">
+                <span class="radio-mark"></span>
+              </label>
+              <input type="text" [formControl]="$any(option)" placeholder="Option {{ optIndex + 1 }}" class="input-field option-input" />
+              <div class="badge-placeholder">
+                <span *ngIf="question.get('correctIndex')?.value === optIndex" class="correct-badge">Correct</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Area -->
+      <button type="submit" class="btn-primary" [disabled]="isSubmitting || quizForm.invalid" style="margin-top: 32px;">
+        <span *ngIf="!isSubmitting">✨ Create Quiz</span>
+        <span *ngIf="isSubmitting" class="loader-text">Creating...</span>
+      </button>
+    </form>
+  </div>
+</div>
