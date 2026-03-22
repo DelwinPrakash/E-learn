@@ -2,6 +2,11 @@ import Topic from "../models/Topic.js";
 import Question from "../models/Question.js";
 import User from "../models/User.js";
 import { sequelize } from "../config/db.js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from 'dotenv';
+dotenv.config();
+
+const genai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const getTopics = async (req, res) => {
     try {
@@ -106,4 +111,68 @@ const createQuiz = async (req, res) => {
     }
 };
 
-export { getTopics, getQuestions, singlePlayerResult, createQuiz };
+const generateQuizFromAI = async (req, res) => {
+    try {
+        const { topicPrompt, difficulty, numQuestions } = req.body;
+        const userRole = req.user.role;
+
+        if (userRole !== 'teacher' && userRole !== 'admin') {
+            return res.status(403).json({ message: "Unauthorized. Only teachers can use AI generator." });
+        }
+
+        if (!topicPrompt) {
+            return res.status(400).json({ message: "Missing topic prompt." });
+        }
+
+        const count = numQuestions || 5;
+        const diff = difficulty || "medium";
+
+        const prompt = `
+            You are an expert educator. Generate a multiple-choice quiz based on the following topic or instructions: "${topicPrompt}".
+            The difficulty level should be ${diff}.
+            Generate exactly ${count} questions.
+
+            Return the output EXCLUSIVELY as a JSON array where each element represents a question.
+            Each question object must match this exact structure:
+            {
+                "text": "The question text",
+                "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+                "correctIndex": 0
+            }
+            The correctIndex must be an integer from 0 to 3 corresponding to the correct option.
+            Do not include any formatting, markdown, or text outside of the JSON array.
+        `;
+
+        const model = genai.getGenerativeModel({
+            model: 'gemini-2.5-flash',
+            systemInstruction: "You are an expert educational planner. Your output must be exactly a valid JSON array matching the requested structure, with no additional formatting or explanations.",
+            generationConfig: {
+                responseMimeType: "application/json",
+            }
+        });
+
+        const result = await model.generateContent(prompt);
+        let generatedText = result.response.text();
+
+        const startIdx = generatedText.indexOf('[');
+        const endIdx = generatedText.lastIndexOf(']');
+        if (startIdx !== -1 && endIdx !== -1 && startIdx <= endIdx) {
+            generatedText = generatedText.substring(startIdx, endIdx + 1);
+        }
+
+        let questions;
+        try {
+            questions = JSON.parse(generatedText);
+        } catch (parseError) {
+            console.error("Failed to parse Gemini output as JSON.", parseError);
+            return res.status(500).json({ message: "AI returned invalid format. Please try again." });
+        }
+
+        res.status(200).json(questions);
+    } catch (error) {
+        console.error("Error generating AI quiz:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+export { getTopics, getQuestions, singlePlayerResult, createQuiz, generateQuizFromAI };
