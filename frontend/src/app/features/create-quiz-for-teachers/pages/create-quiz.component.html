@@ -32,6 +32,42 @@
         <button type="button" class="btn-secondary add-btn" (click)="addQuestion()">+ Add Question</button>
       </div>
 
+      <!-- AI Generator Section -->
+      <div class="ai-generator-card">
+        <h3>AI Quiz Assistant</h3>
+        <p class="subtitle" style="margin-bottom: 20px;">Instantly generate and auto-populate quiz questions on any topic using Google Gemini.</p>
+        
+        <div class="ai-form-grid">
+          <div class="form-group ai-input">
+            <label>Topic</label>
+            <input type="text" [(ngModel)]="aiPrompt" [ngModelOptions]="{standalone: true}" placeholder="e.g. Space Exploration" class="input-field" [disabled]="isGeneratingAI" />
+          </div>
+          
+          <div class="form-group ai-input-small">
+            <label>Difficulty</label>
+            <select [(ngModel)]="aiDifficulty" [ngModelOptions]="{standalone: true}" class="input-field" [disabled]="isGeneratingAI">
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+          
+          <div class="form-group ai-input-small">
+            <label>Questions (Max 15)</label>
+            <input type="number" [(ngModel)]="aiNumQuestions" [ngModelOptions]="{standalone: true}" min="1" max="15" class="input-field" [disabled]="isGeneratingAI" />
+          </div>
+        </div>
+        
+        <div *ngIf="aiErrorMessage" class="error-msg">{{ aiErrorMessage }}</div>
+        
+        <div style="text-align: right; margin-top: 16px;">
+          <button type="button" class="btn-primary ai-submit-btn" (click)="generateAIQuiz()" [disabled]="isGeneratingAI || !aiPrompt.trim()">
+            <span *ngIf="!isGeneratingAI">✨ Generate</span>
+            <span *ngIf="isGeneratingAI" class="loader-text">Generating...</span>
+          </button>
+        </div>
+      </div>
+
       <div formArrayName="questions">
         <div *ngFor="let question of questions.controls; let qIndex = index" [formGroupName]="qIndex" class="question-card">
           <div class="question-header">
@@ -63,6 +99,8 @@
           </div>
         </div>
       </div>
+
+      <div class="divider"></div>
 
       <!-- Submit Area -->
       <button type="submit" class="btn-primary" [disabled]="isSubmitting || quizForm.invalid" style="margin-top: 32px;">

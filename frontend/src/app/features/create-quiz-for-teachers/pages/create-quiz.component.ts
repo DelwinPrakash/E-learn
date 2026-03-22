@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { CreateQuizService } from '../services/create-quiz.service';
 
 @Component({
   selector: 'app-teacher-create-quiz',
@@ -14,9 +14,15 @@ export class TeacherCreateQuizComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  aiPrompt: string = '';
+  aiDifficulty: string = 'medium';
+  aiNumQuestions: number = 5;
+  isGeneratingAI: boolean = false;
+  aiErrorMessage: string = '';
+
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
+    private createQuizService: CreateQuizService,
     private router: Router
   ) {
     this.quizForm = this.fb.group({
@@ -65,6 +71,50 @@ export class TeacherCreateQuizComponent implements OnInit {
     this.questions.at(qIndex).get('correctIndex')?.setValue(optIndex);
   }
 
+  generateAIQuiz() {
+    if (!this.aiPrompt.trim()) {
+      this.aiErrorMessage = "Please enter a topic prompt first.";
+      return;
+    }
+    
+    this.isGeneratingAI = true;
+    this.aiErrorMessage = '';
+    
+    // Boundary checks
+    const finalCount = Math.min(Math.max(this.aiNumQuestions || 5, 1), 15);
+    
+    const payload = {
+      topicPrompt: this.aiPrompt,
+      difficulty: this.aiDifficulty,
+      numQuestions: finalCount
+    };
+
+    this.createQuizService.generateAIQuiz(payload).subscribe({
+      next: (response: any) => {
+        this.isGeneratingAI = false;
+        if (Array.isArray(response) && response.length > 0) {
+          this.questions.clear();
+          response.forEach((q: any) => {
+            const optionsArray = this.fb.array(
+              q.options.map((opt: string) => this.fb.control(opt, Validators.required))
+            );
+            this.questions.push(this.fb.group({
+              text: [q.text, Validators.required],
+              options: optionsArray,
+              correctIndex: [q.correctIndex || 0, Validators.required],
+              difficulty: [payload.difficulty]
+            }));
+          });
+          this.aiPrompt = '';
+        }
+      },
+      error: (err) => {
+        this.isGeneratingAI = false;
+        this.aiErrorMessage = err.error?.message || "Failed to generate AI quiz.";
+      }
+    });
+  }
+
   onSubmit(): void {
     if (this.quizForm.invalid) {
       this.errorMessage = 'Please fill out all required fields properly.';
@@ -76,10 +126,7 @@ export class TeacherCreateQuizComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    this.http.post('http://localhost:3000/api/quiz/create', this.quizForm.value, { headers }).subscribe({
+    this.createQuizService.createQuiz(this.quizForm.value).subscribe({
       next: (response: any) => {
         this.isSubmitting = false;
         this.successMessage = 'Quiz created successfully!';

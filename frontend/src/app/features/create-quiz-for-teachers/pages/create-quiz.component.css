@@ -327,3 +327,52 @@
       color: #ff6b6b;
       border: 1px solid rgba(220, 53, 69, 0.3);
     }
+
+    .ai-generator-card {
+        background: rgba(99, 102, 241, 0.05);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 32px;
+    }
+
+    .ai-generator-card h3 {
+        color: var(--accent-primary, #6366f1);
+        margin: 0 0 8px 0;
+        font-size: 1.3rem;
+    }
+
+    .error-msg {
+        color: #ff4d4d;
+        font-size: 0.85rem;
+        margin-top: 8px;
+    }
+
+    .ai-form-grid {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .ai-input {
+      flex: 2;
+      min-width: 200px;
+    }
+
+    .ai-input-small {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .ai-submit-btn {
+      width: auto;
+      display: inline-flex;
+      padding: 12px 24px;
+    }
+
+    @media (max-width: 600px) {
+       .ai-input, .ai-input-small {
+          flex: 1 1 100%;
+       }
+    }
