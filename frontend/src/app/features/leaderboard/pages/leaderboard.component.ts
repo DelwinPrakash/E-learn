@@ -44,7 +44,7 @@ export class LeaderboardComponent implements OnInit {
         this.players = data.map((user: any) => ({
           rank: user.rank,
           name: user.name,
-          xp: user.xp,
+          xp: Number(user.xp) || 0,
           avatar: this.getRandomAvatar(),
           trend: 'same' as const,
           role: user.role

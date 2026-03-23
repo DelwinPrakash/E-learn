@@ -16,7 +16,7 @@
       <i class="fas fa-star" style="color: #6366f1;"></i>
       <div class="stat-info">
         <span class="label">Today's Top XP</span>
-        <span class="value">{{ players[0].xp || 0 }}</span>
+        <span class="value">{{ players.length > 0 ? (players[0]?.xp || 0) : 0 }}</span>
       </div>
     </div>
     <div class="stat-card">
