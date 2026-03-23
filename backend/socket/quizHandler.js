@@ -134,7 +134,7 @@ const matchMake = async (io, topicId) => {
             const newDuo = await QuizDuo.create({
                 player1_id: player1.userId,
                 player2_id: player2.userId,
-                topic_id: topicId,
+                // topic_id: topicId, -> Omitted because topicId is a string like "age" instead of a valid UUID, which crashes Postgres
                 status: 'active'
             });
 
@@ -181,6 +181,8 @@ const matchMake = async (io, topicId) => {
 
             const p1Socket = io.sockets.sockets.get(player1.socketId);
             const p2Socket = io.sockets.sockets.get(player2.socketId);
+
+            activeMatches[duoId] = [player1.socketId, player2.socketId];
 
             if (p1Socket) p1Socket.join(duoId);
             if (p2Socket) p2Socket.join(duoId);
