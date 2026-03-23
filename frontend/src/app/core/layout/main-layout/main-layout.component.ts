@@ -31,7 +31,7 @@ export class MainLayoutComponent implements OnInit {
             { name: 'Video Class', icon: '🎥', route: '/video-class' },
             { name: 'Materials', icon: '📚', route: '/materials' },
             { name: 'Video to Text', icon: '✨', route: '/video-to-text' },
-            { name: 'Learning Paths', icon: '🛤️', route: '/learning-paths' },
+            // { name: 'Learning Paths', icon: '🛤️', route: '/learning-paths' },
             { name: 'Micro Learning Scheduler', icon: '⏲️', route: '/scheduler' }
         ],
         practice: [
