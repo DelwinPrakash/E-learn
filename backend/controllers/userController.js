@@ -218,12 +218,11 @@ const getLeaderboard = async (req, res) => {
             order: [['xp', 'DESC']], // Sorting by XP descending
         });
 
-        // Add rank to each user based on their position in the sorted array
         const leaderboard = users.map((user, index) => ({
             rank: index + 1,
             user_id: user.user_id,
             name: user.name,
-            xp: user.xp,
+            xp: Number(user.xp) || 0,
             role: user.role
         }));
 

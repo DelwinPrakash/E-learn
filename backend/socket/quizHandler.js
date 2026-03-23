@@ -6,6 +6,8 @@ import { Op } from "sequelize";
 
 // In-memory queue: { [topicId]: [{ socketId, userId, rank, name }] }
 const queues = {};
+// In-memory active matches: { [duoId]: [socketId1, socketId2] }
+const activeMatches = {};
 
 export const setupSocket = (server) => {
     const io = new Server(server, {
@@ -53,12 +55,15 @@ export const setupSocket = (server) => {
 
         // User submits an answer during the game
         socket.on("submit_answer", async ({ duoId, userId, scoreDelta }) => {
-            // Just verify the validation on client side for MVP, or process server side
-            // Here we just relay or update temporary state. 
-            // For a secure implementation, we should validate answers here.
-            // Assuming client calculates score for now to keep it simple as per request complexity.
-
-            io.to(duoId).emit("opponent_score_update", { userId, scoreDelta });
+            const sockets = activeMatches[duoId];
+            if (sockets) {
+                sockets.forEach(sId => {
+                    io.to(sId).emit("opponent_score_update", { userId, scoreDelta });
+                });
+            } else {
+                // Fallback to room emit if map fails
+                io.to(duoId).emit("opponent_score_update", { userId, scoreDelta });
+            }
         });
 
         socket.on("game_over", async ({ duoId, scores }) => {
@@ -154,7 +159,7 @@ const matchMake = async (io, topicId) => {
             const newDuo = await QuizDuo.create({
                 player1_id: player1.userId,
                 player2_id: player2.userId,
-                topic_id: topicId,
+                // topic_id: topicId, -> Omitted because topicId is a string like "age" instead of a valid UUID, which crashes Postgres
                 status: 'active'
             });
 
@@ -198,13 +203,13 @@ const matchMake = async (io, topicId) => {
 
             // Notify players
             io.to(player1.socketId).emit("match_found", {
-                opponent: { name: player2.name, rank: player2.rank },
+                opponent: { id: player2.userId, name: player2.name, rank: player2.rank },
                 duoId,
                 role: 'player1',
                 questions: topicQuestions
             });
             io.to(player2.socketId).emit("match_found", {
-                opponent: { name: player1.name, rank: player1.rank },
+                opponent: { id: player1.userId, name: player1.name, rank: player1.rank },
                 duoId,
                 role: 'player2',
                 questions: topicQuestions
@@ -213,6 +218,8 @@ const matchMake = async (io, topicId) => {
             // Make them join a room for private communication if needed
             const p1Socket = io.sockets.sockets.get(player1.socketId);
             const p2Socket = io.sockets.sockets.get(player2.socketId);
+
+            activeMatches[duoId] = [player1.socketId, player2.socketId];
 
             if (p1Socket) p1Socket.join(duoId);
             if (p2Socket) p2Socket.join(duoId);
