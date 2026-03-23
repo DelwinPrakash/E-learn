@@ -94,7 +94,7 @@ export class QuizBattleService {
       
       const p1 = this.playersSubject.getValue()[0];
       const p2 = {
-        id: 'opp',
+        id: data.opponent.id,
         name: data.opponent.name,
         avatar: '',
         score: 0
@@ -111,7 +111,7 @@ export class QuizBattleService {
 
       this.statusSubject.next('playing');
       this.currentIndexSubject.next(0);
-      this.scoresSubject.next({ [this.currentUserId || 'p1']: 0, 'opp': 0 });
+      this.scoresSubject.next({ [this.currentUserId || 'p1']: 0, [data.opponent.id]: 0 });
       this.nextQuestionCycle();
     });
 
@@ -122,7 +122,7 @@ export class QuizBattleService {
          const currentScores = this.scoresSubject.value;
          this.scoresSubject.next({
            ...currentScores,
-           'opp': (currentScores['opp'] || 0) + data.scoreDelta
+           [data.userId]: (currentScores[data.userId] || 0) + data.scoreDelta
          });
       }
     });
