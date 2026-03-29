@@ -15,13 +15,13 @@ export class ChatbotComponent implements OnInit {
   constructor(private chatbotService: ChatbotService) { }
 
   ngOnInit(): void {
-    // Load chat history
+    // Load chat history from database
     this.chatbotService.getChatHistory().subscribe({
       next: (history) => {
         if (history && history.length > 0) {
           this.messages = history;
         } else {
-          // welcome message
+          // welcome message when returning
           this.messages.push({ sender: 'bot', text: 'Hi! I am your learning assistant. Ask me anything about the course.' });
         }
         setTimeout(() => this.scrollToBottom(), 100);
