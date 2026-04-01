@@ -68,13 +68,23 @@ export class QuizBattleService implements OnDestroy {
   timeTaken$ = this.timeTakenSubject.asObservable();
 
   private questionStart = 0;
-  private currentUserId: string = '';
+  public currentUserId: string = '';
   private duoId: string = '';
+  private lobbyPlayersSubject = new BehaviorSubject<Player[]>([]);
+  lobbyPlayers$ = this.lobbyPlayersSubject.asObservable();
+
+  private isInitiatorSubject = new BehaviorSubject<boolean>(false);
+  isInitiator$ = this.isInitiatorSubject.asObservable();
+
+  private playersInfo: Record<string, Player> = {};
+  public topics: any[] = [];
+  public xpGained: number = 0;
+
   private winnerIdSubject = new BehaviorSubject<string | null>(null);
   winnerId$ = this.winnerIdSubject.asObservable();
-  xpGained: number = 0;
 
-  topics: any[] = [];
+  private initiatorIdSubject = new BehaviorSubject<string | null>(null);
+  initiatorId$ = this.initiatorIdSubject.asObservable();
 
   constructor(private http: HttpClient, private authService: AuthService) {
     this.extractUserId();
@@ -100,7 +110,7 @@ export class QuizBattleService implements OnDestroy {
   }
 
   selectedTopicName(){
-    return this.topics.find(topic => topic.id === this.selectedTopicSubject.value)?.name;
+    return this.topics.find((topic: any) => topic.id === this.selectedTopicSubject.value)?.name;
   }
 
   setGameMode(mode: 'single' | 'multiplayer') {
@@ -117,10 +127,10 @@ export class QuizBattleService implements OnDestroy {
       this.http.get<Question[]>(`${this.backendUrl}/api/quiz/questions?topicId=${topicId}`).subscribe({
         next: (questions) => {
           this.questionsSubject.next(questions);
-          this.playersSubject.next([{ id: 'p1', name: 'You', avatar: '👤', score: 0 }]);
+          this.playersSubject.next([{ id: this.currentUserId, name: 'You', avatar: '👤', score: 0 }]);
           this.statusSubject.next('playing');
           this.currentIndexSubject.next(0);
-          this.scoresSubject.next({ 'p1': 0 });
+          this.scoresSubject.next({ [this.currentUserId]: 0 });
           this.nextQuestionCycle();
         },
         error: (err) => {
@@ -135,36 +145,68 @@ export class QuizBattleService implements OnDestroy {
     }
   }
 
+  startGame() {
+    const topicId = this.selectedTopicSubject.value;
+    if (this.gameModeSubject.value === 'multiplayer' && topicId) {
+      this.socket?.emit('start_game', { userId: this.currentUserId, topicId });
+    }
+  }
+
   private connectSocket() {
     if (!this.socket) {
       this.socket = io(this.backendUrl);
       
+      this.socket.on('lobby_update', (data: any) => {
+        const players = data.players.map((p: any) => ({
+          id: p.userId,
+          name: p.userId === this.currentUserId ? 'You' : p.name,
+          avatar: p.avatar || '👤',
+          score: 0,
+          xp: p.xp
+        }));
+        this.lobbyPlayersSubject.next(players);
+        this.isInitiatorSubject.next(data.initiatorId === this.currentUserId);
+        this.initiatorIdSubject.next(data.initiatorId);
+      });
+
       this.socket.on('match_found', (data: any) => {
         this.duoId = data.duoId;
         this.questionsSubject.next(data.questions);
         
-        const myPlayer: Player = { id: 'p1', name: 'You', avatar: '👤', score: 0 };
-        const oppPlayer: Player = { id: 'opp', name: data.opponent.name, avatar: '🤖', score: 0, xp: data.opponent.xp };
-        this.playersSubject.next([myPlayer, oppPlayer]);
+        const playersList: Player[] = data.players.map((p: any) => ({
+          id: p.id,
+          name: p.id === this.currentUserId ? 'You' : p.name,
+          avatar: '👤',
+          score: 0,
+          xp: p.xp
+        }));
+        
+        this.playersSubject.next(playersList);
+        
+        const initialScores: Record<string, number> = {};
+        playersList.forEach(p => initialScores[p.id] = 0);
         
         this.statusSubject.next('playing');
         this.currentIndexSubject.next(0);
-        this.scoresSubject.next({ 'p1': 0, 'opp': 0 });
+        this.scoresSubject.next(initialScores);
         this.nextQuestionCycle();
       });
 
       this.socket.on('opponent_score_update', (data: any) => {
+         const currentScores = this.scoresSubject.value;
          if (data.userId !== this.currentUserId) {
-           const currentScores = this.scoresSubject.value;
            this.scoresSubject.next({
              ...currentScores,
-             'opp': (currentScores['opp'] || 0) + data.scoreDelta
+             [data.userId]: data.currentScore || (currentScores[data.userId] || 0) + data.scoreDelta
            });
          }
       });
 
-      this.socket.on('opponent_finished', () => {
-         this.opponentStatusSubject.next('answered');
+      this.socket.on('opponent_finished', (data: any) => {
+         // Optionally track individual finished statuses if needed for UI
+         if (data.userId !== this.currentUserId) {
+            // Can update a status map here if we wanted to show specific player status
+         }
       });
 
       this.socket.on('battle_result', (data: any) => {
@@ -174,6 +216,10 @@ export class QuizBattleService implements OnDestroy {
             this.xpGained = myData.xpGained;
          }
          this.finishQuiz(); 
+      });
+
+      this.socket.on('error', (err: any) => {
+        console.error('Socket error:', err);
       });
     }
   }
@@ -246,7 +292,7 @@ export class QuizBattleService implements OnDestroy {
     const currentScores = this.scoresSubject.value;
     this.scoresSubject.next({
       ...currentScores,
-      'p1': (currentScores['p1'] || 0) + scoreGain
+      [this.currentUserId]: (currentScores[this.currentUserId] || 0) + scoreGain
     });
 
     if (this.gameModeSubject.value === 'multiplayer') {
@@ -269,7 +315,7 @@ export class QuizBattleService implements OnDestroy {
   }
 
   sendGameOver() {
-    const finalScore = this.scoresSubject.value['p1'] || 0;
+    const finalScore = this.scoresSubject.value[this.currentUserId] || 0;
     if (this.gameModeSubject.value === 'single') {
        this.http.post(`${this.backendUrl}/api/quiz/single-player-result`, {
           topicId: this.selectedTopicSubject.value,
