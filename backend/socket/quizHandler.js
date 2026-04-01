@@ -2,10 +2,11 @@ import { Server } from "socket.io";
 import QuizDuo from "../models/QuizDuo.js";
 import User from "../models/User.js";
 import Question from "../models/Question.js";
+import QuizParticipant from "../models/QuizParticipant.js";
 import { sequelize } from "../config/db.js";
 
-const queues = {};
-const activeMatches = {};
+const lobbies = {}; // lobbies[topicId] = { initiatorId, players: [{userId, socketId, name, xp}] }
+const activeRooms = {}; // activeRooms[roomId] = { topicId, players: {userId: {socketId, name, score, finished}}, totalPlayers }
 
 export const setupSocket = (server) => {
     const io = new Server(server, {
@@ -18,7 +19,6 @@ export const setupSocket = (server) => {
     io.on("connection", (socket) => {
         console.log(`User connected: ${socket.id}`);
 
-        // User joins matchmaking queue
         socket.on("join_queue", async ({ userId, topicId }) => {
             try {
                 const user = await User.findByPk(userId);
@@ -27,85 +27,194 @@ export const setupSocket = (server) => {
                     return;
                 }
 
-                if (!queues[topicId]) {
-                    queues[topicId] = [];
+                if (!lobbies[topicId]) {
+                    lobbies[topicId] = {
+                        initiatorId: userId,
+                        players: []
+                    };
                 }
 
-                const existingIndex = queues[topicId].findIndex(p => p.userId === userId);
+                const lobby = lobbies[topicId];
+                const existingIndex = lobby.players.findIndex(p => p.userId === userId);
+                
+                const playerData = { 
+                    socketId: socket.id, 
+                    userId, 
+                    xp: user.xp || 0, 
+                    name: user.name,
+                    avatar: '👤' // Default avatar as in frontend
+                };
+
                 if (existingIndex !== -1) {
-                    queues[topicId][existingIndex].socketId = socket.id;
+                    lobby.players[existingIndex] = playerData;
                 } else {
-                    queues[topicId].push({ socketId: socket.id, userId, xp: user.xp || 0, name: user.name });
+                    lobby.players.push(playerData);
                 }
 
-                socket.join(topicId);
-                console.log(`User ${user.name} joined queue for topic ${topicId}`);
+                // If the initiator left and came back, or if the original initiator is gone
+                if (!lobby.players.some(p => p.userId === lobby.initiatorId)) {
+                    lobby.initiatorId = userId;
+                }
 
-                matchMake(io, topicId);
+                socket.join(`room_${topicId}`);
+                console.log(`User ${user.name} joined lobby for topic ${topicId}`);
+
+                io.to(`room_${topicId}`).emit("lobby_update", {
+                    players: lobby.players,
+                    initiatorId: lobby.initiatorId,
+                    topicId
+                });
             } catch (error) {
                 console.error("Join queue error:", error);
-                socket.emit("error", { message: "Failed to join queue" });
+                socket.emit("error", { message: "Failed to join lobby" });
+            }
+        });
+
+        socket.on("start_game", async ({ userId, topicId }) => {
+            const lobby = lobbies[topicId];
+            if (!lobby || lobby.initiatorId !== userId) {
+                socket.emit("error", { message: "Only the initiator can start the game" });
+                return;
+            }
+
+            try {
+                // Create a record in QuizDuo to get a unique roomId (duo_id)
+                // We'll use player1_id/player2_id for the first two players for compatibility
+                const p1 = lobby.players[0];
+                const p2 = lobby.players[1] || p1; 
+
+                const newDuo = await QuizDuo.create({
+                    player1_id: p1.userId,
+                    player2_id: p2.userId,
+                    topic_id: topicId,
+                    status: 'active',
+                    initiator_user_id: userId
+                });
+
+                const roomId = newDuo.duo_id;
+                
+                // Track all participants
+                const participantPromises = lobby.players.map(p => 
+                    QuizParticipant.create({ duo_id: roomId, user_id: p.userId })
+                );
+                await Promise.all(participantPromises);
+
+                // Fetch questions
+                const questions = await Question.findAll({
+                    where: { topic_id: topicId },
+                    order: sequelize.random(),
+                    limit: 5
+                });
+
+                const formattedQuestions = questions.map((q) => {
+                    const content = q.content || {};
+                    return {
+                        id: q.question_id,
+                        text: content.text || content.question || 'Missing question',
+                        options: content.options || [],
+                        correctIndex: typeof content.correctIndex === 'number' ? content.correctIndex : 0
+                    };
+                });
+
+                // Initialize active room tracker
+                activeRooms[roomId] = {
+                    topicId,
+                    players: {},
+                    totalPlayers: lobby.players.length,
+                    finishedCount: 0
+                };
+
+                lobby.players.forEach(p => {
+                    activeRooms[roomId].players[p.userId] = {
+                        socketId: p.socketId,
+                        name: p.name,
+                        score: 0,
+                        finished: false
+                    };
+                    
+                    const s = io.sockets.sockets.get(p.socketId);
+                    if (s) s.join(roomId);
+                });
+
+                io.to(roomId).emit("match_found", {
+                    players: lobby.players.map(p => ({ id: p.userId, name: p.name, xp: p.xp })),
+                    duoId: roomId,
+                    questions: formattedQuestions
+                });
+
+                // Clear lobby
+                delete lobbies[topicId];
+                console.log(`Game started in room ${roomId} for topic ${topicId} with ${activeRooms[roomId].totalPlayers} players`);
+
+            } catch (err) {
+                console.error("Error starting match:", err);
+                socket.emit("error", { message: "Failed to start game" });
             }
         });
 
         socket.on("submit_answer", async ({ duoId, userId, scoreDelta }) => {
-            io.to(duoId).emit("opponent_score_update", { userId, scoreDelta });
+            const room = activeRooms[duoId];
+            if (room && room.players[userId]) {
+                room.players[userId].score += scoreDelta;
+                // Broadcast update to everyone in the room
+                io.to(duoId).emit("opponent_score_update", { userId, scoreDelta, currentScore: room.players[userId].score });
+            }
         });
 
         socket.on("game_over", async ({ duoId, userId, finalScore }) => {
-            const match = activeMatches[duoId];
-            if (!match) return;
+            const room = activeRooms[duoId];
+            if (!room || !room.players[userId]) return;
 
-            if (userId === match.player1_id) {
-                match.player1_score = finalScore;
-            } else if (userId === match.player2_id) {
-                match.player2_score = finalScore;
-            }
+            const player = room.players[userId];
+            if (player.finished) return;
 
-            // Tell the other player this player finished
+            player.score = finalScore;
+            player.finished = true;
+            room.finishedCount++;
+
+            // Tell everyone this player finished
             io.to(duoId).emit("opponent_finished", { userId });
 
-            // If both players finished
-            if (match.player1_score !== undefined && match.player2_score !== undefined) {
+            // If all players finished
+            if (room.finishedCount === room.totalPlayers) {
                 try {
+                    const results = {};
+                    let highestScore = -Infinity;
                     let winnerId = null;
-                    let p1XpGained = Math.round(match.player1_score / 10);
-                    let p2XpGained = Math.round(match.player2_score / 10);
 
-                    // Add winner bonus (+15) if scores are positive
-                    if (match.player1_score > match.player2_score && match.player1_score > 0) {
-                        winnerId = match.player1_id;
-                        p1XpGained += 15;
-                    } else if (match.player2_score > match.player1_score && match.player2_score > 0) {
-                        winnerId = match.player2_id;
-                        p2XpGained += 15;
+                    for (const [id, p] of Object.entries(room.players)) {
+                        let xpGained = Math.round(p.score / 10);
+                        
+                        if (p.score > highestScore) {
+                            highestScore = p.score;
+                            winnerId = id;
+                        }
+
+                        results[id] = { score: p.score, xpGained: Math.max(-25, Math.min(90, xpGained)) };
                     }
 
-                    // Apply caps and floors (+90 Max, -25 Min)
-                    p1XpGained = Math.max(-25, Math.min(90, p1XpGained));
-                    p2XpGained = Math.max(-25, Math.min(90, p2XpGained));
+                    // Add winner bonus (+15)
+                    if (winnerId && results[winnerId].score > 0) {
+                        results[winnerId].xpGained = Math.min(90, results[winnerId].xpGained + 15);
+                    }
 
-                    // Update QuizDuo
+                    // Final DB updates
                     await QuizDuo.update({
                         status: 'finished',
-                        winner_id: winnerId,
-                        player1_score: match.player1_score,
-                        player2_score: match.player2_score
+                        winner_id: winnerId
                     }, { where: { duo_id: duoId } });
 
-                    // Update XP
-                    await User.increment('xp', { by: p1XpGained, where: { user_id: match.player1_id } });
-                    await User.increment('xp', { by: p2XpGained, where: { user_id: match.player2_id } });
+                    const xpUpdatePromises = Object.entries(results).map(([id, res]) => 
+                        User.increment('xp', { by: res.xpGained, where: { user_id: id } })
+                    );
+                    await Promise.all(xpUpdatePromises);
 
                     io.to(duoId).emit("battle_result", {
                         winnerId,
-                        players: {
-                            [match.player1_id]: { score: match.player1_score, xpGained: p1XpGained },
-                            [match.player2_id]: { score: match.player2_score, xpGained: p2XpGained }
-                        }
+                        players: results
                     });
 
-                    delete activeMatches[duoId];
+                    delete activeRooms[duoId];
                 } catch (e) {
                     console.error("Error finalizing game:", e);
                 }
@@ -114,89 +223,32 @@ export const setupSocket = (server) => {
 
         socket.on("disconnect", () => {
             console.log(`User disconnected: ${socket.id}`);
-            removeFromQueues(socket.id);
+            handleDisconnect(io, socket.id);
         });
     });
 };
 
-const matchMake = async (io, topicId) => {
-    const queue = queues[topicId];
-    if (queue.length < 2) return;
-
-    // Sort by XP to match closest
-    queue.sort((a, b) => a.xp - b.xp);
-
-    const player1 = queue.shift();
-    const player2 = queue.shift();
-
-    if (player1 && player2) {
-        try {
-            const newDuo = await QuizDuo.create({
-                player1_id: player1.userId,
-                player2_id: player2.userId,
-                topic_id: topicId,
-                status: 'active'
-            });
-
-            const duoId = newDuo.duo_id;
-
-            // Initialize active match tracker
-            activeMatches[duoId] = {
-                player1_id: player1.userId,
-                player2_id: player2.userId,
-                player1_socket: player1.socketId,
-                player2_socket: player2.socketId
-            };
-
-            // Fetch questions
-            const questions = await Question.findAll({
-                where: { topic_id: topicId },
-                order: sequelize.random(),
-                limit: 5
-            });
-
-            const formattedQuestions = questions.map((q) => {
-                const content = q.content || {};
-                return {
-                    id: q.question_id,
-                    text: content.text || content.question || 'Missing question',
-                    options: content.options || [],
-                    correctIndex: typeof content.correctIndex === 'number' ? content.correctIndex : 0
-                };
-            });
-
-            io.to(player1.socketId).emit("match_found", {
-                opponent: { id: player2.userId, name: player2.name, xp: player2.xp },
-                duoId,
-                role: 'player1',
-                questions: formattedQuestions
-            });
-
-            io.to(player2.socketId).emit("match_found", {
-                opponent: { id: player1.userId, name: player1.name, xp: player1.xp },
-                duoId,
-                role: 'player2',
-                questions: formattedQuestions
-            });
-
-            const p1Socket = io.sockets.sockets.get(player1.socketId);
-            const p2Socket = io.sockets.sockets.get(player2.socketId);
-
-            if (p1Socket) p1Socket.join(duoId);
-            if (p2Socket) p2Socket.join(duoId);
-
-            console.log(`Match started: ${player1.name} vs ${player2.name}`);
-
-        } catch (err) {
-            console.error("Error creating match:", err);
-            queue.push(player1);
-            queue.push(player2);
+const handleDisconnect = (io, socketId) => {
+    // Remove from lobbies
+    for (const topicId in lobbies) {
+        const lobby = lobbies[topicId];
+        const playerIndex = lobby.players.findIndex(p => p.socketId === socketId);
+        
+        if (playerIndex !== -1) {
+            const removedPlayer = lobby.players.splice(playerIndex, 1)[0];
+            
+            if (lobby.players.length === 0) {
+                delete lobbies[topicId];
+            } else {
+                if (lobby.initiatorId === removedPlayer.userId) {
+                    lobby.initiatorId = lobby.players[0].userId;
+                }
+                io.to(`room_${topicId}`).emit("lobby_update", {
+                    players: lobby.players,
+                    initiatorId: lobby.initiatorId,
+                    topicId
+                });
+            }
         }
-    }
-};
-
-const removeFromQueues = (socketId) => {
-    for (const topicId in queues) {
-        queues[topicId] = queues[topicId].filter(p => p.socketId !== socketId);
     }
 };
