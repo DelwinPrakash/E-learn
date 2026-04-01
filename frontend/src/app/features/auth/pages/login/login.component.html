@@ -1,19 +1,57 @@
 <div class="login-container">
-  <div class="login-box">
-    <h2>Login</h2>
-    <form (ngSubmit)="onLogin()">
-      <div class="input-group">
-        <input type="text" [(ngModel)]="email" name="email" placeholder="Email" required />
+  <div class="auth-wrapper">
+    <!-- Branding Section -->
+    <div class="branding-section">
+      <div class="branding-content">
+        <h1 class="project-name">ELearn</h1>
+        <p class="project-slogan">Empowering Your Learning Journey</p>
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="feature-icon">🚀</span>
+            <div class="feature-text">
+              <h3>Smart Learning</h3>
+              <p>Personalized paths for every student.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🎮</span>
+            <div class="feature-text">
+              <h3>Interactive Quizzes</h3>
+              <p>Learn while you play with our battle modes.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">💬</span>
+            <div class="feature-text">
+              <h3>Community Driven</h3>
+              <p>Discuss, share, and grow with peers.</p>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="input-group">
-        <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required />
-      </div>
-      <button type="submit">Login</button>
-    </form>
+    </div>
 
-    <p>
-      Don’t have an account?
-      <a routerLink="/signup">Sign Up</a>
-    </p>
+    <!-- Login Form Section -->
+    <div class="login-box">
+      <h2>Welcome Back</h2>
+      <p class="auth-subtitle">Login to your account</p>
+      
+      <form (ngSubmit)="onLogin()">
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="text" [(ngModel)]="email" name="email" placeholder="Enter your email" required />
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" [(ngModel)]="password" name="password" placeholder="Enter your password" required />
+        </div>
+        <button type="submit">Log In</button>
+      </form>
+
+      <div class="auth-footer">
+        Don’t have an account?
+        <a routerLink="/signup">Create Account</a>
+      </div>
+    </div>
   </div>
 </div>
