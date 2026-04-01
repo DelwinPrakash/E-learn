@@ -6,18 +6,43 @@
     <app-battle-lobby></app-battle-lobby>
   </div>
 
-  <!-- 2. Matchmaking Phase (Only for Multiplayer) -->
+  <!-- 2. Matchmaking / Lobby Phase (Only for Multiplayer) -->
   <div class="matchmaking-screen glass-card" *ngIf="(quiz.status$ | async) === 'searching'">
-    <div class="loader-content">
-      <div class="scanner"></div>
-      <h1 class="searching-text">Searching for opponent...</h1>
-      <p class="searching-subtext">Connecting you to the global PvP network.</p>
-      <div class="vs-container">
-        <div class="player-bubble you">YOU</div>
-        <div class="vs-divider">VS</div>
-        <div class="player-bubble opponent-searching">?</div>
+    <div class="lobby-content">
+      <div class="lobby-badge">MULTIPLAYER LOBBY</div>
+      <h1 class="searching-text">Topic: {{ quiz.selectedTopicName() }}</h1>
+      <p class="searching-subtext">Waiting for players to join the battle...</p>
+      
+      <div class="players-grid">
+        <div *ngFor="let p of (quiz.lobbyPlayers$ | async)" class="player-card">
+          <div class="avatar-ring" [class.initiator]="p.id === (quiz.initiatorId$ | async)">
+            <span class="avatar-icon">👤</span>
+          </div>
+          <span class="player-name">{{ p.name }}</span>
+          <span class="player-xp">{{ p.xp }} XP</span>
+          <span class="host-tag" *ngIf="p.id === (quiz.initiatorId$ | async)">HOST</span>
+        </div>
+        
+        <!-- Placeholder for waiting -->
+        <div class="player-card waiting" *ngIf="(quiz.lobbyPlayers$ | async)?.length! < 4">
+          <div class="avatar-ring pulse">
+            <span class="avatar-icon">?</span>
+          </div>
+          <span class="player-name">Waiting...</span>
+        </div>
       </div>
-      <button class="cancel-btn" (click)="quiz.cancelMatchmaking()">Cancel Search</button>
+
+      <div class="lobby-actions">
+        <button class="start-btn" *ngIf="quiz.isInitiator$ | async" 
+                [disabled]="(quiz.lobbyPlayers$ | async)?.length! < 2"
+                (click)="quiz.startGame()">
+          START QUIZ ({{ (quiz.lobbyPlayers$ | async)?.length }}/N)
+        </button>
+        <div class="waiting-msg" *ngIf="!(quiz.isInitiator$ | async)">
+          Waiting for host to start the game...
+        </div>
+        <button class="cancel-btn" (click)="quiz.cancelMatchmaking()">Leave Lobby</button>
+      </div>
     </div>
   </div>
 
@@ -25,50 +50,42 @@
   <div class="battle-arena" *ngIf="(quiz.status$ | async) === 'playing'">
     <!-- Top Stats Bar -->
     <div class="arena-header glass-panel">
-      <!-- Player Info -->
-      <div class="score-pill player">
+      <!-- Player Info (Local) -->
+      <div class="score-pill self">
         <div class="avatar">👤</div>
         <div class="info">
           <span class="name">You</span>
-          <span class="score">{{ (quiz.scores$ | async)!['p1'] || 0 }}</span>
+          <span class="score">{{ (quiz.scores$ | async)![quiz.currentUserId] || 0 }}</span>
         </div>
       </div>
 
       <!-- Center Tracker -->
       <div class="central-tracker">
         <div class="question-count">
-          <span class="current">Question {{ (quiz.currentQuestionIndex$ | async)! + 1 }}</span>
+          <span class="current">Q {{ (quiz.currentQuestionIndex$ | async)! + 1 }}</span>
           <span class="total">/ 5</span>
         </div>
-        <!-- Progress Bar -->
         <div class="progress-track">
           <div class="progress-fill" [style.width.%]="((quiz.currentQuestionIndex$ | async)! + 1) * 20"></div>
         </div>
       </div>
 
-      <!-- Opponent Info (Only in Multiplayer) -->
-      <div class="score-pill opponent" *ngIf="(quiz.gameMode$ | async) === 'multiplayer'">
-        <div class="info">
-          <span class="name">Opponent</span>
-          <span class="score">{{ (quiz.scores$ | async)!['opp'] || 0 }}</span>
+      <!-- Opponents Grid (Multiplayer) -->
+      <div class="opponents-wrapper" *ngIf="(quiz.gameMode$ | async) === 'multiplayer'">
+        <div *ngFor="let p of quiz.players$ | async" class="opp-mini-card" [hidden]="p.id === quiz.currentUserId">
+          <span class="opp-name">{{ p.name }}</span>
+          <span class="opp-score">{{ (quiz.scores$ | async)![p.id] || 0 }}</span>
         </div>
-        <div class="avatar">🤖</div>
       </div>
 
       <!-- Single Mode Label -->
       <div class="mode-label" *ngIf="(quiz.gameMode$ | async) === 'single'">
-        SOLO PRACTICE
+        SOLO
       </div>
     </div>
 
     <!-- Main Card Section -->
     <div class="arena-body">
-      <!-- Opponent Activity (Only in Multiplayer) -->
-      <div class="opponent-indicator glass-panel" *ngIf="(quiz.gameMode$ | async) === 'multiplayer'"
-        [class.ready]="(quiz.opponentStatus$ | async) === 'answered'">
-        {{ (quiz.opponentStatus$ | async) === 'waiting' ? 'Opponent is thinking...' : 'Opponent Finished!' }}
-      </div>
-
       <app-question-card></app-question-card>
     </div>
 
