@@ -370,22 +370,31 @@
   align-items: center;
   gap: 6px;
 }
-.btn-wrong {
-  background: rgba(244, 63, 94, 0.1);
-  color: var(--danger-color);
-  border-color: rgba(244, 63, 94, 0.25);
-}
-.btn-wrong:hover {
-  background: rgba(244, 63, 94, 0.2);
-  transform: scale(1.05);
-}
-.btn-correct {
+.btn-easy {
   background: rgba(16, 185, 129, 0.1);
   color: var(--success-color);
   border-color: rgba(16, 185, 129, 0.25);
 }
-.btn-correct:hover {
+.btn-easy:hover {
   background: rgba(16, 185, 129, 0.2);
+  transform: scale(1.05);
+}
+.btn-medium {
+  background: rgba(251, 191, 36, 0.1);
+  color: var(--warning-color);
+  border-color: rgba(251, 191, 36, 0.25);
+}
+.btn-medium:hover {
+  background: rgba(251, 191, 36, 0.2);
+  transform: scale(1.05);
+}
+.btn-hard {
+  background: rgba(244, 63, 94, 0.1);
+  color: var(--danger-color);
+  border-color: rgba(244, 63, 94, 0.25);
+}
+.btn-hard:hover {
+  background: rgba(244, 63, 94, 0.2);
   transform: scale(1.05);
 }
 
@@ -514,9 +523,9 @@
   font-weight: 900;
   line-height: 1;
 }
-.stat-value.correct  { color: var(--success-color); }
-.stat-value.wrong    { color: var(--danger-color); }
-.stat-value.accuracy { color: var(--accent-primary); }
+.stat-value.easy     { color: var(--success-color); }
+.stat-value.medium   { color: var(--warning-color); }
+.stat-value.hard     { color: var(--danger-color); }
 .stat-value.total    { color: var(--text-primary); }
 
 .stat-label {

@@ -23,8 +23,9 @@ export class FlashcardComponent implements OnInit {
   isCardFlipped = false;
 
   // Stats
-  correctAnswers = 0;
-  wrongAnswers = 0;
+  easyCount = 0;
+  mediumCount = 0;
+  hardCount = 0;
   studyProgress = 0;
 
   // Filters
@@ -80,14 +81,44 @@ export class FlashcardComponent implements OnInit {
     this.isCardFlipped = !this.isCardFlipped;
   }
 
-  markCorrect(): void {
-    this.correctAnswers++;
-    this.moveToNextCard();
+  markAnswer(rating: 'easy' | 'medium' | 'hard'): void {
+    if (rating === 'easy') this.easyCount++;
+    else if (rating === 'medium') this.mediumCount++;
+    else if (rating === 'hard') this.hardCount++;
+
+    this.isCardFlipped = false;
+
+    if (this.currentCardIndex < this.filteredCards.length - 1) {
+      this.reorderNextCard(rating);
+      this.currentCardIndex++;
+      this.updateProgress();
+    } else {
+      this.finishStudySession();
+    }
   }
 
-  markWrong(): void {
-    this.wrongAnswers++;
-    this.moveToNextCard();
+  reorderNextCard(lastRating: string): void {
+    const nextIdx = this.currentCardIndex + 1;
+    let targetDifficulties: string[] = [];
+    
+    if (lastRating === 'easy') targetDifficulties = ['medium', 'hard'];
+    else if (lastRating === 'medium') targetDifficulties = ['easy', 'hard'];
+    else if (lastRating === 'hard') targetDifficulties = ['easy', 'medium'];
+
+    let foundIdx = -1;
+    for (let i = nextIdx; i < this.filteredCards.length; i++) {
+      const cardDiff = this.filteredCards[i].difficulty || 'easy';
+      if (targetDifficulties.includes(cardDiff)) {
+        foundIdx = i;
+        break;
+      }
+    }
+
+    if (foundIdx !== -1 && foundIdx !== nextIdx) {
+      const temp = this.filteredCards[nextIdx];
+      this.filteredCards[nextIdx] = this.filteredCards[foundIdx];
+      this.filteredCards[foundIdx] = temp;
+    }
   }
 
   moveToNextCard(): void {
@@ -148,8 +179,9 @@ export class FlashcardComponent implements OnInit {
   }
 
   resetProgress(): void {
-    this.correctAnswers = 0;
-    this.wrongAnswers = 0;
+    this.easyCount = 0;
+    this.mediumCount = 0;
+    this.hardCount = 0;
     this.studyProgress = 0;
     this.isCardFlipped = false;
   }
@@ -158,9 +190,11 @@ export class FlashcardComponent implements OnInit {
     this.view = 'review';
   }
 
-  getAccuracy(): number {
-    const total = this.correctAnswers + this.wrongAnswers;
-    return total ? Math.round((this.correctAnswers / total) * 100) : 0;
+  getMastery(): number {
+    const total = this.easyCount + this.mediumCount + this.hardCount;
+    if (!total) return 0;
+    const score = (this.easyCount * 1) + (this.mediumCount * 0.5);
+    return Math.round((score / total) * 100);
   }
 
   retryDeck(): void {

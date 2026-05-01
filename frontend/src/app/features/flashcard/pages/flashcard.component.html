@@ -73,6 +73,9 @@
           <div class="card-label">Question</div>
           <div class="card-content">{{ getCurrentCard()?.question }}</div>
           <div class="card-hint">Click to reveal answer</div>
+          <div class="difficulty-indicator" [ngClass]="'difficulty-' + (getCurrentCard()?.difficulty || 'easy')">
+            {{ (getCurrentCard()?.difficulty || 'easy').toUpperCase() }}
+          </div>
         </div>
         <!-- Back -->
         <div class="card-back">
@@ -87,11 +90,14 @@
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button class="btn btn-wrong" (click)="markWrong()">
-        ❌ Wrong
+      <button class="btn btn-easy" (click)="markAnswer('easy')">
+        Easy
       </button>
-      <button class="btn btn-correct" (click)="markCorrect()">
-        ✅ Correct
+      <button class="btn btn-medium" (click)="markAnswer('medium')">
+        Medium
+      </button>
+      <button class="btn btn-hard" (click)="markAnswer('hard')">
+        Hard
       </button>
     </div>
 
@@ -133,16 +139,16 @@
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-box">
-        <div class="stat-value correct">{{ correctAnswers }}</div>
-        <div class="stat-label">Correct</div>
+        <div class="stat-value easy">{{ easyCount }}</div>
+        <div class="stat-label">Easy</div>
       </div>
       <div class="stat-box">
-        <div class="stat-value wrong">{{ wrongAnswers }}</div>
-        <div class="stat-label">Incorrect</div>
+        <div class="stat-value medium">{{ mediumCount }}</div>
+        <div class="stat-label">Medium</div>
       </div>
       <div class="stat-box">
-        <div class="stat-value accuracy">{{ getAccuracy() }}%</div>
-        <div class="stat-label">Accuracy</div>
+        <div class="stat-value hard">{{ hardCount }}</div>
+        <div class="stat-label">Hard</div>
       </div>
       <div class="stat-box">
         <div class="stat-value total">{{ filteredCards.length }}</div>
@@ -150,10 +156,10 @@
       </div>
     </div>
 
-    <!-- Accuracy Bar -->
+    <!-- Mastery Bar -->
     <div class="accuracy-bar">
-      <div class="accuracy-fill" [style.width.%]="getAccuracy()"></div>
-      <span class="accuracy-text">{{ getAccuracy() }}% Accuracy</span>
+      <div class="accuracy-fill" [style.width.%]="getMastery()"></div>
+      <span class="accuracy-text">{{ getMastery() }}% Mastery</span>
     </div>
 
     <!-- Actions -->
