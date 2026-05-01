@@ -5,8 +5,8 @@ import Question from "../models/Question.js";
 import QuizParticipant from "../models/QuizParticipant.js";
 import { sequelize } from "../config/db.js";
 
-const lobbies = {}; // lobbies[topicId] = { initiatorId, players: [{userId, socketId, name, xp}] }
-const activeRooms = {}; // activeRooms[roomId] = { topicId, players: {userId: {socketId, name, score, finished}}, totalPlayers }
+const lobbies = {};
+const activeRooms = {};
 
 export const setupSocket = (server) => {
     const io = new Server(server, {
@@ -42,7 +42,7 @@ export const setupSocket = (server) => {
                     userId, 
                     xp: user.xp || 0, 
                     name: user.name,
-                    avatar: '👤' // Default avatar as in frontend
+                    avatar: '👤'
                 };
 
                 if (existingIndex !== -1) {
@@ -79,7 +79,6 @@ export const setupSocket = (server) => {
 
             try {
                 // Create a record in QuizDuo to get a unique roomId (duo_id)
-                // We'll use player1_id/player2_id for the first two players for compatibility
                 const p1 = lobby.players[0];
                 const p2 = lobby.players[1] || p1; 
 
@@ -172,7 +171,6 @@ export const setupSocket = (server) => {
             player.finished = true;
             room.finishedCount++;
 
-            // Tell everyone this player finished
             io.to(duoId).emit("opponent_finished", { userId });
 
             // If all players finished

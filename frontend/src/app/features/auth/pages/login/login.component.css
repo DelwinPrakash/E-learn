@@ -193,7 +193,7 @@
 
 .input-group input:focus {
   border-color: var(--accent-primary);
-  background: #ffffff;
+  background: var(--input-bg-focus);
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
 }
 
