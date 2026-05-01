@@ -15,6 +15,13 @@ export interface UserProfile {
     email: string;
 }
 
+export interface DashboardStats {
+    xp: number;
+    rank: number;
+    matchesPlayed: number;
+    matchesWon: number;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -29,5 +36,13 @@ export class UserService {
             'Authorization': `Bearer ${token}`
         });
         return this.http.get<UserProfile>(this.apiUrl, { headers });
+    }
+
+    getDashboardStats(): Observable<DashboardStats> {
+        const token = this.authService.getToken();
+        const headers = new HttpHeaders({
+            'Authorization': `Bearer ${token}`
+        });
+        return this.http.get<DashboardStats>(`${environment.BACKEND_BASE_URL}/api/user/dashboard-stats`, { headers });
     }
 }

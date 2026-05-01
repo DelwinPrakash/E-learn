@@ -2,6 +2,7 @@ import Thread from "../models/Thread.js";
 import Reply from "../models/Reply.js";
 import User from "../models/User.js";
 import UserAuth from "../models/UserAuth.js";
+import PlayerQuizData from "../models/PlayerQuizData.js";
 
 // Define associations
 Thread.belongsTo(User, { foreignKey: 'author_id' });
@@ -234,4 +235,26 @@ const getLeaderboard = async (req, res) => {
     }
 };
 
-export { flashCard, quizCard, discussionCard, createThread, updateThread, addReply, getReplies, deleteThread, deleteReply, getUserProfile, getLeaderboard };
+const getDashboardStats = async (req, res) => {
+    try {
+        const userId = req.user.user_id;
+        
+        const user = await User.findByPk(userId, { attributes: ['xp', 'rank'] });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const matchesPlayed = await PlayerQuizData.count({ where: { user_id: userId } });
+        const matchesWon = await PlayerQuizData.count({ where: { user_id: userId, is_winner: true } });
+
+        res.status(200).json({
+            xp: user.xp || 0,
+            rank: user.rank || 0,
+            matchesPlayed,
+            matchesWon
+        });
+    } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+export { flashCard, quizCard, discussionCard, createThread, updateThread, addReply, getReplies, deleteThread, deleteReply, getUserProfile, getLeaderboard, getDashboardStats };

@@ -1,3 +1,19 @@
+.matchmaking-screen {
+  padding: 60px;
+  border-radius: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.12);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+:host-context(body.dark-mode) .matchmaking-screen {
+  background: rgba(15, 23, 42, 0.88);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
 .lobby-content {
   display: flex;
   flex-direction: column;
@@ -234,7 +250,9 @@
   flex: 1;
 }
 
-.question-count { font-size: 0.9rem; font-weight: 900; }
+.question-count { font-size: 0.9rem; font-weight: 900; color: #1e293b; }
+
+:host-context(body.dark-mode) .question-count { color: #f8fafc; }
 
 .progress-track {
   width: 100px;

@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.js";
-import Quiz from "./Quiz.js";
 import User from "./User.js";
 import Topic from "./Topic.js";
 
@@ -9,10 +8,6 @@ const QuizDuo = sequelize.define("QuizDuo", {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
-  },
-  quiz_id: {
-    type: DataTypes.UUID,
-    references: { model: Quiz, key: "quiz_id" },
   },
   player1_id: {
     type: DataTypes.UUID,

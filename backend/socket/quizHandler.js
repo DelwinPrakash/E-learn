@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import QuizDuo from "../models/QuizDuo.js";
 import User from "../models/User.js";
 import Question from "../models/Question.js";
-import QuizParticipant from "../models/QuizParticipant.js";
+import PlayerQuizData from "../models/PlayerQuizData.js";
 import { sequelize } from "../config/db.js";
 
 const lobbies = {};
@@ -92,9 +92,9 @@ export const setupSocket = (server) => {
 
                 const roomId = newDuo.duo_id;
                 
-                // Track all participants
+                // Track all participants using PlayerQuizData
                 const participantPromises = lobby.players.map(p => 
-                    QuizParticipant.create({ duo_id: roomId, user_id: p.userId })
+                    PlayerQuizData.create({ duo_id: roomId, user_id: p.userId, score: 0, xp_gained: 0, is_winner: false })
                 );
                 await Promise.all(participantPromises);
 
@@ -202,10 +202,16 @@ export const setupSocket = (server) => {
                         winner_id: winnerId
                     }, { where: { duo_id: duoId } });
 
-                    const xpUpdatePromises = Object.entries(results).map(([id, res]) => 
-                        User.increment('xp', { by: res.xpGained, where: { user_id: id } })
-                    );
-                    await Promise.all(xpUpdatePromises);
+                    const updatePromises = Object.entries(results).map(([id, res]) => {
+                        return Promise.all([
+                            User.increment('xp', { by: res.xpGained, where: { user_id: id } }),
+                            PlayerQuizData.update(
+                                { score: res.score, xp_gained: res.xpGained, is_winner: id === winnerId },
+                                { where: { duo_id: duoId, user_id: id } }
+                            )
+                        ]);
+                    });
+                    await Promise.all(updatePromises);
 
                     io.to(duoId).emit("battle_result", {
                         winnerId,

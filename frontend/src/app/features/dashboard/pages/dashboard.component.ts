@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, UserInfo } from '../../../core/auth/auth.service';
+import { UserService, DashboardStats } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -44,11 +45,20 @@ export class DashboardComponent implements OnInit {
   };
 
   userDetails: UserInfo | null = null;
+  stats: DashboardStats | null = null;
 
-  constructor(private router: Router, private authService: AuthService) { }
+  constructor(private router: Router, private authService: AuthService, private userService: UserService) { }
 
   ngOnInit(): void {
     this.loadUserData();
+    this.loadDashboardStats();
+  }
+
+  loadDashboardStats(): void {
+    this.userService.getDashboardStats().subscribe({
+      next: (stats) => this.stats = stats,
+      error: (err) => console.error("Error loading dashboard stats:", err)
+    });
   }
 
   loadUserData(): void {

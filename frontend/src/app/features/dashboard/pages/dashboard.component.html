@@ -8,31 +8,31 @@
     <!-- Stats Grid -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon">📚</div>
+        <div class="stat-icon">⭐</div>
         <div class="stat-info">
-          <h3>12</h3>
-          <p>Courses Enrolled</p>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">🎯</div>
-        <div class="stat-info">
-          <h3>85%</h3>
-          <p>Completion Rate</p>
+          <h3>{{ stats?.xp || 0 }}</h3>
+          <p>Total XP Earned</p>
         </div>
       </div>
       <div class="stat-card">
         <div class="stat-icon">🏆</div>
         <div class="stat-info">
-          <h3>24</h3>
-          <p>Achievements</p>
+          <h3>{{ stats?.rank || 0 }}</h3>
+          <p>Global Rank</p>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">⏱️</div>
+        <div class="stat-icon">🎮</div>
         <div class="stat-info">
-          <h3>36h</h3>
-          <p>Study Time</p>
+          <h3>{{ stats?.matchesPlayed || 0 }}</h3>
+          <p>Matches Played</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🥇</div>
+        <div class="stat-info">
+          <h3>{{ stats?.matchesWon || 0 }}</h3>
+          <p>Matches Won</p>
         </div>
       </div>
     </div>
