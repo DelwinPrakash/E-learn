@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
+import { sendEmail } from "../utils/emailService.js";
 import { sequelize } from "../config/db.js";
 import User from "../models/User.js";
 import UserAuth from "../models/UserAuth.js";
@@ -88,19 +88,7 @@ const handleRegister = async (req, res) => {
             expiresIn: '1h'
         });
 
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_ID,
-                pass: process.env.EMAIL_PASSWORD
-            }
-        });
-
-        const mailOptions = {
-            from: process.env.EMAIL_ID,
-            to: email,
-            subject: 'Email Verification - E-Learn',
-            html: `
+        const htmlContent = `
                 <!DOCTYPE html>
                 <html lang="en">
                     <head>
@@ -137,15 +125,12 @@ const handleRegister = async (req, res) => {
                         </p>
                     </body>
                 </html>
-            `
-        };
+            `;
 
-        transporter.sendMail(mailOptions, (error, info) => {
-            if(error){
-                console.error("Error sending email:", error);
-                return res.status(500).json({"message": `Error sending verification email, ${error.message}`});
-            }
-        });
+        const emailResult = await sendEmail(email, 'Email Verification - E-Learn', htmlContent);
+        if (!emailResult.success) {
+            return res.status(500).json({"message": `Error sending verification email, ${emailResult.error.message}`});
+        }
 
         res.status(201).json({"message": "User registered successfully! Please verify your email to activate your account."});
 
@@ -184,19 +169,7 @@ const recoverPassword = async (req, res) => {
         
         if(!user) return res.status(401).json({"message": "User not found!"});
 
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_ID,
-                pass: process.env.EMAIL_PASSWORD
-            }
-        });
-
-        const mailOptions = {
-            from: process.env.EMAIL_ID,
-            to: email,
-            subject: 'Password Recovery - E-Learn',
-            html: `
+        const htmlContent = `
                 <!DOCTYPE html>
                 <html lang="en">
                     <head>
@@ -233,15 +206,12 @@ const recoverPassword = async (req, res) => {
                         </p>
                     </body>
                 </html>
-            `
-        };
+            `;
 
-        transporter.sendMail(mailOptions, (error, info) => {
-            if(error){
-                console.error("Error sending email:", error);
-                return res.status(500).json({"message": `Error sending verification email, ${error.message}`});
-            }
-        });      
+        const emailResult = await sendEmail(email, 'Password Recovery - E-Learn', htmlContent);
+        if (!emailResult.success) {
+            return res.status(500).json({"message": `Error sending recovery email, ${emailResult.error.message}`});
+        }      
 
         return res.json({"message": "Password reset email sent successfully"});
 

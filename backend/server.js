@@ -10,6 +10,7 @@ import apiRoute from "./routes/index.js";
 import { connectDB, sequelize } from "./config/db.js";
 import { createServer } from "http";
 import { setupSocket } from "./socket/quizHandler.js";
+import { startReminderCron } from "./cron/dailyReminder.js";
 
 dotenv.config();
 
@@ -41,6 +42,8 @@ const PORT = process.env.PORT || 3000;
 app.use("/api", apiRoute);
 
 setupSocket(httpServer);
+
+startReminderCron();
 
 httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
